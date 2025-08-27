@@ -1,8 +1,6 @@
 <!-- src/components/DocsLayout.vue -->
 <script setup lang="ts">
 import Head from '@/views/head/index.vue'
-
-const showCreate = ref(false)
 </script>
 
 <template>

@@ -4,7 +4,7 @@
 
 <template>
   <div class="container">
-    留言板
+    报告
   </div>
 </template>
 

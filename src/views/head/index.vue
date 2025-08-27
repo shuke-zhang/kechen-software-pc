@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DropdownValueModel, TopNavValueModel } from '@/model/head'
+import type { TopNavValueModel, UserDropdownValueModel } from '@/model/head'
 
 const UserStore = useUserStore()
 const { userName, isLoggedIn } = storeToRefs(UserStore)
@@ -7,16 +7,15 @@ const router = useRouter()
 
 console.log(isRef(userName), 'isRef')
 const topNavList: Array<{ label: string, value: TopNavValueModel }> = [
-  { label: '知识库', value: 'knowledge' },
-  { label: '模型', value: 'model' },
-  { label: 'AI工具', value: 'ai-tools' },
-  { label: '留言版', value: 'message-board' },
+  { label: '设备管理', value: 'device' },
+  { label: '患者', value: 'patient' },
+  { label: '诊疗记录', value: 'diagnosis' },
+  { label: '报告', value: 'report' },
+  { label: '设置', value: 'settings' },
 ]
 
-const dropdownItems: Array<{ label: string, value: DropdownValueModel }> = [
-  { label: '浏览记录', value: 'history' },
-  { label: '充值', value: 'recharge' },
-  { label: '消费', value: 'consume' },
+const dropdownItems: Array<{ label: string, value: UserDropdownValueModel }> = [
+  { label: '修改', value: 'put' },
   { label: '退出', value: 'logout' },
 ]
 
@@ -28,16 +27,10 @@ function handleNavClick(value: TopNavValueModel) {
   router.push(`/${value}`)
 }
 
-function handleCommand(command: DropdownValueModel) {
+function handleCommand(command: UserDropdownValueModel) {
   switch (command) {
-    case 'history':
-      console.log('浏览记录')
-      break
-    case 'recharge':
-      console.log('充值')
-      break
-    case 'consume':
-      console.log('消费')
+    case 'put':
+      console.log('修改')
       break
     case 'logout':
       confirmError('是否确认退出登录', '提示').then(() => {
@@ -73,7 +66,7 @@ onMounted(() => {
     activeNavItem.value = currentRoute as TopNavValueModel
   }
   else {
-    activeNavItem.value = 'knowledge'
+    activeNavItem.value = 'device'
   }
 })
 </script>

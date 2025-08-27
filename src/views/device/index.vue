@@ -4,7 +4,7 @@
 
 <template>
   <div class="container">
-    ai-工具
+    设备管理
   </div>
 </template>
 
