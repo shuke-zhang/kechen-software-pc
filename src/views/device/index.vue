@@ -34,6 +34,12 @@ function handleDeviceUpdate(item: any) {
   }
   visible.value = true
 }
+
+function handleDel(item: Device.DeviceModel) {
+  confirmWarning(`是否确认删除设备名称为${item.deviceName}的设备？`).then(() => {
+    console.log('确定')
+  })
+}
 </script>
 
 <template>
@@ -87,6 +93,7 @@ function handleDeviceUpdate(item: any) {
           color="#f56c6c"
           hover-style="#c93030"
           class="ml-[4px] cursor-pointer"
+          @click="handleDel(item)"
         />
       </div>
       <div>
