@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
   /** 是否已经登录 */
   const isLoggedIn = ref<boolean>(!!getCache<boolean>('IS_LOGGED_IN')?.value)
   return {
+    userInfo,
     userName,
     roles,
     permissions,

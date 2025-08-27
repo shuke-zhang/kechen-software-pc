@@ -27,6 +27,33 @@ const router = createRouter({
             hidden: true,
           },
         },
+        {
+          path: 'diagnosis',
+          name: 'diagnosis',
+          component: () => import('@/views/diagnosis/index.vue'),
+          meta: {
+            title: '诊疗记录',
+            hidden: true,
+          },
+        },
+        {
+          path: 'report',
+          name: 'report',
+          component: () => import('@/views/report/index.vue'),
+          meta: {
+            title: '报告',
+            hidden: true,
+          },
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/views/settings/index.vue'),
+          meta: {
+            title: '设置',
+            hidden: true,
+          },
+        },
 
       ],
     },
@@ -68,7 +95,9 @@ router.beforeEach(async (to) => {
   const userStore = useUserStore()
   try {
     // 只在首次进入或刷新后拉一次用户信息
-    if (!userStore.userName) {
+    console.log(userStore.userName, 'userStore.userName')
+
+    if (!userStore.userInfo?.userName) {
       await userStore.getInfo()
     }
     return true
