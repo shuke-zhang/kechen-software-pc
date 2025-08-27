@@ -9,11 +9,13 @@ export type IconFontType = 'account-code' |
 'close1' |
 'copy' |
 'deepseek' |
+'delete' |
 'doubao' |
 'edit' |
 'gongwei-gengxin' |
 'history' |
 'jump' |
+'kaola' |
 'keyboard' |
 'left' |
 'loop' |
@@ -31,6 +33,7 @@ export type IconFontType = 'account-code' |
 'send' |
 'setting' |
 'setup' |
+'share-light-2' |
 'sound' |
 'stop' |
 'time' |

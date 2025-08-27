@@ -70,22 +70,54 @@
 }
 
 @layer components {
-    .card {
-        border-radius: 12px;
-        background-color: #ffffff;
-        box-sizing: border-box;
-        position: relative;
-        padding-top: 20px;
-        padding-bottom: 20px;
-        padding-left: 20px;
-        padding-right: 20px;
-        overflow: hidden;
 
-    }
 
     .flex-center {
         display: flex;
         align-items: center;
         justify-content: center;
     }
+
+    .card {
+        border-radius: 8px;
+        /* Element Plus 默认圆角 4px，可稍微大一点 */
+        background-color: #ffffff;
+        box-sizing: border-box;
+        position: relative;
+        padding: 20px;
+
+        border: 1px solid #ebeef5;
+        /* 淡灰边框 */
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+        /* 轻阴影 */
+        transition: .3s;
+        /* 平滑过渡 */
+    }
+
+    /* 悬停时加深阴影，模仿 is-hover-shadow */
+    .card:hover {
+        box-shadow: 0 4px 20px 0 rgba(0, 0, 0, .12);
+    }
+
+    /* header / body / footer 区分（Element Plus 内置结构） */
+    .card__header {
+        padding: 18px 20px;
+        border-bottom: 1px solid #ebeef5;
+        font-size: 16px;
+        font-weight: 500;
+        color: #303133;
+    }
+
+    .card__body {
+        padding: 20px;
+        color: #606266;
+        font-size: 14px;
+    }
+
+    .card__footer {
+        padding: 10px 20px;
+        border-top: 1px solid #ebeef5;
+        text-align: right;
+    }
+
 }

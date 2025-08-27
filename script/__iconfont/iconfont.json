@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "36966725",
+      "name": "ic_分享",
+      "font_class": "share-light-2",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "37258648",
+      "name": "删除",
+      "font_class": "delete",
+      "unicode": "e684",
+      "unicode_decimal": 59012
+    },
+    {
+      "icon_id": "30309337",
+      "name": "考拉",
+      "font_class": "kaola",
+      "unicode": "e712",
+      "unicode_decimal": 59154
+    },
+    {
       "icon_id": "6639641",
       "name": "stop it",
       "font_class": "stop",

@@ -7,7 +7,7 @@ const SUPER_ADMIN = 'admin'
 
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref<UserModel | null>(getCache<UserModel>('USER_INFO')?.value || null)
-  const userName = ref<UserModel['userName'] | null>(null)
+  const userName = ref<UserModel['userName'] | null>(getCache<UserModel>('USER_INFO')?.value.userName || null)
   const roles = ref<string[]>([])
   const permissions = ref<string[]>([])
   const avater = ref()

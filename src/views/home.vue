@@ -9,9 +9,9 @@ import Head from '@/views/head/index.vue'
     <Head />
 
     <!-- 中间内容区：可伸展 -->
-    <div class="flex-1 min-h-0 overflow-hidden">
+    <div class="flex-1 min-h-0 overflow-hidden ">
       <router-view v-slot="{ Component }">
-        <div class="h-full">
+        <div class="h-full bg-[#fefefe] p-[16px]">
           <component :is="Component" />
         </div>
       </router-view>
