@@ -28,9 +28,9 @@ const router = createRouter({
           },
         },
         {
-          path: 'diagnosis',
-          name: 'diagnosis',
-          component: () => import('@/views/diagnosis/index.vue'),
+          path: 'visitRecord',
+          name: 'visitRecord',
+          component: () => import('@/views/visitRecord/index.vue'),
           meta: {
             title: '诊疗记录',
             hidden: true,

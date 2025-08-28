@@ -105,7 +105,7 @@ function handleSelectionChange(selection: PatientModel[]) {
           查询重置
         </el-button>
         <el-button type="success" :icon="CirclePlus" @click="handleAdd">
-          添加
+          新增
         </el-button>
         <el-button type="danger" :disabled="ids.length <= 0" :icon="CircleClose" @click="handleDel(ids)">
           删除

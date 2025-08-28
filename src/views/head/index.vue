@@ -9,7 +9,7 @@ console.log(isRef(userName), 'isRef')
 const topNavList: Array<{ label: string, value: TopNavValueModel }> = [
   { label: '设备管理', value: 'device' },
   { label: '患者', value: 'patient' },
-  { label: '诊疗记录', value: 'diagnosis' },
+  { label: '诊疗记录', value: 'visitRecord' },
   { label: '报告', value: 'report' },
   { label: '设置', value: 'settings' },
 ]
