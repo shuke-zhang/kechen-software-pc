@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import type { PatientModel } from '@/model/patient'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import PatientDialog from './patientDialog.vue'
 
 const total = ref(0)
+const dialogVisible = ref(false)
+const isAdd = ref(false)
+const dialogData = ref<PatientModel>({})
 const ids = ref<number[]>([])
 const single = ref(true)
 const multiple = ref(true)
@@ -44,8 +48,16 @@ function getList() {
   console.log('获取列表')
 }
 
+function handleAdd() {
+  isAdd.value = true
+  dialogVisible.value = true
+}
+
 function handlePut(row: PatientModel) {
   console.log('修改患者信息', row)
+  isAdd.value = false
+  dialogVisible.value = true
+  dialogData.value = { ...row }
 }
 
 function handleDel(_item: number[]) {
@@ -92,7 +104,7 @@ function handleSelectionChange(selection: PatientModel[]) {
         <el-button type="primary" plain :icon="Refresh" @click="retQuery">
           查询重置
         </el-button>
-        <el-button type="success" :icon="CirclePlus">
+        <el-button type="success" :icon="CirclePlus" @click="handleAdd">
           添加
         </el-button>
         <el-button type="danger" :disabled="ids.length <= 0" :icon="CircleClose" @click="handleDel(ids)">
@@ -131,6 +143,8 @@ function handleSelectionChange(selection: PatientModel[]) {
       :total="total"
       @pagination="getList"
     />
+
+    <PatientDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" />
   </div>
 </template>
 
