@@ -80,7 +80,7 @@ onMounted(() => {
         <li
           v-for="item in topNavList"
           :key="item.value"
-          class="flex items-center h-full"
+          class="flex items-center h-full cursor-pointer"
           @click="handleNavClick(item.value)"
         >
           <div
