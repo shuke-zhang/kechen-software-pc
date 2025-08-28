@@ -27,7 +27,7 @@ function handleDeviceAdd() {
   visible.value = true
 }
 
-function handleDeviceUpdate(item: any) {
+function handlePut(item: any) {
   isAdd.value = false
   currentData.value = {
     deviceName: `PICO-${item}`,
@@ -86,7 +86,7 @@ function handleDel(item: Device.DeviceModel) {
   <div class="grid gap-[10px] [grid-template-columns:repeat(auto-fill,200px)] ">
     <div v-for="item in 9" :key="item" class="card relative w-[200px] h-[100px]  flex flex-col justify-center items-center" :style="deviceItemStyle(item)">
       <div class="absolute! top-[6px] right-[6px] flex">
-        <icon-font name="edit" size="20" color="#BCBCBC" hover-style="#6e6e6e" class="cursor-pointer" @click="handleDeviceUpdate(item)" />
+        <icon-font name="edit" size="20" color="#BCBCBC" hover-style="#6e6e6e" class="cursor-pointer" @click="handlePut(item)" />
         <icon-font
           name="delete"
           :size="20"

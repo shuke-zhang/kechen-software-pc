@@ -84,6 +84,14 @@ declare interface AnyObject {
  */
 declare type numeric = number | string
 
+/**
+ * 性别
+ * 0 - 未知
+ * 1 - 男性
+ * 2 - 女性
+ */
+declare type Gender = 0 | 1 | 2
+
 interface AudioPlayState {
   audioUrl: string
   audioUuid: string // UUID of the audio file
