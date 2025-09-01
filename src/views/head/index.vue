@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { ElDropdown } from 'element-plus'
 import type { TopNavValueModel, UserDropdownValueModel } from '@/model/head'
+import type { SettingDropdownValueModel } from '@/model/setting'
 
 const UserStore = useUserStore()
 const { userName, isLoggedIn } = storeToRefs(UserStore)
@@ -19,11 +21,19 @@ const dropdownItems: Array<{ label: string, value: UserDropdownValueModel }> = [
   { label: '退出', value: 'logout' },
 ]
 
+const settingDropdownItems: Array<{ label: string, value: SettingDropdownValueModel }> = [
+  { label: '视频', value: 'video' },
+  { label: '视频类别', value: 'videoCategory' },
+  { label: '用户管理', value: 'userManagement' },
+  { label: '日志', value: 'logs' },
+]
+
 const activeNavItem = ref<TopNavValueModel | null>(null)
 
 function handleNavClick(value: TopNavValueModel) {
+  if (value === 'settings')
+    return
   activeNavItem.value = value
-
   router.push(`/${value}`)
 }
 
@@ -44,6 +54,28 @@ function handleCommand(command: UserDropdownValueModel) {
       })
       break
   }
+}
+
+/**
+ * 设置点击
+ */
+function handleSettingCommand(command: SettingDropdownValueModel) {
+  activeNavItem.value = 'settings'
+  router.push(`/${command}`)
+  // switch (command) {
+  //   case 'video':
+  //     console.log('视频')
+  //     break
+  //   case 'videoCategory':
+  //     console.log('视频类别')
+  //     break
+  //   case 'userManagement':
+  //     console.log('用户管理')
+  //     break
+  //   case 'logs':
+  //     console.log('日志')
+  //     break
+  // }
 }
 
 /**
@@ -81,20 +113,43 @@ onMounted(() => {
           v-for="item in topNavList"
           :key="item.value"
           class="flex items-center h-full cursor-pointer"
-          @click="handleNavClick(item.value)"
         >
-          <div
-            class="h-full px-4 py-2
-                   border-b-[2px]
-                   border-transparent
-                   hover:text-primary
-                   flex-center"
-            :class="[
-              activeNavItem === item.value ? 'text-primary border-primary!' : '',
-            ]"
-          >
-            {{ item.label }}
-          </div>
+          <!-- 只有“设置”使用下拉 -->
+          <template v-if="item.value === 'settings'">
+            <el-dropdown
+              trigger="click"
+              @command="handleSettingCommand"
+            >
+              <div
+                class="h-full px-4 py-2 border-b-[2px] border-transparent hover:text-primary flex-center"
+                :class="[activeNavItem === item.value ? 'text-primary border-primary!' : '']"
+              >
+                {{ item.label }}
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    v-for="el in settingDropdownItems"
+                    :key="el.value"
+                    :command="el.value"
+                  >
+                    {{ el.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+
+          <!-- 非“设置”：普通点击跳转 -->
+          <template v-else>
+            <div
+              class="h-full px-4 py-2 border-b-[2px] border-transparent hover:text-primary flex-center"
+              :class="[activeNavItem === item.value ? 'text-primary border-primary!' : '']"
+              @click="handleNavClick(item.value)"
+            >
+              {{ item.label }}
+            </div>
+          </template>
         </li>
       </ul>
     </nav>

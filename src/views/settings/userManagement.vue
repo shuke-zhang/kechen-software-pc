@@ -3,8 +3,8 @@
 </script>
 
 <template>
-  <div>
-    设置
+  <div class="container">
+    用户管理
   </div>
 </template>
 

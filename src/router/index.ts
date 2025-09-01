@@ -54,6 +54,42 @@ const router = createRouter({
             hidden: true,
           },
         },
+        {
+          path: 'video',
+          name: 'Video',
+          component: () => import('@/views/settings/video.vue'),
+          meta: {
+            title: '视频',
+            hidden: true,
+          },
+        },
+        {
+          path: 'videoCategory',
+          name: 'VideoCategory',
+          component: () => import('@/views/settings/videoCategory.vue'),
+          meta: {
+            title: '视频类别',
+            hidden: true,
+          },
+        },
+        {
+          path: 'userManagement',
+          name: 'UserManagement',
+          component: () => import('@/views/settings/userManagement.vue'),
+          meta: {
+            title: '用户管理',
+            hidden: true,
+          },
+        },
+        {
+          path: 'logs',
+          name: 'Logs',
+          component: () => import('@/views/settings/logs.vue'),
+          meta: {
+            title: '日志',
+            hidden: true,
+          },
+        },
 
       ],
     },
