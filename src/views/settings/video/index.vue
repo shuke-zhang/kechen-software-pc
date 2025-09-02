@@ -33,7 +33,7 @@ function makeMock(n = 40): VideoModel[] {
   return Array.from({ length: n }).map((_, i) => ({
     id: String(i + 1),
     title: `示例视频 ${i + 1}`,
-    description: `这是一个用于展示的视频，编号 ${i + 1}。`,
+    description: `这是一个用于展示的视频， ${i + 1}。`,
     category: categories[i % categories.length],
     tags: suggestTags.slice(0, (i % 4) + 1),
     status: (['published', 'draft', 'archived'] as VideoStatus[])[i % 3],
@@ -71,15 +71,6 @@ function handleVideoAdd() {
   visible.value = true
 }
 
-/* ---------------- 提示条 ---------------- */
-const notice = reactive<{ show: boolean, type: 'ok' | 'warn', text: string }>({ show: false, type: 'ok', text: '' })
-function toastOk(text: string) {
-  notice.type = 'ok'
-  notice.text = text
-  notice.show = true
-  setTimeout(() => notice.show = false, 1500)
-}
-
 function openEdit(row: VideoModel) {
   currentData.value = JSON.parse(JSON.stringify(row))
   isAdd.value = false
@@ -90,8 +81,6 @@ function openEdit(row: VideoModel) {
 function confirmDelete(v: VideoModel) {
   confirmWarning('是否确认删除视频？').then(() => {
     console.log(v)
-
-    toastOk('已删除')
   }).catch(() => {})
 }
 
@@ -155,7 +144,7 @@ onMounted(() => {
     </div>
     <el-divider />
     <!-- 卡片区域：固定宽度容器 + 平均分配横向空白 -->
-    <div class="flex flex-wrap justify-between gap-y-[10px]">
+    <div class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-center gap-[10px]">
       <article
         v-for="v in list"
         :key="v.id"
@@ -184,7 +173,7 @@ onMounted(() => {
         <!-- 信息区 -->
         <div class="flex-1 p-2 flex flex-col justify-between">
           <div class="flex items-center" :title="v.title">
-            <div class="text-sm font-semibold line-clamp-2">
+            <div class="text-sm font-semibold line-clamp-1">
               {{ v.title }}
             </div>
             <el-tag type="info" size="small" class="ml-[4px]">
@@ -192,13 +181,14 @@ onMounted(() => {
             </el-tag>
           </div>
 
-          <div class="text-xs  m-[4px]">
+          <div class="text-xs h-20px  m-[4px] line-clamp-1 ">
             简介：{{ v.description }}
           </div>
 
           <div class="flex items-center justify-between">
             <div class="text-xs  mt-1">
-              {{ v.views }} 次观看 · {{ $formatDefaultDate(v.createdAt!) }}
+              <!-- {{ v.views }} 次观看 ·  -->
+              {{ $formatDefaultDate(v.createdAt!) }}
             </div>
             <div class="gap-[4px]">
               <el-button type="primary" plain size="small" @click="openEdit(v)">
