@@ -145,6 +145,10 @@
     "setupStore": true,
     "store": true,
     "emptyChatMessage": true,
-    "usePromptStore": true
+    "usePromptStore": true,
+    "formatDefaultDate": true,
+    "formatterTableEmpty": true,
+    "getSelectData": true,
+    "selectDictLabels": true
   }
 }
