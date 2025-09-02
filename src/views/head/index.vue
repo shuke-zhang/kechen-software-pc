@@ -6,7 +6,7 @@ import type { SettingDropdownValueModel } from '@/model/setting'
 const UserStore = useUserStore()
 const { userName, isLoggedIn } = storeToRefs(UserStore)
 const router = useRouter()
-
+const currentRoute = ref(router.currentRoute.value.path.replace('/', ''))
 const topNavList: Array<{ label: string, value: TopNavValueModel }> = [
   { label: '设备管理', value: 'device' },
   { label: '患者', value: 'patient' },
@@ -61,6 +61,7 @@ function handleCommand(command: UserDropdownValueModel) {
 function handleSettingCommand(command: SettingDropdownValueModel) {
   activeNavItem.value = 'settings'
   router.push(`/${command}`)
+  currentRoute.value = command
   // switch (command) {
   //   case 'video':
   //     console.log('视频')
@@ -91,14 +92,11 @@ onMounted(() => {
   // 获取用户信息
   console.log(userName.value)
 
-  // Set activeNavItem based on the current route
-  const currentRoute = router.currentRoute.value.path.replace('/', '')
-  console.log(currentRoute, 'currentRoutecurrentRoute')
-  if (settingDropdownItems.some(item => item.value === currentRoute)) {
+  if (settingDropdownItems.some(item => item.value === currentRoute.value)) {
     activeNavItem.value = 'settings'
   }
   else {
-    activeNavItem.value = currentRoute as TopNavValueModel
+    activeNavItem.value = currentRoute.value as TopNavValueModel
   }
 })
 </script>
@@ -132,6 +130,7 @@ onMounted(() => {
                     v-for="el in settingDropdownItems"
                     :key="el.value"
                     :command="el.value"
+                    :class="{ 'is-active-item': currentRoute === el.value }"
                   >
                     {{ el.label }}
                   </el-dropdown-item>
@@ -190,3 +189,16 @@ onMounted(() => {
     </div>
   </header>
 </template>
+
+<style lang="scss" scoped>
+/* 如果是 <style scoped>，这一段直接写就行；不需要 deep */
+:deep(.is-active-item) {
+  color: var(--el-dropdown-menuItem-hover-color);
+  background-color: var(--el-dropdown-menuItem-hover-fill);
+}
+/* 选中项被 hover 时，保持不变，避免“二次变色/闪动” */
+:deep(.is-active-item:hover) {
+  color: var(--el-dropdown-menuItem-hover-color);
+  background-color: var(--el-dropdown-menuItem-hover-fill);
+}
+</style>
