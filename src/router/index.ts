@@ -57,7 +57,7 @@ const router = createRouter({
         {
           path: 'video',
           name: 'Video',
-          component: () => import('@/views/settings/video.vue'),
+          component: () => import('@/views/settings/video/index.vue'),
           meta: {
             title: '视频',
             hidden: true,
@@ -66,7 +66,7 @@ const router = createRouter({
         {
           path: 'videoCategory',
           name: 'VideoCategory',
-          component: () => import('@/views/settings/videoCategory.vue'),
+          component: () => import('@/views/settings/videoCategory/index.vue'),
           meta: {
             title: '视频类别',
             hidden: true,
@@ -75,7 +75,7 @@ const router = createRouter({
         {
           path: 'userManagement',
           name: 'UserManagement',
-          component: () => import('@/views/settings/userManagement.vue'),
+          component: () => import('@/views/settings/user/index.vue'),
           meta: {
             title: '用户管理',
             hidden: true,
@@ -84,7 +84,7 @@ const router = createRouter({
         {
           path: 'logs',
           name: 'Logs',
-          component: () => import('@/views/settings/logs.vue'),
+          component: () => import('@/views/settings/logs/index.vue'),
           meta: {
             title: '日志',
             hidden: true,
@@ -131,7 +131,6 @@ router.beforeEach(async (to) => {
   const userStore = useUserStore()
   try {
     // 只在首次进入或刷新后拉一次用户信息
-    console.log(userStore.userName, 'userStore.userName')
 
     if (!userStore.userInfo?.userName) {
       await userStore.getInfo()
