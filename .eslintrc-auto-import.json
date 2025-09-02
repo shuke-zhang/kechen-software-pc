@@ -149,6 +149,7 @@
     "formatDefaultDate": true,
     "formatterTableEmpty": true,
     "getSelectData": true,
-    "selectDictLabels": true
+    "selectDictLabels": true,
+    "isTextTruncated": true
   }
 }

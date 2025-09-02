@@ -7,7 +7,6 @@ const UserStore = useUserStore()
 const { userName, isLoggedIn } = storeToRefs(UserStore)
 const router = useRouter()
 
-console.log(isRef(userName), 'isRef')
 const topNavList: Array<{ label: string, value: TopNavValueModel }> = [
   { label: '设备管理', value: 'device' },
   { label: '患者', value: 'patient' },

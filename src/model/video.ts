@@ -31,4 +31,6 @@ export interface VideoModel {
 
   /** 视频观看次数 */
   views?: number
+  /** 视频文本是否被截断 */
+  isTextTruncated?: boolean
 }

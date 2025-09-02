@@ -5,6 +5,11 @@ import type { VideoModel } from '@/model/video'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import VideoDialog from './videoDialog.vue'
 
+type MeasurableEl = HTMLElement | {
+  getBoundingClientRect: () => DOMRect
+  clientWidth: number
+  clientHeight: number
+}
 type VideoStatus = 'published' | 'draft' | 'archived'
 
 const categories = ['冥想', '培训', '宣传', '案例', '其它']
@@ -28,12 +33,42 @@ const queryParams = ref<ListQueryParams<VideoModel>>({
   pageNum: 1,
   pageSize: 10,
 })
+const triggerRefMap = ref<Record<string, MeasurableEl | undefined>>({})
+const tooltipVisibleMap = ref<Record<string, boolean>>({})
+
+/**
+ * 设置对应的ref
+ */
+function setTriggerRef(id: string) {
+  return (el: Element | ComponentPublicInstance | null): void => {
+    if (el instanceof HTMLElement) {
+      triggerRefMap.value[id] = el
+      return
+    }
+    const root = (el as any)?.$el as HTMLElement | undefined
+    if (root instanceof HTMLElement) {
+      triggerRefMap.value[id] = root
+      return
+    }
+    triggerRefMap.value[id] = undefined
+  }
+}
+function randomDescription(i: number): string {
+  const chars = '这是一个用于展示的视频内容测试随机文本示例标题简介说明更多信息演示效果非常不错'
+  const length = Math.floor(Math.random() * 26) + 5 // 5~30
+  let result = ''
+  for (let j = 0; j < length; j++) {
+    const index = Math.floor(Math.random() * chars.length)
+    result += chars[index]
+  }
+  return `${result}（编号 ${i + 1}）`
+}
 /* ---------------- Mock 数据 ---------------- */
 function makeMock(n = 40): VideoModel[] {
   return Array.from({ length: n }).map((_, i) => ({
     id: String(i + 1),
     title: `示例视频 ${i + 1}`,
-    description: `这是一个用于展示的视频， ${i + 1}。`,
+    description: randomDescription(i),
     category: categories[i % categories.length],
     tags: suggestTags.slice(0, (i % 4) + 1),
     status: (['published', 'draft', 'archived'] as VideoStatus[])[i % 3],
@@ -181,13 +216,29 @@ onMounted(() => {
             </el-tag>
           </div>
 
-          <div class="text-xs h-20px  m-[4px] line-clamp-1 ">
+          <el-tooltip
+            v-model:visible="tooltipVisibleMap[v.id!]"
+            :content="v.description"
+            placement="bottom"
+            effect="light"
+            trigger="hover"
+            virtual-triggering
+            :virtual-ref="triggerRefMap[v.id!]"
+            :disabled="!v.isTextTruncated"
+            append-to="body"
+          />
+
+          <!-- 触发源：用函数模板 ref 把当前元素放到 triggerRefMap -->
+          <div
+            :ref="setTriggerRef(v.id!)"
+            v-trunc="{ item: v, key: 'isTextTruncated' }"
+            class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
+          >
             简介：{{ v.description }}
           </div>
 
           <div class="flex items-center justify-between">
             <div class="text-xs  mt-1">
-              <!-- {{ v.views }} 次观看 ·  -->
               {{ $formatDefaultDate(v.createdAt!) }}
             </div>
             <div class="gap-[4px]">

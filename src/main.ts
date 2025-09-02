@@ -1,6 +1,7 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'
+import { vTrunc } from './directive'
 import router from './router'
 import { formatDefaultDate, formatterTableEmpty, getSelectData, selectDictLabels } from './utils'
 import './styles/tailwindcss.css'
@@ -12,6 +13,7 @@ app.config.globalProperties.$formatterTableEmpty = formatterTableEmpty
 app.config.globalProperties.$formatDefaultDate = formatDefaultDate
 app.config.globalProperties.$selectDictLabels = selectDictLabels
 app.config.globalProperties.$getSelectData = getSelectData
+app.directive('trunc', vTrunc)
 app.use(createPinia())
 app.use(router)
 
