@@ -192,12 +192,12 @@ onMounted(() => {
             </el-tag>
           </div>
 
-          <div class="text-xs text-slate-500 m-[4px]">
+          <div class="text-xs  m-[4px]">
             简介：{{ v.description }}
           </div>
 
           <div class="flex items-center justify-between">
-            <div class="text-xs text-slate-500 mt-1">
+            <div class="text-xs  mt-1">
               {{ v.views }} 次观看 · {{ $formatDefaultDate(v.createdAt!) }}
             </div>
             <div class="gap-[4px]">

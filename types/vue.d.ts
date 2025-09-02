@@ -1,20 +1,18 @@
-import type { GetSelectData, selectDictLabels } from '@/utils'
-
-interface formatterTableEmpty {
-  (row: any, column: TableColumnCtx<any>, cellValue: any, index: number): string
-}
-/**
- * @description 传入时间 返回格式化后的默认时间 默认为 YYYY-MM-DD hh:mm:ss
- * @param  date 传入日期
- * @param  format 传入日期格式
- */
-interface formatDefaultDate {
-  (date: string, format?: string): string
-}
+import type { formatDefaultDate, formatterTableEmpty, GetSelectData, selectDictLabels } from '@/utils'
 
 declare module 'vue' {
   export interface ComponentCustomProperties {
+
+    /**
+     * @description 格式化数据，为空时输出 - 表格直接使用 ， 不需要插槽
+     * :formatter="formatterTableEmpty"
+     */
     $formatterTableEmpty: formatterTableEmpty
+    /**
+     * @description 传入时间 返回格式化后的默认时间 默认为 YYYY-MM-DD hh:mm:ss
+     * @param  date 传入日期
+     * @param  format 传入日期格式
+     */
     $formatDefaultDate: formatDefaultDate
     /**
      * @description 回显字典数据
