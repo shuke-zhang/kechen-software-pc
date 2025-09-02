@@ -51,7 +51,6 @@ function handleDel(item: Device.DeviceModel) {
             v-model="queryParams.deviceName"
             placeholder="请输入设备名称"
             clearable
-            size="large"
             style="width: 240px"
           />
         </el-form-item>
@@ -59,9 +58,7 @@ function handleDel(item: Device.DeviceModel) {
         <el-form-item>
           <el-select
             v-model="queryParams.status"
-            size="large"
             placeholder="请选择状态"
-            page-size="large"
             style="width: 240px"
           >
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -69,14 +66,14 @@ function handleDel(item: Device.DeviceModel) {
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" plain :icon="Plus" @click="handleDeviceAdd">
-            新增设备
-          </el-button>
           <el-button type="primary" :icon="Search">
             查询
           </el-button>
-          <el-button type="primary" :icon="Refresh">
+          <el-button type="primary" plain :icon="Refresh">
             查询重置
+          </el-button>
+          <el-button type="success" :icon="Plus" @click="handleDeviceAdd">
+            新增
           </el-button>
         </el-form-item>
       </el-form>

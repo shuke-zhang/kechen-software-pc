@@ -94,11 +94,12 @@ onMounted(() => {
 
   // Set activeNavItem based on the current route
   const currentRoute = router.currentRoute.value.path.replace('/', '')
-  if (topNavList.some(item => item.value === currentRoute)) {
-    activeNavItem.value = currentRoute as TopNavValueModel
+  console.log(currentRoute, 'currentRoutecurrentRoute')
+  if (settingDropdownItems.some(item => item.value === currentRoute)) {
+    activeNavItem.value = 'settings'
   }
   else {
-    activeNavItem.value = 'device'
+    activeNavItem.value = currentRoute as TopNavValueModel
   }
 })
 </script>
