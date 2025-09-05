@@ -39,7 +39,9 @@ function handleNavClick(value: TopNavValueModel) {
 function handleCommand(command: UserDropdownValueModel) {
   switch (command) {
     case 'put':
-      console.log('修改')
+      // console.log('修改')
+      router.push('/user/profile')
+      activeNavItem.value = 'settings'
       break
     case 'logout':
       confirmError('是否确认退出登录', '提示').then(() => {
@@ -62,20 +64,6 @@ function handleSettingCommand(command: SettingDropdownValueModel) {
   activeNavItem.value = 'settings'
   router.push(`/${command}`)
   currentRoute.value = command
-  // switch (command) {
-  //   case 'video':
-  //     console.log('视频')
-  //     break
-  //   case 'videoCategory':
-  //     console.log('视频类别')
-  //     break
-  //   case 'userManagement':
-  //     console.log('用户管理')
-  //     break
-  //   case 'logs':
-  //     console.log('日志')
-  //     break
-  // }
 }
 
 /**
@@ -90,9 +78,9 @@ function handleAvatarClick() {
 
 onMounted(() => {
   // 获取用户信息
-  console.log(userName.value)
+  console.log(currentRoute.value, 'ssss')
 
-  if (settingDropdownItems.some(item => item.value === currentRoute.value)) {
+  if (settingDropdownItems.some(item => item.value === currentRoute.value) || currentRoute.value === 'user/profile') {
     activeNavItem.value = 'settings'
   }
   else {
@@ -110,7 +98,7 @@ onMounted(() => {
         <li
           v-for="item in topNavList"
           :key="item.value"
-          class="flex items-center h-full cursor-pointer"
+          class="flex items-center h-full cursor-pointer text-[20px]"
         >
           <!-- 只有“设置”使用下拉 -->
           <template v-if="item.value === 'settings'">
@@ -119,7 +107,7 @@ onMounted(() => {
               @command="handleSettingCommand"
             >
               <div
-                class="h-full px-4 py-2 border-b-[2px] border-transparent hover:text-primary flex-center"
+                class="h-full px-4 py-2 border-b-[2px] border-transparent hover:text-primary flex-center text-[20px]"
                 :class="[activeNavItem === item.value ? 'text-primary border-primary!' : '']"
               >
                 {{ item.label }}

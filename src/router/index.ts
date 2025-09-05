@@ -73,11 +73,20 @@ const router = createRouter({
           },
         },
         {
+          path: '/user/profile',
+          name: 'UserProfile',
+          component: () => import('@/views/settings/user/profile.vue'),
+          meta: {
+            title: '用户管理',
+            hidden: true,
+          },
+        },
+        {
           path: 'userManagement',
           name: 'UserManagement',
           component: () => import('@/views/settings/user/index.vue'),
           meta: {
-            title: '用户管理',
+            title: '用户信息修改',
             hidden: true,
           },
         },

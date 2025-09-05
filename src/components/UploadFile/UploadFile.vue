@@ -25,13 +25,45 @@ const props = defineProps({
   height: { type: String, default: '120px' },
   iconSize: { type: String, default: '16' },
   iconColor: { type: String, default: '#000000' },
+  /**
+   * 上传模式
+   * - 'avatar' → 头像模式（单文件、固定圆形/方形容器、通常只显示最后一张图）
+   * - 'list'   → 列表模式（可多文件，显示缩略图列表）
+   */
+  mode: {
+    type: String as PropType<'avatar' | 'list'>,
+    default: 'list',
+  },
 
-  /** 'pdf' | ['png','jpg'] | '.zip' | 'application/pdf' | 'image/*' */
+  /**
+   * 可上传的文件类型规则
+   *
+   * 支持以下几种写法：
+   * 1. 不传 / [] —— 允许所有文件类型（无限制）。
+   *
+   * 2. 传入字符串：
+   *    - 'image'        → 允许常见图片后缀 ['jpg', 'jpeg', 'png', 'GIF', 'JPG', 'PNG']
+   *    - 'image/*'      → 等价于 'image'，允许常见图片格式。
+   *    - 'pdf'          → 仅允许 pdf 文件。
+   *    - 'zip'          → 仅允许 zip 文件。
+   *    - '.jpg' / 'jpg' → 仅允许指定的单一后缀。
+   *    - 'application/pdf' → 等价于 'pdf'。
+   *
+   * 3. 传入数组（混合多个规则）：
+   *    - ['jpg', 'png']      → 同时允许 jpg 和 png。
+   *    - ['image', 'pdf']    → 允许图片（jpg/jpeg/png/gif）+ pdf。
+   *    - ['.zip', '.pdf']    → 允许 zip 和 pdf。
+   *
+   * 注意：
+   * - 不区分大小写（例如 'JPG'、'PNG' 都能匹配）。
+   * - 如果数组或字符串为空，视为不做限制。
+   * - 未识别的 MIME 类型写法会被忽略（默认允许所有）。
+   */
   fileTypes: {
     type: [Array, String] as PropType<string[] | string>,
     default: () => [] as string[],
   },
-
+  fluid: { type: Boolean, default: false },
   listType: {
     type: String as PropType<EpPropMergeType<StringConstructor, 'picture-card' | 'text' | 'picture', unknown> | undefined>,
     default: 'picture-card',
@@ -56,6 +88,15 @@ const props = defineProps({
 /* ===================== Emits / v-model ===================== */
 const emit = defineEmits(['onProgress', 'onRemove', 'onSuccess', 'onError', 'onBeforeRemove', 'update:fileList'])
 
+const IMAGE_EXT_WHITELIST = ['jpg', 'jpeg', 'png', 'GIF', 'JPG', 'PNG']
+const normalizedRules = computed(() => normalizeFileTypes(props.fileTypes))
+const acceptAttr = computed(() => {
+  if (normalizedRules.value.mode === 'all') {
+    return undefined
+  }
+  const dots = [...normalizedRules.value.exts].map(e => `.${e}`)
+  return dots.join(',')
+})
 GlobalWorkerOptions.workerSrc = pdfjsWorker
 
 type UploadFileWithThumb = UploadFile & { thumbnailUrl?: string, originUrl?: string }
@@ -89,34 +130,14 @@ function isImageExt(ext: string) {
   return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext)
 }
 
-function matchTypeByRules(file: UploadRawFile, rules: string[]) {
-  if (!rules.length)
+function matchTypeByRules(file: UploadRawFile): boolean {
+  const rules = normalizedRules.value
+  if (rules.mode === 'all') {
     return true
-  const ext = getExt(file.name)
-  const mime = (file as any).type as string
-  return rules.some((raw) => {
-    const rule = raw.toLowerCase().trim()
-    if (!rule)
-      return false
-    if (rule.startsWith('.'))
-      return ext === rule.slice(1)
-    if (!rule.includes('/'))
-      return ext === rule
-    if (rule.endsWith('/*'))
-      return mime?.startsWith(rule.replace('/*', '/'))
-    return mime === rule
-  })
+  }
+  const ext = getExt(file.name).toLowerCase()
+  return rules.exts.has(ext)
 }
-
-const acceptAttr = computed(() => {
-  let list = props.fileTypes
-  if (typeof list === 'string')
-    list = [list]
-  const exts = (list as string[])
-    .filter(r => !r.includes('/'))
-    .map(r => r.startsWith('.') ? r : `.${r}`)
-  return exts.join(',') || undefined
-})
 
 /* ===================== PDF → 缩略图 ===================== */
 async function pdfToThumbDataUrl(src: Blob | string, maxW = 480): Promise<string> {
@@ -243,17 +264,18 @@ function removeFromLists(uploadFile: UploadFile) {
 
 /* ===================== Hooks ===================== */
 function beforeUpload(file: UploadRawFile): Awaitable<boolean | void> {
-  console.log('beforeUpload触发', fileLists.value)
-
   if (props.fileSize > 0 && props.fileSize * 1024 * 1024 < file.size) {
     ElMessage.error(`上传文件大小不能超过 ${props.fileSize}M`)
     return false
   }
-  let rules = props.fileTypes
-  if (typeof rules === 'string')
-    rules = [rules]
-  if ((rules as string[]).length && !matchTypeByRules(file, rules as string[])) {
-    ElMessage.error(`只允许上传类型：${(rules as string[]).join(', ')}`)
+
+  if (!matchTypeByRules(file)) {
+    const rules = normalizedRules.value
+    if (rules.mode === 'all') {
+      return true
+    }
+    const allow = [...rules.exts].join(', ')
+    ElMessage.error(`仅允许上传：${allow}`)
     return false
   }
 }
@@ -348,6 +370,55 @@ async function openOriginal() {
   }
 }
 
+function normalizeFileTypes(
+  raw: string[] | string | undefined,
+): { mode: 'all' | 'ext', exts: Set<string> } {
+  if (!raw || (Array.isArray(raw) && raw.length === 0)) {
+    return { mode: 'all', exts: new Set() }
+  }
+
+  const list = Array.isArray(raw) ? raw : [raw]
+  const exts = new Set<string>()
+
+  for (const item of list) {
+    const r = (item || '').trim().toLowerCase()
+    if (!r) {
+      continue
+    }
+    if (r === 'image' || r === 'images') {
+      IMAGE_EXT_WHITELIST.forEach(e => exts.add(e))
+      continue
+    }
+    if (r === 'image/*') {
+      IMAGE_EXT_WHITELIST.forEach(e => exts.add(e))
+      continue
+    }
+    if (r === 'application/pdf' || r === 'pdf') {
+      exts.add('pdf')
+      continue
+    }
+    if (r === 'application/zip' || r === 'zip') {
+      exts.add('zip')
+      continue
+    }
+    if (r.startsWith('.')) {
+      exts.add(r.slice(1))
+      continue
+    }
+    if (r.includes('/')) {
+      // 其它 mime 不强制映射；按“全部允许”处理更宽松
+      // 你也可以在此扩展更多 mime→ext 的映射
+      continue
+    }
+    exts.add(r)
+  }
+
+  if (exts.size === 0) {
+    return { mode: 'all', exts: new Set() }
+  }
+  return { mode: 'ext', exts }
+}
+
 /* ===================== v-model → el-upload ===================== */
 watch(
   () => fileLists.value,
@@ -435,23 +506,22 @@ watch(() => props.isOccupyCorner, () => updateExtBadges())
 <style lang="scss" scoped>
 .upload-wrap {
   position: relative;
+  width: v-bind(width) !important;
+  height: v-bind(height) !important;
 }
 
 img {
   width: 100%;
   height: auto;
 }
-
-/* 达到上限隐藏添加按钮（并保持单个高度） */
 .readonly {
   height: v-bind(oneLimitHeight) !important;
+  // 动态控制是否上传到限制之后就显示或隐藏上传框
   :deep(.el-upload-list__item-status-label),
   :deep(.el-upload--picture-card) {
     display: none !important;
   }
 }
-
-/* 统一尺寸 */
 :deep(.el-upload--picture-card) {
   width: v-bind(width) !important;
   height: v-bind(height) !important;
@@ -462,13 +532,14 @@ img {
   width: v-bind(width) !important;
   height: v-bind(height) !important;
 }
+
 :deep(.el-upload-list__item) {
   width: v-bind(width) !important;
   height: v-bind(height) !important;
   margin-bottom: v-bind(itemMarin) !important;
   margin-right: v-bind(itemMarin) !important;
-  position: relative;
 }
+
 :deep(.is-success) {
   width: v-bind(width) !important;
   height: v-bind(height) !important;
@@ -478,8 +549,11 @@ img {
   display: none !important;
 }
 
-/* 进度条尺寸对齐卡片 */
-:deep(.el-progress-circle),
+// 用于合理的显示进度条
+:deep(.el-progress-circle) {
+  width: v-bind(progressSize) !important;
+  height: v-bind(progressSize) !important;
+}
 :deep(.el-progress) {
   width: v-bind(progressSize) !important;
   height: v-bind(progressSize) !important;
