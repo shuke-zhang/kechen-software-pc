@@ -68,10 +68,10 @@ const rules: FormRules = {
 
               <el-form-item label="性别" prop="gender">
                 <el-radio-group v-model="form.gender">
-                  <el-radio label="1">
+                  <el-radio value="1">
                     男
                   </el-radio>
-                  <el-radio label="2">
+                  <el-radio value="2">
                     女
                   </el-radio>
                 </el-radio-group>
