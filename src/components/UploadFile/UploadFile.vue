@@ -89,7 +89,7 @@ const props = defineProps({
 const emit = defineEmits(['onProgress', 'onRemove', 'onSuccess', 'onError', 'onBeforeRemove', 'update:fileList'])
 
 const IMAGE_EXT_WHITELIST = ['jpg', 'jpeg', 'png', 'GIF', 'JPG', 'PNG']
-const normalizedRules = computed(() => normalizeFileTypes(props.fileTypes))
+const normalizedRules = computed(() => normalizeFileTypes(props.mode === 'avatar' ? ['image'] : props.fileTypes))
 const acceptAttr = computed(() => {
   if (normalizedRules.value.mode === 'all') {
     return undefined
@@ -112,11 +112,12 @@ const dialogVisible = ref(false)
 
 const uploadUrl = computed(() => props.uploadUrl ? props.uploadUrl : `${import.meta.env.VITE_API_URL || ''}${props.action}`)
 
-const max = computed(() => props.limit)
-const itemMarin = computed(() => (props.limit === 1 ? 0 : '10px'))
+const max = computed(() => props.mode === 'avatar' ? 1 : props.limit)
+const itemMarin = computed(() => ((props.limit === 1 || props.mode === 'avatar') ? 0 : '10px'))
 const width = computed(() => (props.width.includes('px') ? props.width : `${props.width}px`))
 const height = computed(() => (props.height.includes('px') ? props.height : `${props.height}px`))
-const progressSize = computed(() => (props.height.includes('px') ? `${Number.parseFloat(props.height) - 5}px` : `${Number(props.height) - 5}px`))
+const borderRadius = computed(() => (props.mode === 'avatar' ? '50%' : '6px'))
+const progressSize = computed(() => (props.height.includes('px') ? `${Number.parseFloat(props.height) - 10}px` : `${Number(props.height) - 10}px`))
 const oneLimitHeight = computed(() => (props.limit === 1 ? height.value : null))
 
 /* ===================== 工具：类型/扩展名/accept ===================== */
@@ -451,14 +452,14 @@ watch(() => props.isOccupyCorner, () => updateExtBadges())
   <div class="upload-wrap" :class="{ 'has-corner': isOccupyCorner }">
     <el-upload
       v-model:file-list="fileData"
-      :class="{ readonly: readonly || (max > 0 && fileData.length >= max) }"
+      :class="{ 'avatar-mode': mode === 'avatar', 'readonly': readonly || (max > 0 && fileData.length >= max) }"
       :accept="acceptAttr"
       :action="uploadUrl"
       :disabled="disabled"
       :drag="drag"
       :multiple="multiple"
-      :limit="max"
-      :list-type="listType"
+      :limit=" max"
+      :list-type="mode === 'avatar' ? 'picture-card' : listType"
       :before-upload="beforeUpload"
       :before-remove="beforeRemove"
       :on-success="handleSuccess"
@@ -468,7 +469,11 @@ watch(() => props.isOccupyCorner, () => updateExtBadges())
       :on-remove="handleRemove"
       :on-exceed="handleExceed"
     >
-      <div v-if="listType === 'picture-card'" class="flex-center flex-col text-center">
+      <div
+        v-if="listType === 'picture-card'"
+        class="flex-center flex-col text-center"
+        :class="{ 'avatar-upload': mode === 'avatar' }"
+      >
         <el-icon :size="iconSize" :color="iconColor">
           <Plus />
         </el-icon>
@@ -506,8 +511,6 @@ watch(() => props.isOccupyCorner, () => updateExtBadges())
 <style lang="scss" scoped>
 .upload-wrap {
   position: relative;
-  width: v-bind(width) !important;
-  height: v-bind(height) !important;
 }
 
 img {
@@ -527,10 +530,12 @@ img {
   height: v-bind(height) !important;
   margin-bottom: v-bind(itemMarin) !important;
   margin-right: v-bind(itemMarin) !important;
+  border-radius: v-bind(borderRadius) !important;
 }
 :deep(.is-uploading) {
   width: v-bind(width) !important;
   height: v-bind(height) !important;
+  border-radius: v-bind(borderRadius) !important;
 }
 
 :deep(.el-upload-list__item) {
@@ -538,12 +543,14 @@ img {
   height: v-bind(height) !important;
   margin-bottom: v-bind(itemMarin) !important;
   margin-right: v-bind(itemMarin) !important;
+  border-radius: v-bind(borderRadius) !important;
 }
 
 :deep(.is-success) {
   width: v-bind(width) !important;
   height: v-bind(height) !important;
   margin: 0;
+  border-radius: v-bind(borderRadius) !important;
 }
 :deep(.el-icon--close-tip) {
   display: none !important;
@@ -553,10 +560,20 @@ img {
 :deep(.el-progress-circle) {
   width: v-bind(progressSize) !important;
   height: v-bind(progressSize) !important;
+  border-radius: v-bind(borderRadius) !important;
 }
 :deep(.el-progress) {
   width: v-bind(progressSize) !important;
   height: v-bind(progressSize) !important;
+  border-radius: v-bind(borderRadius) !important;
+}
+
+.avatar-upload {
+  overflow: hidden;
+  /* 保证是正方形容器 */
+  width: v-bind(width) !important;
+  height: v-bind(width) !important;
+  border-radius: v-bind(borderRadius) !important;
 }
 
 /* ✅ 角标：仅在 has-corner 时启用 */
