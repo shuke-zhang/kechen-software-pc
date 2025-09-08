@@ -19,7 +19,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 /* ===================== Props ===================== */
 const props = defineProps({
-  action: { type: String, default: '/upload' },
+  action: { type: String, default: '/api/upload' },
   uploadUrl: { type: String },
   width: { type: String, default: '120px' },
   height: { type: String, default: '120px' },
