@@ -1,12 +1,10 @@
 export interface VisitRecordModel {
   id?: number
-  patientId?: number
   patientName?: string
-  visitDate?: string // ISO 字符串
+  videoPlanName?: string
+  itemName?: string
+  deviceSn?: string
   department?: string
-  diagnosis?: string
-  treatment?: string
-  doctor?: string
-  cost?: number
-  notes?: string
+  status?: 'draft' | 'active' | 'paused' | 'archived'
+  createdAt?: string
 }

@@ -1,10 +1,16 @@
-<!-- VisitRecordPage.vue -->
+<!-- VisitRecordPage.vue (V2) -->
 <script setup lang="ts">
+import type { EpPropMergeType } from 'element-plus/es/utils/index.mjs'
+
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
-// 假定项目里已有这些工具类型/函数，与患者页面保持一致风格
+type DateRange = [string, string] | undefined
+
+interface VisitRecordQuery extends VisitRecordModel {
+  dateRange?: DateRange
+}
 
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -13,45 +19,49 @@ const dialogData = ref<VisitRecordModel>({})
 const ids = ref<number[]>([])
 const single = ref(true)
 const multiple = ref(true)
+const loading = ref(false)
 
 const queryRef = useTemplateRef('queryEl')
 
-const queryParams = ref<ListQueryParams<VisitRecordModel & {
-  dateRange?: [string, string] | undefined
-}>>({
+const queryParams = ref<ListQueryParams<VisitRecordQuery>>({
   pageNum: 1,
   pageSize: 10,
   patientName: '',
+  videoPlanName: '',
+  itemName: '',
+  deviceSn: '',
   department: '',
-  doctor: '',
+  status: undefined,
   dateRange: undefined,
 })
 
-const loading = ref(false)
+const statusOptions = [
+  { label: '草稿', value: 'draft' },
+  { label: '启用', value: 'active' },
+  { label: '暂停', value: 'paused' },
+  { label: '已归档', value: 'archived' },
+]
+
 const list = ref<VisitRecordModel[]>([
   {
-    id: 1001,
-    patientId: 1,
+    id: 31001,
     patientName: '张三',
-    visitDate: '2025-08-20 14:30:00',
-    department: '内科',
-    diagnosis: '高血压',
-    treatment: '口服降压药',
-    doctor: '王医生',
-    cost: 260.0,
-    notes: '建议两周复诊',
+    videoPlanName: '颈椎康复·标准V1',
+    itemName: '颈椎牵引',
+    deviceSn: 'AX9-001',
+    department: '康复科',
+    status: 'active',
+    createdAt: '2025-08-28 10:12:00',
   },
   {
-    id: 1002,
-    patientId: 2,
+    id: 31002,
     patientName: '李四',
-    visitDate: '2025-08-22 09:10:00',
-    department: '内分泌科',
-    diagnosis: '糖尿病',
-    treatment: '控制饮食 + 二甲双胍',
-    doctor: '赵医生',
-    cost: 340.5,
-    notes: '监测血糖，记录饮食',
+    videoPlanName: '眼部舒缓·V2',
+    itemName: '眼部理疗',
+    deviceSn: 'AX9-017',
+    department: '眼科',
+    status: 'paused',
+    createdAt: '2025-08-30 15:40:12',
   },
 ])
 
@@ -60,7 +70,6 @@ function getList() {
     return
   loading.value = true
   console.log('获取诊疗记录列表', queryParams.value)
-  // TODO: 调接口：基于 queryParams 获取数据
   setTimeout(() => {
     loading.value = false
   }, 300)
@@ -80,9 +89,8 @@ function handlePut(row: VisitRecordModel) {
 
 function handleDel(_ids: number[] | VisitRecordModel) {
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
-  confirmWarning(`是否确认删除所选诊疗记录？`).then(() => {
+  confirmWarning('是否确认删除所选诊疗记录？').then(() => {
     console.log('删除 IDs:', delIds)
-    // TODO: 调用删除接口
   })
 }
 
@@ -91,8 +99,11 @@ function retQuery() {
     pageNum: 1,
     pageSize: 10,
     patientName: '',
+    videoPlanName: '',
+    itemName: '',
+    deviceSn: '',
     department: '',
-    doctor: '',
+    status: undefined,
   }
   resetForm(queryRef.value)
   getList()
@@ -103,57 +114,44 @@ function handleSelectionChange(selection: VisitRecordModel[]) {
   single.value = selection.length !== 1
   multiple.value = !selection.length
 }
+
+function tagType(status?: VisitRecordModel['status']): EpPropMergeType<StringConstructor, 'primary' | 'success' | 'warning' | 'info' | 'danger', unknown> | undefined {
+  if (status === 'active')
+    return 'success'
+  if (status === 'paused')
+    return 'warning'
+  if (status === 'archived')
+    return 'info'
+  return undefined
+}
 </script>
 
 <template>
   <div class="container">
-    <!-- 查询区域 -->
     <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
       <el-form-item>
-        <el-input
-          v-model="queryParams.patientName"
-          placeholder="患者姓名"
-          clearable
-          size="large"
-          style="width: 200px"
-          @keyup.enter="getList"
-        />
+        <el-input v-model="queryParams.patientName" placeholder="患者姓名" clearable size="large" style="width: 200px" @keyup.enter="getList" />
       </el-form-item>
-
       <el-form-item>
-        <el-input
-          v-model="queryParams.department"
-          placeholder="科室"
-          clearable
-          size="large"
-          style="width: 160px"
-          @keyup.enter="getList"
-        />
+        <el-input v-model="queryParams.videoPlanName" placeholder="视频方案名称" clearable size="large" style="width: 220px" @keyup.enter="getList" />
       </el-form-item>
-
       <el-form-item>
-        <el-input
-          v-model="queryParams.doctor"
-          placeholder="医生"
-          clearable
-          size="large"
-          style="width: 160px"
-          @keyup.enter="getList"
-        />
+        <el-input v-model="queryParams.itemName" placeholder="诊疗项名称" clearable size="large" style="width: 200px" @keyup.enter="getList" />
       </el-form-item>
-
       <el-form-item>
-        <el-date-picker
-          v-model="queryParams.dateRange"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          size="large"
-        />
+        <el-input v-model="queryParams.deviceSn" placeholder="设备编号" clearable size="large" style="width: 180px" @keyup.enter="getList" />
       </el-form-item>
-
+      <el-form-item>
+        <el-input v-model="queryParams.department" placeholder="治疗科室" clearable size="large" style="width: 160px" @keyup.enter="getList" />
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="queryParams.status" placeholder="状态" clearable filterable size="large" style="width: 140px">
+          <el-option v-for="opt in statusOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker v-model="queryParams.dateRange" type="datetimerange" range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" value-format="YYYY-MM-DD HH:mm:ss" size="large" />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="getList">
           查询
@@ -170,19 +168,23 @@ function handleSelectionChange(selection: VisitRecordModel[]) {
       </el-form-item>
     </el-form>
 
-    <!-- 表格 -->
     <el-table v-loading="loading" :data="list" style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
-      <el-table-column prop="id" label="记录ID" align="center" width="100" />
-      <el-table-column prop="patientName" label="患者姓名" align="center" show-overflow-tooltip />
-      <el-table-column prop="visitDate" label="就诊时间" align="center" width="180" />
-      <el-table-column prop="department" label="科室" align="center" width="120" />
-      <el-table-column prop="doctor" label="医生" align="center" width="120" />
-      <el-table-column prop="diagnosis" label="诊断" align="center" show-overflow-tooltip />
-      <el-table-column prop="treatment" label="治疗方案" align="center" show-overflow-tooltip />
-      <el-table-column prop="cost" label="费用(¥)" align="center" width="110" />
-
-      <el-table-column align="center" label="操作" width="220" fixed="right">
+      <el-table-column prop="id" label="编号" align="center" width="90" />
+      <el-table-column prop="patientName" label="患者姓名" align="center" width="120" show-overflow-tooltip />
+      <el-table-column prop="videoPlanName" label="视频方案名称" align="center" show-overflow-tooltip />
+      <el-table-column prop="itemName" label="诊疗项名称" align="center" width="160" show-overflow-tooltip />
+      <el-table-column prop="deviceSn" label="设备编号" align="center" width="140" />
+      <el-table-column prop="department" label="治疗科室" align="center" width="120" />
+      <el-table-column prop="status" label="状态" align="center" width="120">
+        <template #default="{ row }">
+          <el-tag :type="tagType(row.status) ">
+            {{ statusOptions.find(s => s.value === row.status)?.label || '未知' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createdAt" label="创建时间" align="center" width="180" />
+      <el-table-column label="操作" align="center" width="220" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
@@ -194,17 +196,9 @@ function handleSelectionChange(selection: VisitRecordModel[]) {
       </el-table-column>
     </el-table>
 
-    <!-- 分页 -->
-    <Pagination
-      v-show="total > 0"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      :total="total"
-      @pagination="getList"
-    />
+    <Pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
 
-    <!-- 弹窗 -->
-    <VisitRecordDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" />
+    <VisitRecordDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" @ok="getList" />
   </div>
 </template>
 

@@ -102,9 +102,6 @@ function handleDel(item: Device.DeviceModel) {
         <el-tag type="success">
           在线
         </el-tag>
-        <!-- <el-tag type="info">
-          离线
-        </el-tag> -->
       </div>
     </div>
   </div>
