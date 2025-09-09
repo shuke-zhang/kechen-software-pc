@@ -189,10 +189,14 @@ onMounted(() => {
         <div class="relative w-full h-[180px] bg-slate-900 overflow-hidden">
           <img :src="v.coverUrl" class="absolute inset-0 w-full h-full object-cover">
 
-          <!-- 选择框 -->
-          <!-- <label class="absolute left-2 top-2 inline-flex items-center gap-1 rounded   p-0 cursor-pointer">
-            <input v-model="checkedMap[v.id]" type="checkbox" class="w-[20px] h-[20px] text-indigo-600 cursor-pointer">
-          </label> -->
+          <!-- 视频类型 -->
+          <div
+            class="absolute left-0 top-[10px] h-[22px] flex-center
+            rounded-tr rounded-br bg-gray-700/60
+            text-gray-100 text-[12px] px-2"
+          >
+            MP4
+          </div>
 
           <!-- 播放按钮 -->
           <div class="absolute inset-0 m-auto h-10 w-10 rounded-full bg-white/90 text-slate-900 shadow grid place-items-center hover:scale-105 transition cursor-pointer" @click="preview(v)">
