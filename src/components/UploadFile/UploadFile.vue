@@ -19,7 +19,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 /* ===================== Props ===================== */
 const props = defineProps({
-  action: { type: String, default: '/api/upload' },
+  action: { type: String, default: '/file/upload' },
   uploadUrl: { type: String },
   width: { type: String, default: '120px' },
   height: { type: String, default: '120px' },
@@ -265,6 +265,8 @@ function removeFromLists(uploadFile: UploadFile) {
 
 /* ===================== Hooks ===================== */
 function beforeUpload(file: UploadRawFile): Awaitable<boolean | void> {
+  console.log(file, 'mode="avatar"mode="avatar"mode="avatar"mode="avatar"')
+
   if (props.fileSize > 0 && props.fileSize * 1024 * 1024 < file.size) {
     ElMessage.error(`上传文件大小不能超过 ${props.fileSize}M`)
     return false

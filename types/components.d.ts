@@ -11,6 +11,7 @@ declare module 'vue' {
     'AudioRecorder copy': typeof import('./../src/components/AudioRecorder/AudioRecorder copy.vue')['default']
     copy: typeof import('./../src/components/AudioRecorder/AudioRecorder copy.vue')['default']
     DragUploadFile: typeof import('./../src/components/DragUploadFile/DragUploadFile.vue')['default']
+    ElBadge: typeof import('element-plus/es')['ElBadge']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElCol: typeof import('element-plus/es')['ElCol']

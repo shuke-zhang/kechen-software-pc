@@ -61,15 +61,115 @@ const list = ref<VideoCategoryModel[]>([
   { id: 7, name: '培训 · 新员工', code: 'onboard', parentId: 2, status: 'enabled', sort: 21, color: '#8B5CF6', icon: 'icon-onboard', description: '入职培训', createdAt: '2025-08-18 13:00:00', updatedAt: '2025-08-22 08:40:00', videoCount: 15 },
 ])
 
-/** 父类名称映射 */
-const parentNameMap = computed<Record<number, string>>(() => {
-  const map: Record<number, string> = {}
-  list.value.forEach((c) => {
-    if (c.id != null)
-      map[c.id] = c.name ?? ''
-  })
-  return map
-})
+const tree = [
+  {
+    id: 1,
+    name: '冥想',
+    code: 'meditation',
+    parentId: null,
+    status: 'enabled',
+    sort: 10,
+    color: '#10B981',
+    icon: 'icon-mind',
+    description: '舒缓与专注',
+    createdAt: '2025-08-20 10:00:00',
+    updatedAt: '2025-08-21 09:00:00',
+    videoCount: 32,
+    children: [
+      {
+        id: 6,
+        name: '冥想 · 呼吸法',
+        code: 'breath',
+        parentId: 1,
+        status: 'enabled',
+        sort: 11,
+        color: '#34D399',
+        icon: 'icon-breath',
+        description: '呼吸与放松',
+        createdAt: '2025-08-20 11:00:00',
+        updatedAt: '2025-08-21 09:30:00',
+        videoCount: 7,
+        children: [],
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: '培训',
+    code: 'training',
+    parentId: null,
+    status: 'enabled',
+    sort: 20,
+    color: '#6366F1',
+    icon: 'icon-train',
+    description: '员工或学员培训',
+    createdAt: '2025-08-18 12:00:00',
+    updatedAt: '2025-08-22 08:30:00',
+    videoCount: 58,
+    children: [
+      {
+        id: 7,
+        name: '培训 · 新员工',
+        code: 'onboard',
+        parentId: 2,
+        status: 'enabled',
+        sort: 21,
+        color: '#8B5CF6',
+        icon: 'icon-onboard',
+        description: '入职培训',
+        createdAt: '2025-08-18 13:00:00',
+        updatedAt: '2025-08-22 08:40:00',
+        videoCount: 15,
+        children: [],
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: '宣传',
+    code: 'promo',
+    parentId: null,
+    status: 'enabled',
+    sort: 30,
+    color: '#F59E0B',
+    icon: 'icon-promo',
+    description: '营销与品牌',
+    createdAt: '2025-08-10 09:10:00',
+    updatedAt: '2025-08-19 17:20:00',
+    videoCount: 21,
+    children: [],
+  },
+  {
+    id: 4,
+    name: '案例',
+    code: 'case',
+    parentId: null,
+    status: 'enabled',
+    sort: 40,
+    color: '#06B6D4',
+    icon: 'icon-case',
+    description: '成功案例与复盘',
+    createdAt: '2025-08-05 16:10:00',
+    updatedAt: '2025-08-23 10:10:00',
+    videoCount: 12,
+    children: [],
+  },
+  {
+    id: 5,
+    name: '其它',
+    code: 'other',
+    parentId: null,
+    status: 'disabled',
+    sort: 99,
+    color: '#64748B',
+    icon: 'icon-other',
+    description: '未归类视频',
+    createdAt: '2025-08-01 08:00:00',
+    updatedAt: '2025-08-12 11:30:00',
+    videoCount: 5,
+    children: [],
+  },
+]
 
 /** 获取列表（静态模拟） */
 function getList(): void {
@@ -200,28 +300,24 @@ onMounted(() => {
     </el-form>
 
     <!-- 表格 -->
-    <el-table v-loading="loading" :data="filterRows(list, queryParams)" style="width: 100%" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="id" label="ID" align="center" width="90" />
-      <el-table-column prop="name" label="类别名称" align="center" show-overflow-tooltip />
-      <el-table-column prop="code" label="编码" align="center" width="160" show-overflow-tooltip />
-      <el-table-column label="父级" align="center" width="160">
+    <el-table
+      :data="tree"
+      style="width: 100%; margin-bottom: 20px"
+      row-key="id"
+      border
+      default-expand-all
+    >
+      <el-table-column align="center" prop="id" label="编号" width="80" />
+
+      <!-- ② 真正显示名称的列：不会再有缩进，顶格对齐 -->
+      <el-table-column align="center" label="类别名称" class-name="name-col">
         <template #default="{ row }">
-          <span>{{ row.parentId ? parentNameMap[row.parentId] ?? '-' : '-' }}</span>
+          <span class="w-full flex " :class="{ 'pl-[20px]': row.parentId }">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" align="center" width="100">
-        <template #default="{ row }">
-          <el-tag :type="row.status === 'enabled' ? 'success' : 'info'">
-            {{ row.status === 'enabled' ? '启用' : '停用' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="sort" label="排序" align="center" width="90" />
-      <el-table-column prop="videoCount" label="视频数" align="center" width="90" />
-      <el-table-column prop="createdAt" label="创建时间" align="center" width="180" />
-      <el-table-column prop="updatedAt" label="更新时间" align="center" width="180" />
-      <el-table-column prop="description" label="说明" align="center" show-overflow-tooltip />
+
+      <el-table-column align="center" prop="description" label="创建人" />
+      <el-table-column align="center" prop="createdAt" label="创建时间" />
       <el-table-column align="center" label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">

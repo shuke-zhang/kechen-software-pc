@@ -23,9 +23,8 @@ const rules: FormRules = {
           <div class="h-[40px] flex items-center pl-[20px] border-b-[1px] border-[#e7eaec]">
             个人信息
           </div>
+          <UploadFile class="mb-[10px]" />
           <div class="p-[20px]  flex flex-col items-center text-[12px]">
-            <UploadFile mode="avatar" class="mb-[10px]" />
-
             <ul class="list-group ">
               <li class="list-group-item flex justify-between ">
                 <div>用户名称</div>
@@ -45,7 +44,7 @@ const rules: FormRules = {
           </div>
         </div>
       </el-col>
-      <el-col :span="18">
+      <el-col :span="12">
         <div class="card p-0">
           <div
             class="h-[40px] flex items-center pl-[20px] border-b-[1px] border-[#e7eaec]"

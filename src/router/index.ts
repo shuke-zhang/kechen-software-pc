@@ -133,7 +133,9 @@ router.beforeEach(async (to) => {
 
   // 2) 没有 token，跳登录并带上 redirect
   if (!token) {
-    return { path: '/login', query: { redirect: to.fullPath } }
+    console.log('没有token')
+    return true
+    // return { path: '/login', query: { redirect: to.fullPath } }
   }
 
   // 3) 有 token
