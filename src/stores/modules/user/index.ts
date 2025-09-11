@@ -8,7 +8,7 @@ const SUPER_ADMIN = 'admin'
 export const useUserStore = defineStore('user', () => {
   const localUser = ref<UserModel | null>(getCache<UserModel>('USER_INFO')?.value || null)
   const userInfo = ref<UserModel | null>(localUser.value || null)
-  const userName = ref<UserModel['userName'] | null>(localUser?.value ? localUser?.value.userName : null)
+  const userName = ref<UserModel['name'] | null>(localUser?.value ? localUser?.value.name : null)
   const roles = ref<string[]>([])
   const permissions = ref<string[]>([])
   const avater = ref()
@@ -32,7 +32,9 @@ export const useUserStore = defineStore('user', () => {
   async function login(...args: Parameters<typeof loginApi>) {
     const res = await loginApi(...args)
     isLoggedIn.value = true
-    setCacheToken(res.token)
+    console.log(res.data, '登录成功')
+
+    setCacheToken(res.data)
     setCache('IS_LOGGED_IN', true)
     // await getInfo()
   }
@@ -46,11 +48,10 @@ export const useUserStore = defineStore('user', () => {
 
   async function getInfo() {
     const res = await _getUserInfo()
-    userName.value = res.user.userName || '默认'
-    userInfo.value = res.user
-    roles.value = res.roles
+    userName.value = res.data.name || '默认'
+    userInfo.value = res.data
     setCache('IS_LOGGED_IN', true)
-    setCache('USER_INFO', res.user)
+    setCache('USER_INFO', res.data)
   }
 
   function resetAllState() {

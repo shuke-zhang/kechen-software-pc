@@ -23,9 +23,12 @@ const request = new HttpRequest<UserCustomConfig>(
        * token
        */
       const token = getCacheToken().value
+      console.log(token, '请求拦截器token')
 
       if (config?.withToken && token) {
-        config.headers![config.tokenKey || 'Authorization'] = `${config?.tokenKeyScheme || 'Bearer'} ${token}`
+        console.log('确定携带token', token)
+
+        config.headers![config.tokenKey || 'Authorization'] = `${config?.tokenKeyScheme || ''} ${token}`
       }
       /**
        * 忽略重复请求。第一个请求未完成时进行第二个请求，第一个会被被取消
@@ -51,6 +54,8 @@ const request = new HttpRequest<UserCustomConfig>(
     },
     // 响应拦截器
     async response(_response) {
+      console.log('_response', _response)
+
       cancelMap.delete(generateKey(_response.config))
       const config = _response.config as HttpRequestConfig<UserCustomConfig>
 
@@ -59,22 +64,28 @@ const request = new HttpRequest<UserCustomConfig>(
         return _response
       }
       const responseData = _response.data as ResponseResult<object>
-
-      if (responseData.code === 200) {
+      // 成功 - 0  警告300 没登录 401  服务器错误501
+      if (responseData.code === 0) {
         // 请求成功
         return responseData as any
       }
 
+      const msg = responseData.msg || getSystemErrorMessage(responseData.code)
       if (responseData.code === 401) {
+        handleError(msg)
         // 返回登录页
-
+        // useUserStore().logout()
       }
 
-      const msg = responseData.msg || getSystemErrorMessage(responseData.code)
+      if (responseData.code === 300) {
+        return handleWarning(msg, config?.showErrorMsg)
+      }
 
       return handleError(msg, responseData.code !== 401 && config?.showErrorMsg)
     },
     responseError(error: any) {
+      console.log('错误')
+
       const config = error?.config as HttpRequestConfig<UserCustomConfig>
 
       const err = error?.errMsg || error?.msg || error?.message || ''
@@ -129,6 +140,17 @@ export function removeAllPending() {
 function handleError(msg: string, showErrorMsg = true) {
   if (showErrorMsg) {
     showMessageError(msg)
+    throw new Error(msg)
+  }
+  console.log('调用了handleError')
+
+  // 静默失败时，不抛错
+  return undefined
+}
+
+function handleWarning(msg: string, showErrorMsg = true) {
+  if (showErrorMsg) {
+    showMessageWarning(msg)
     throw new Error(msg)
   }
 

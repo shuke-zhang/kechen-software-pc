@@ -1,10 +1,11 @@
 export interface UserModel {
-  userName: string
+  /**
+   * 用户名称
+   */
+  name: string
 }
 
 export interface LoginParams {
-  username: string
+  name: string
   password: string
-  code: string
-  uuid: string
 }

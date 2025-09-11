@@ -34,6 +34,8 @@ export function getCacheToken() {
 }
 
 export function setCacheToken(token: string) {
+  console.log('设置缓存TOKEN', token)
+
   return cache.set('TOKEN', token, -1)
 }
 

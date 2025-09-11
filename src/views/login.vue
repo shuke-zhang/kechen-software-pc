@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { LoginFormModel } from '@/model/login'
-import { getCodeImg } from '@/api/login'
 
 const title = import.meta.env.VITE_APP_TITLE
 const userStore = useUserStore()
@@ -8,41 +7,20 @@ const router = useRouter()
 const route = useRoute()
 
 const loginRef = useTemplateRef('loginFormRef')
-const imgLoading = ref(false)
 const loginForm = ref<LoginFormModel>({
-  username: 'admin',
-  password: 'admin123',
-  rememberMe: false,
-  code: '',
-  uuid: '',
+  name: 'admin',
+  password: '123456',
 })
 
 const loginRules = {
-  username: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
+  name: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
   password: [{ required: true, trigger: 'blur', message: '请输入您的密码' }],
-  code: [{ required: true, trigger: 'change', message: '请输入验证码' }],
 }
-const codeUrl = ref('data:image/gif;base64,')
 const loading = ref(false)
 
 /** 注册开关 */
 const register = ref(false)
 const redirect = ref<string | undefined>(undefined)
-
-/**
- * 获取验证码
- */
-function getCode() {
-  if (imgLoading.value)
-    return
-  imgLoading.value = true
-  getCodeImg().then((res) => {
-    codeUrl.value = `data:image/gif;base64,${res.img}`
-    loginForm.value.uuid = res.uuid
-  }).finally(() => {
-    imgLoading.value = false
-  })
-}
 
 /**
  * 登录方法
@@ -51,25 +29,11 @@ function handleLogin() {
   loginRef.value?.validate((valid) => {
     if (valid) {
       loading.value = true
-      if (loginForm.value.rememberMe) {
-        const data = {
-          username: loginForm.value.username,
-          password: encrypt(loginForm.value.password),
-          rememberMe: loginForm.value.rememberMe,
-
-        }
-        setCache('LOGIN_INFO', data, { day: 2 })
-      }
-      else {
-        removeCache('LOGIN_INFO')
-      }
 
       userStore
         .login({
-          username: loginForm.value.username,
+          name: loginForm.value.name,
           password: loginForm.value.password,
-          code: loginForm.value.code!,
-          uuid: loginForm.value.uuid!,
         })
         .then(() => {
           const query = route.query
@@ -86,8 +50,6 @@ function handleLogin() {
         })
         .catch(() => {
           loading.value = false
-          // 重新获取验证码
-          getCode()
         })
     }
   })
@@ -100,16 +62,15 @@ function getCatchForm() {
   const { value, status } = getCache<LoginFormModel>('LOGIN_INFO')
   if (!value)
     return
-  const { username, password, rememberMe } = value
+  const { name, password } = value
   console.log(status, 'status缓存状态')
 
   if (status === 'expired') {
     showMessageWarning('登录信息已过期，请重新输入')
   }
   loginForm.value = {
-    username: username === undefined ? loginForm.value.username : username,
+    name: name === undefined ? loginForm.value.name : name,
     password: password === undefined ? loginForm.value.password : decrypt(password),
-    rememberMe: rememberMe === undefined ? false : Boolean(rememberMe),
   }
 }
 
@@ -122,7 +83,6 @@ watch(
 )
 
 onMounted(() => {
-  getCode()
   getCatchForm()
 })
 </script>
@@ -138,9 +98,9 @@ onMounted(() => {
       <h3 class="text-[#707070] mx-auto mb-[30px] text-center">
         {{ title }}
       </h3>
-      <el-form-item prop="username">
+      <el-form-item prop="name ">
         <el-input
-          v-model="loginForm.username"
+          v-model="loginForm.name "
           type="text"
           size="large"
           auto-complete="off"
@@ -158,6 +118,7 @@ onMounted(() => {
           size="large"
           auto-complete="off"
           placeholder="密码"
+          show-password
           @keyup.enter="handleLogin"
         >
           <template #prefix>
@@ -165,40 +126,7 @@ onMounted(() => {
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item
-        prop="code"
-      >
-        <div class="w-full flex justify-between">
-          <el-input
-            v-model="loginForm.code"
-            size="large"
-            auto-complete="off"
-            placeholder="验证码"
-            style="width: 65%"
-            @keyup.enter="handleLogin"
-          >
-            <template #prefix>
-              <icon-font
-                name="setting"
-                class="el-input__icon input-icon"
-              />
-            </template>
-          </el-input>
-          <div class="w-[33%] h-[40px] float-right">
-            <el-image v-loading="imgLoading" :src="codeUrl" class="cursor-pointer align-middle h-[40px] w-full pl-[12px]" @click="getCode">
-              <template #error>
-                <div class="cursor-pointer align-middle h-[40px] pl-[12px]" />
-              </template>
-            </el-image>
-          </div>
-        </div>
-      </el-form-item>
-      <el-checkbox
-        v-model="loginForm.rememberMe"
-        style="margin: 0px 0px 25px 0px"
-      >
-        记住密码
-      </el-checkbox>
+
       <el-form-item style="width: 100%">
         <el-button
           :loading="loading"

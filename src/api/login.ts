@@ -1,36 +1,19 @@
 import type { LoginParams, UserModel } from '@/model/user'
 
-/** 请求验证码 */
-export function getCodeImg(ignoreRepeatRequest?: boolean) {
+export function loginApi(params: LoginParams) {
   return request.get<{
-    msg: string
-    img: string
     code: string
-    captchaEnabled: string
-    uuid: string
-  }>({
-    url: '/captchaImage',
-    withToken: false,
-    ignoreRepeatRequest,
-  })
-}
-
-export function loginApi(data: LoginParams) {
-  return request.post<{
+    data: string
     msg: string
-    token: string
   }>({
-    url: '/login',
-    data,
+    url: '/api/user/login',
+    params,
     withToken: false,
   })
 }
 /** 获取用户详细信息 */
 export function getUserInfo() {
-  return request.get<ResponseResult<{
-    roles: string[]
-    user: UserModel
-  }>>({
-    url: '/getInfo',
+  return request.get<ResponseData<UserModel>>({
+    url: '/api/user/info',
   })
 }

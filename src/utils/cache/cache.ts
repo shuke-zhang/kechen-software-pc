@@ -47,6 +47,7 @@ export interface CacheResult<T> {
 export class Cache<CacheType extends AnyObject> {
   packageName: string
   packageVersion: string
+  // 864e5 - 一天的毫秒数
   defaultExpires = 864e5 * 7
 
   constructor(name: string, version: string) {
@@ -109,7 +110,7 @@ export class Cache<CacheType extends AnyObject> {
    * @template K - 缓存键的类型，来自泛型 CacheType 的键
    * @param {K} key - 缓存项的键名
    * @param {CacheType[K]} value - 缓存项的值，类型自动根据 key 推断
-   * @param {number | Partial<CacheTime>} [options] - 过期时间配置，可以是毫秒数或配置对象
+   * @param {number | Partial<CacheTime>} [options] - 过期时间配置，可以是毫秒数或配置对象 不传是 7 天， -1 表示永不过期
    *
    * @returns {void}
    *
@@ -119,16 +120,27 @@ export class Cache<CacheType extends AnyObject> {
   set<K extends keyof CacheType>(key: K, value: CacheType[K], options: number | Partial<CacheTime> = this.defaultExpires) {
     if (typeof localStorage === 'undefined')
       return
+    console.log('111111')
+
     const _key = this.getRealKey(key)
+    console.log('222222')
+
     const data = this.stringifyJson({
       value,
       expires: this.getExpires(options),
     })
+    console.log('33333')
+
     try {
-      data && localStorage.setItem(_key, data)
+      if (data) {
+        console.log('设置缓存1111', _key, data)
+        localStorage.setItem(_key, data)
+      }
     }
 
     catch (_e) {
+      console.log('设置缓存错误')
+
       // handle exceptions, possibly by removing older items
     }
   }

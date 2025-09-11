@@ -143,15 +143,18 @@ router.beforeEach(async (to) => {
   try {
     // 只在首次进入或刷新后拉一次用户信息
 
-    if (!userStore.userInfo?.userName) {
+    if (!userStore.userInfo?.name) {
       await userStore.getInfo()
+      return true
     }
     return true
   }
-  catch (err: any) {
+  catch (_err: any) {
+    console.log('路由拦截到了', _err)
+
     // 失败兜底：清理登录态 + 提示 + 去登录
     await userStore.logout()
-    showMessageError(err?.message || '登录状态已失效，请重新登录')
+    // 响应拦截器已经处理提示信息了， 不用重复提示
     return { path: '/login', query: { redirect: to.fullPath } }
   }
 })
