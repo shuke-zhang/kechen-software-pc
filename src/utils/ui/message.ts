@@ -9,11 +9,16 @@ export function createBaseMessage(type: MessageOptionsType) {
     showClose: true,
   }
   return (message: string, options: MessageOptionsWithType = {}) => {
-    return ElMessage({
-      message,
-      type,
-      ...defaultOptions,
-      ...options,
+    return new Promise((resolve) => {
+      ElMessage({
+        type,
+        message,
+        ...defaultOptions,
+        ...options,
+        onClose: () => {
+          resolve(true)
+        },
+      })
     })
   }
 }

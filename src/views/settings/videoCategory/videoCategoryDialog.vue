@@ -2,13 +2,15 @@
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus'
 import type { VideoCategoryModel } from '@/model/videoCategory'
-import { getVideoCategoryTree } from '@/api/videoCategory'
+import { addVideoCategory, getVideoCategoryTree } from '@/api/videoCategory'
 
 const props = defineProps({
   isAdd: { type: Boolean, required: true },
   data: { type: Object, default: () => ({}) },
   allCategories: { type: Array as () => VideoCategoryModel[], default: () => [] },
 })
+const emit = defineEmits(['success'])
+
 const visible = defineModel({ type: Boolean, required: false })
 const videoCategoryTree = ref<VideoCategoryModel[]>([])
 
@@ -25,7 +27,7 @@ const visitList = ref([{
 const rules: FormRules = {
   parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
   name: [{ required: true, trigger: 'blur', message: '请输入类别名称' }],
-  visitName: [{ required: true, trigger: 'change', message: '请选择诊疗项' }],
+  // visitName: [{ required: true, trigger: 'change', message: '请选择诊疗项' }],
 }
 
 /**
@@ -59,11 +61,13 @@ function submit(): void {
     if (submitLoading.value)
       return
     submitLoading.value = true
-    // TODO: 提交接口；这里仅做演示
-    setTimeout(() => {
+    addVideoCategory(form.value as VideoCategoryModel).then(() => {
       visible.value = false
       reset()
-    }, 500)
+      emit('success')
+    }).finally(() => {
+      submitLoading.value = false
+    })
   })
 }
 
@@ -73,7 +77,6 @@ watch(
     if (!newVal)
       return
     const v = newVal as VideoCategoryModel
-    console.log('getTreegetTreegetTree', newVal)
 
     form.value = {
       id: v.id,

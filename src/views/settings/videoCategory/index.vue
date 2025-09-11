@@ -150,15 +150,6 @@ onMounted(() => {
       </el-table-column>
     </el-table>
 
-    <!-- 分页（静态演示：total 来自 list.length 或筛选长度） -->
-    <Pagination
-      v-show="total > 0"
-      v-model:page="queryParams.page.current"
-      v-model:limit="queryParams.page.size"
-      :total="total"
-      @pagination="getTree"
-    />
-
     <!-- 弹窗：把完整类别列表作为可选父级传入 -->
     <VideoCategoryDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" :all-categories="list" />
   </div>
