@@ -150,8 +150,6 @@ router.beforeEach(async (to) => {
     return true
   }
   catch (_err: any) {
-    console.log('路由拦截到了', _err)
-
     // 失败兜底：清理登录态 + 提示 + 去登录
     await userStore.logout()
     // 响应拦截器已经处理提示信息了， 不用重复提示

@@ -6,6 +6,8 @@ import { removeCacheToken, setCacheToken } from '@/utils/cache'
 const SUPER_ADMIN = 'admin'
 
 export const useUserStore = defineStore('user', () => {
+  const router = useRouter()
+  const route = useRoute()
   const localUser = ref<UserModel | null>(getCache<UserModel>('USER_INFO')?.value || null)
   const userInfo = ref<UserModel | null>(localUser.value || null)
   const userName = ref<UserModel['name'] | null>(localUser?.value ? localUser?.value.name : null)
@@ -42,6 +44,11 @@ export const useUserStore = defineStore('user', () => {
     return new Promise<''>((resolve) => {
       resetAllState()
       removeCacheToken()
+
+      router.replace({
+        path: '/login',
+        query: { redirect: route.fullPath },
+      })
       resolve('')
     })
   }

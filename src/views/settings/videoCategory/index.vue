@@ -194,6 +194,7 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
 /** 初次加载 */
 onMounted(() => {
   total.value = list.value.length
+  getList()
 })
 </script>
 

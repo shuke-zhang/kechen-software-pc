@@ -69,12 +69,17 @@ const request = new HttpRequest<UserCustomConfig>(
         // 请求成功
         return responseData as any
       }
+      console.log(responseData, 'responseData')
 
       const msg = responseData.msg || getSystemErrorMessage(responseData.code)
       if (responseData.code === 401) {
-        handleError(msg)
+        console.log('401需要退出登录123456')
+
+        // handleError(msg)
+        // 只做提示，不做其他操作
+        showMessageError(msg)
         // 返回登录页
-        // useUserStore().logout()
+        return useUserStore().logout()
       }
 
       if (responseData.code === 300) {

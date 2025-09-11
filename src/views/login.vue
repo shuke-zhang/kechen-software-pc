@@ -55,25 +55,6 @@ function handleLogin() {
   })
 }
 
-/**
- * 通过缓存来获取数据
- */
-function getCatchForm() {
-  const { value, status } = getCache<LoginFormModel>('LOGIN_INFO')
-  if (!value)
-    return
-  const { name, password } = value
-  console.log(status, 'status缓存状态')
-
-  if (status === 'expired') {
-    showMessageWarning('登录信息已过期，请重新输入')
-  }
-  loginForm.value = {
-    name: name === undefined ? loginForm.value.name : name,
-    password: password === undefined ? loginForm.value.password : decrypt(password),
-  }
-}
-
 watch(
   route,
   (newRoute) => {
@@ -83,7 +64,6 @@ watch(
 )
 
 onMounted(() => {
-  getCatchForm()
 })
 </script>
 
