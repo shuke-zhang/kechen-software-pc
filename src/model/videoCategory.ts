@@ -7,4 +7,16 @@ export interface VideoCategoryModel {
    * 前端临时使用的日期数组
    */
   dateRange?: string[]
+  /**
+   * 父级类别id
+   */
+  parentId?: number
+  /**
+   * 诊疗项名称
+   */
+  visitName?: string
+  /**
+   * 诊疗项id
+   */
+  visitId?: string
 }

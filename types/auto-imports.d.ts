@@ -51,6 +51,7 @@ declare global {
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const getSelectData: typeof import('../src/utils/helpers/globalMethods')['getSelectData']
   const h: typeof import('vue')['h']
+  const handleTree: typeof import('../src/utils/helpers/tree')['handleTree']
   const inject: typeof import('vue')['inject']
   const isEmpty: typeof import('../src/utils/helpers/validate')['isEmpty']
   const isHttp: typeof import('../src/utils/helpers/validate')['isHttp']

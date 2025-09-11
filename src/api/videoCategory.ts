@@ -4,9 +4,18 @@ import type { VideoCategoryModel } from '@/model/videoCategory'
  * @description 分页查询视频类别列表
  */
 export function getVideoCategoryList(data?: ListPageQuery<VideoCategoryModel>) {
-  return request.post<ResponseData<VideoCategoryModel[]>>({
+  return request.post<ResponseListData<VideoCategoryModel[]>>({
     url: '/api/videoType/list',
     data,
+  })
+}
+
+/**
+ * @description 分页查询视频类别树形结构
+ */
+export function getVideoCategoryTree() {
+  return request.get<ResponseData<VideoCategoryModel[]>>({
+    url: '/api/videoType/tree',
   })
 }
 

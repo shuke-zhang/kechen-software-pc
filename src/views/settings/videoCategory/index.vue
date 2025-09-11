@@ -3,7 +3,7 @@
 import type { ElForm } from 'element-plus'
 import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { getVideoCategoryList } from '@/api/videoCategory'
+import { getVideoCategoryTree } from '@/api/videoCategory'
 import VideoCategoryDialog from './videoCategoryDialog.vue'
 
 /** 分页/弹窗等状态 */
@@ -13,8 +13,6 @@ const dialogVisible = ref(false)
 const isAdd = ref(false)
 const dialogData = ref<VideoCategoryModel>({})
 const ids = ref<number[]>([])
-const single = ref(true)
-const multiple = ref(true)
 
 /** 查询表单 */
 const queryRef = useTemplateRef('queryEl')
@@ -25,134 +23,16 @@ const queryParams = ref<ListPageParamsWrapper<VideoCategoryModel>>({
   },
 })
 
-console.log(queryParams.value, 'queryParams')
-
 /** 静态数据：模拟类别列表 */
 const list = ref<VideoCategoryModel[]>([])
 
-const tree = [
-  {
-    id: 1,
-    name: '冥想',
-    code: 'meditation',
-    parentId: null,
-    status: 'enabled',
-    sort: 10,
-    color: '#10B981',
-    icon: 'icon-mind',
-    description: '舒缓与专注',
-    createdAt: '2025-08-20 10:00:00',
-    updatedAt: '2025-08-21 09:00:00',
-    videoCount: 32,
-    children: [
-      {
-        id: 6,
-        name: '冥想 · 呼吸法',
-        code: 'breath',
-        parentId: 1,
-        status: 'enabled',
-        sort: 11,
-        color: '#34D399',
-        icon: 'icon-breath',
-        description: '呼吸与放松',
-        createdAt: '2025-08-20 11:00:00',
-        updatedAt: '2025-08-21 09:30:00',
-        videoCount: 7,
-        children: [],
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: '培训',
-    code: 'training',
-    parentId: null,
-    status: 'enabled',
-    sort: 20,
-    color: '#6366F1',
-    icon: 'icon-train',
-    description: '员工或学员培训',
-    createdAt: '2025-08-18 12:00:00',
-    updatedAt: '2025-08-22 08:30:00',
-    videoCount: 58,
-    children: [
-      {
-        id: 7,
-        name: '培训 · 新员工',
-        code: 'onboard',
-        parentId: 2,
-        status: 'enabled',
-        sort: 21,
-        color: '#8B5CF6',
-        icon: 'icon-onboard',
-        description: '入职培训',
-        createdAt: '2025-08-18 13:00:00',
-        updatedAt: '2025-08-22 08:40:00',
-        videoCount: 15,
-        children: [],
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: '宣传',
-    code: 'promo',
-    parentId: null,
-    status: 'enabled',
-    sort: 30,
-    color: '#F59E0B',
-    icon: 'icon-promo',
-    description: '营销与品牌',
-    createdAt: '2025-08-10 09:10:00',
-    updatedAt: '2025-08-19 17:20:00',
-    videoCount: 21,
-    children: [],
-  },
-  {
-    id: 4,
-    name: '案例',
-    code: 'case',
-    parentId: null,
-    status: 'enabled',
-    sort: 40,
-    color: '#06B6D4',
-    icon: 'icon-case',
-    description: '成功案例与复盘',
-    createdAt: '2025-08-05 16:10:00',
-    updatedAt: '2025-08-23 10:10:00',
-    videoCount: 12,
-    children: [],
-  },
-  {
-    id: 5,
-    name: '其它',
-    code: 'other',
-    parentId: null,
-    status: 'disabled',
-    sort: 99,
-    color: '#64748B',
-    icon: 'icon-other',
-    description: '未归类视频',
-    createdAt: '2025-08-01 08:00:00',
-    updatedAt: '2025-08-12 11:30:00',
-    videoCount: 5,
-    children: [],
-  },
-]
-
 /** 获取列表（静态模拟） */
-function getList(): void {
+function getTree(): void {
   if (loading.value)
     return
   loading.value = true
-  console.log('获取视频类别列表', queryParams.value)
-  getVideoCategoryList(queryParams.value).then((res) => {
-    console.log(res, '获取结果')
-
-    // if (res.code === 200) {
-    //   list.value = res.data
-    //   total.value = res.total
-    // }
+  getVideoCategoryTree().then((res) => {
+    list.value = res.data
   }).finally(() => {
     loading.value = false
   })
@@ -165,7 +45,7 @@ function retQuery(): void {
     size: 10,
   } }
   resetForm(queryRef.value)
-  getList()
+  getTree()
 }
 
 /** 打开新增 */
@@ -194,7 +74,7 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
 /** 初次加载 */
 onMounted(() => {
   total.value = list.value.length
-  getList()
+  getTree()
 })
 </script>
 
@@ -209,7 +89,7 @@ onMounted(() => {
           clearable
           size="large"
           style="width: 220px"
-          @keyup.enter="getList"
+          @keyup.enter="getTree"
         />
       </el-form-item>
 
@@ -226,7 +106,7 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" :icon="Search" @click="getList">
+        <el-button type="primary" :icon="Search" @click="getTree">
           查询
         </el-button>
         <el-button type="primary" plain :icon="Refresh" @click="retQuery">
@@ -243,10 +123,9 @@ onMounted(() => {
 
     <!-- 表格 -->
     <el-table
-      :data="tree"
+      :data="list"
       style="width: 100%; margin-bottom: 20px"
       row-key="id"
-      border
       default-expand-all
     >
       <el-table-column align="center" prop="id" label="编号" width="80" />
@@ -254,12 +133,11 @@ onMounted(() => {
       <!-- ② 真正显示名称的列：不会再有缩进，顶格对齐 -->
       <el-table-column align="center" label="类别名称" class-name="name-col">
         <template #default="{ row }">
-          <span class="w-full flex " :class="{ 'pl-[20px]': row.parentId }">{{ row.name }}</span>
+          <span class="w-full flex flex-center" :class="{ 'pl-[20px]': row.parentId }">{{ row.name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" prop="description" label="创建人" />
-      <el-table-column align="center" prop="createdAt" label="创建时间" />
+      <el-table-column align="center" prop="createdTime" label="创建时间" min-width="180" />
       <el-table-column align="center" label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">
@@ -278,7 +156,7 @@ onMounted(() => {
       v-model:page="queryParams.page.current"
       v-model:limit="queryParams.page.size"
       :total="total"
-      @pagination="getList"
+      @pagination="getTree"
     />
 
     <!-- 弹窗：把完整类别列表作为可选父级传入 -->

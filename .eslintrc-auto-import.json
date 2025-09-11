@@ -150,6 +150,7 @@
     "formatterTableEmpty": true,
     "getSelectData": true,
     "selectDictLabels": true,
-    "isTextTruncated": true
+    "isTextTruncated": true,
+    "handleTree": true
   }
 }

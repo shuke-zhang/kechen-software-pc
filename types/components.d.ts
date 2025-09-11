@@ -38,6 +38,7 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
+    ElTreeSelect: typeof import('element-plus/es')['ElTreeSelect']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     IconFont: typeof import('./../src/components/icon-font/icon-font.vue')['default']
     KcTable: typeof import('./../src/components/KcTable/KcTable.vue')['default']

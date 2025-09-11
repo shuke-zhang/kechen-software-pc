@@ -1,22 +1,8 @@
 <!-- videoCategoryDialog.vue -->
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus'
-
-type CategoryStatus = 'enabled' | 'disabled'
-interface VideoCategoryModel {
-  id?: number
-  name?: string
-  code?: string
-  parentId?: number | null
-  status?: CategoryStatus
-  sort?: number
-  color?: string
-  icon?: string
-  description?: string
-  createdAt?: string
-  updatedAt?: string
-  videoCount?: number
-}
+import type { VideoCategoryModel } from '@/model/videoCategory'
+import { getVideoCategoryTree } from '@/api/videoCategory'
 
 const props = defineProps({
   isAdd: { type: Boolean, required: true },
@@ -24,25 +10,35 @@ const props = defineProps({
   allCategories: { type: Array as () => VideoCategoryModel[], default: () => [] },
 })
 const visible = defineModel({ type: Boolean, required: false })
+const videoCategoryTree = ref<VideoCategoryModel[]>([])
 
 const submitLoading = ref(false)
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
 const form = ref<VideoCategoryModel>({
   name: '',
-  code: '',
-  parentId: null,
-  status: 'enabled',
-  sort: 50,
-  color: '',
-  icon: '',
-  description: '',
+  parentId: undefined,
 })
-
+const visitList = ref([{
+  label: '测试',
+  value: 1,
+}])
 const rules: FormRules = {
+  parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
   name: [{ required: true, trigger: 'blur', message: '请输入类别名称' }],
-  code: [{ required: true, trigger: 'blur', message: '请输入类别编码' }],
-  status: [{ required: true, trigger: 'change', message: '请选择状态' }],
-  sort: [{ type: 'number', trigger: 'blur', message: '排序必须是数字' }],
+  visitName: [{ required: true, trigger: 'change', message: '请选择诊疗项' }],
+}
+
+/**
+ * 获取诊疗项列表
+ */
+function getVisitList() {
+
+}
+
+function getTree() {
+  getVideoCategoryTree().then((res) => {
+    videoCategoryTree.value = res.data
+  })
 }
 
 function cancel(): void {
@@ -51,7 +47,7 @@ function cancel(): void {
 }
 
 function reset(): void {
-  form.value = { name: '', code: '', parentId: null, status: 'enabled', sort: 50, color: '', icon: '', description: '' }
+  form.value = { name: '', parentId: undefined }
   resetForm(formRef.value)
   submitLoading.value = false
 }
@@ -71,88 +67,77 @@ function submit(): void {
   })
 }
 
-const parentCandidates = computed<VideoCategoryModel[]>(() => {
-  const meId = (props.data as VideoCategoryModel)?.id
-  return props.allCategories.filter(c => c.id !== meId)
-})
-
 watch(
   () => props.data,
   (newVal) => {
     if (!newVal)
       return
     const v = newVal as VideoCategoryModel
+    console.log('getTreegetTreegetTree', newVal)
+
     form.value = {
       id: v.id,
       name: v.name ?? '',
-      code: v.code ?? '',
-      parentId: v.parentId ?? null,
-      status: v.status ?? 'enabled',
-      sort: v.sort ?? 50,
-      color: v.color ?? '',
-      icon: v.icon ?? '',
-      description: v.description ?? '',
-      createdAt: v.createdAt,
-      updatedAt: v.updatedAt,
-      videoCount: v.videoCount,
+      parentId: v.parentId ?? undefined,
     }
   },
   { immediate: true },
 )
+watch(() => visible.value, (newVal) => {
+  if (newVal) {
+    getTree()
+    getVisitList()
+  }
+}, { immediate: true })
 </script>
 
 <template>
   <el-dialog
     v-model="visible"
     :title="isAdd ? '新增视频类别' : '修改视频类别'"
-    width="820"
+    width="800"
     :close-on-click-modal="false"
     @close="cancel"
   >
     <el-form ref="formRef" :inline="true" :model="form" :rules="rules" class="large-form" label-width="100">
       <el-row :gutter="20">
         <el-col :span="12">
+          <el-form-item label="父级类别" prop="parentId" style="width: 100%">
+            <el-tree-select
+              v-model="form.parentId"
+              check-strictly
+              placeholder="请选择父级分类"
+              :data="videoCategoryTree"
+              :render-after-expand="false"
+              :props="{
+                label: 'name',
+                value: 'id',
+                children: 'children',
+              }"
+              style="width: 240px"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
           <el-form-item label="类别名称" prop="name" style="width: 100%">
             <el-input v-model="form.name" clearable placeholder="例如：冥想 / 培训 / 宣传" size="large" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="类别编码" prop="code" style="width: 100%">
-            <el-input v-model="form.code" clearable placeholder="英文或拼音，唯一，例如 meditation" size="large" />
-          </el-form-item>
-        </el-col>
 
         <el-col :span="12">
-          <el-form-item label="状态" prop="status" style="width: 100%">
-            <el-select v-model="form.status" placeholder="请选择" size="large" style="width: 100%">
-              <el-option label="启用" value="enabled" />
-              <el-option label="停用" value="disabled" />
+          <el-form-item label="诊疗项" prop="visitName" style="width: 100%">
+            <el-select v-model="form.visitName" placeholder="请选择诊疗项" style="width: 240px">
+              <el-option
+                v-for="item in visitList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
-
-        <el-col :span="12">
-          <el-form-item label="排序" prop="sort" style="width: 100%">
-            <el-input v-model.number="form.sort" type="number" placeholder="数值越小越靠前" size="large" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="主题色" prop="color" style="width: 100%">
-            <el-color-picker v-model="form.color" show-alpha />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="12">
-          <el-form-item label="图标" prop="icon" style="width: 100%">
-            <el-input v-model="form.icon" clearable placeholder="例如：icon-mind / icon-train" size="large" />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="24">
-          <el-form-item label="说明" prop="description" style="width: 100%">
-            <el-input v-model="form.description" type="textarea" :rows="3" placeholder="类别用途、展示场景等" size="large" />
-          </el-form-item>
-        </el-col>
+        <!-- 诊疗项目 一样去选择 -->
+        <!-- 诊疗id传递的时候需要传递 -->
       </el-row>
     </el-form>
 
