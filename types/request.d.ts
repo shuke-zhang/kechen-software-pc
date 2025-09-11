@@ -34,6 +34,16 @@ declare interface ListParamsBase {
 }
 
 /**
+ * @description page 基础分页参数
+ */
+declare interface ListParamsPageBase {
+  page: {
+    current: number
+    size: number
+  }
+}
+
+/**
  * @description 分页查询参数：基础参数 + 泛型查询条件（可选）
  */
 declare type ListQueryParams<T extends AnyObject = AnyObject>
@@ -44,4 +54,11 @@ declare type ListQueryParams<T extends AnyObject = AnyObject>
  */
 declare type ListParamsWrapper<T extends AnyObject = AnyObject> = ListParamsBase & Partial<T>
 
+declare type ListPageParamsWrapper<T extends AnyObject = AnyObject> = ListParamsPageBase & Partial<T>
+
 declare type ListQuery<T extends AnyObject = AnyObject> = ListParamsBase | ListParamsWrapper<T> | Partial<T>
+
+/**
+ * @description page分页方式
+ */
+declare type ListPageQuery<T extends AnyObject = AnyObject> = ListParamsPageBase | ListPageParamsWrapper<T> | Partial<T>

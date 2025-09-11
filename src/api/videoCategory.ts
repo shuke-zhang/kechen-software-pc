@@ -1,0 +1,41 @@
+import type { VideoCategoryModel } from '@/model/videoCategory'
+
+/**
+ * @description 分页查询视频类别列表
+ */
+export function getVideoCategoryList(data?: ListPageQuery<VideoCategoryModel>) {
+  return request.post<ResponseData<VideoCategoryModel[]>>({
+    url: '/api/videoType/list',
+    data,
+  })
+}
+
+/**
+ * @description 新增数据
+ */
+export function addDevice(data: VideoCategoryModel) {
+  return request.post({
+    url: '/api/videoType/add',
+    data,
+  })
+}
+/**
+ * @description 修改数据
+ */
+export function PutDevice(data: VideoCategoryModel) {
+  return request.post({
+    url: '/api/videoType/update',
+    data,
+  })
+}
+/**
+ * @description 删除数据
+ */
+export function DelDevice(idList: string[]) {
+  // 将数组转换为多个 `idList` 查询参数
+  const queryString = idList.map(id => `idList=${id}`).join('&')
+
+  return request.delete({
+    url: `/api/videoType/delete?${queryString}`,
+  })
+}

@@ -1,34 +1,10 @@
 <!-- VideoCategoryPage.vue -->
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
+import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { getVideoCategoryList } from '@/api/videoCategory'
 import VideoCategoryDialog from './videoCategoryDialog.vue'
-
-/** 基础模型（你也可以抽到 @/model/videoCategory） */
-type CategoryStatus = 'enabled' | 'disabled'
-interface VideoCategoryModel {
-  id?: number
-  name?: string
-  code?: string
-  parentId?: number | null
-  status?: CategoryStatus
-  sort?: number
-  color?: string
-  icon?: string
-  description?: string
-  createdAt?: string
-  updatedAt?: string
-  videoCount?: number
-}
-
-/** 查询模型 */
-interface QueryModel {
-  pageNum: number
-  pageSize: number
-  name?: string
-  status?: CategoryStatus | ''
-  dateRange?: [string, string] | undefined
-}
 
 /** 分页/弹窗等状态 */
 const total = ref(0)
@@ -42,24 +18,17 @@ const multiple = ref(true)
 
 /** 查询表单 */
 const queryRef = useTemplateRef('queryEl')
-const queryParams = ref<QueryModel>({
-  pageNum: 1,
-  pageSize: 10,
-  name: '',
-  status: '',
-  dateRange: undefined,
+const queryParams = ref<ListPageParamsWrapper<VideoCategoryModel>>({
+  page: {
+    current: 1,
+    size: 10,
+  },
 })
 
+console.log(queryParams.value, 'queryParams')
+
 /** 静态数据：模拟类别列表 */
-const list = ref<VideoCategoryModel[]>([
-  { id: 1, name: '冥想', code: 'meditation', parentId: null, status: 'enabled', sort: 10, color: '#10B981', icon: 'icon-mind', description: '舒缓与专注', createdAt: '2025-08-20 10:00:00', updatedAt: '2025-08-21 09:00:00', videoCount: 32 },
-  { id: 2, name: '培训', code: 'training', parentId: null, status: 'enabled', sort: 20, color: '#6366F1', icon: 'icon-train', description: '员工或学员培训', createdAt: '2025-08-18 12:00:00', updatedAt: '2025-08-22 08:30:00', videoCount: 58 },
-  { id: 3, name: '宣传', code: 'promo', parentId: null, status: 'enabled', sort: 30, color: '#F59E0B', icon: 'icon-promo', description: '营销与品牌', createdAt: '2025-08-10 09:10:00', updatedAt: '2025-08-19 17:20:00', videoCount: 21 },
-  { id: 4, name: '案例', code: 'case', parentId: null, status: 'enabled', sort: 40, color: '#06B6D4', icon: 'icon-case', description: '成功案例与复盘', createdAt: '2025-08-05 16:10:00', updatedAt: '2025-08-23 10:10:00', videoCount: 12 },
-  { id: 5, name: '其它', code: 'other', parentId: null, status: 'disabled', sort: 99, color: '#64748B', icon: 'icon-other', description: '未归类视频', createdAt: '2025-08-01 08:00:00', updatedAt: '2025-08-12 11:30:00', videoCount: 5 },
-  { id: 6, name: '冥想 · 呼吸法', code: 'breath', parentId: 1, status: 'enabled', sort: 11, color: '#34D399', icon: 'icon-breath', description: '呼吸与放松', createdAt: '2025-08-20 11:00:00', updatedAt: '2025-08-21 09:30:00', videoCount: 7 },
-  { id: 7, name: '培训 · 新员工', code: 'onboard', parentId: 2, status: 'enabled', sort: 21, color: '#8B5CF6', icon: 'icon-onboard', description: '入职培训', createdAt: '2025-08-18 13:00:00', updatedAt: '2025-08-22 08:40:00', videoCount: 15 },
-])
+const list = ref<VideoCategoryModel[]>([])
 
 const tree = [
   {
@@ -177,38 +146,24 @@ function getList(): void {
     return
   loading.value = true
   console.log('获取视频类别列表', queryParams.value)
-  setTimeout(() => {
-    const rows = filterRows(list.value, queryParams.value)
-    total.value = rows.length
-    loading.value = false
-  }, 200)
-}
+  getVideoCategoryList(queryParams.value).then((res) => {
+    console.log(res, '获取结果')
 
-/** 本地筛选（根据 name / status / 时间范围） */
-function filterRows(rows: VideoCategoryModel[], qp: QueryModel): VideoCategoryModel[] {
-  let ret = rows.slice()
-  if (qp.name && qp.name.trim()) {
-    const kw = qp.name.trim().toLowerCase()
-    ret = ret.filter(v => (v.name ?? '').toLowerCase().includes(kw) || (v.code ?? '').toLowerCase().includes(kw))
-  }
-  if (qp.status) {
-    ret = ret.filter(v => v.status === qp.status)
-  }
-  if (qp.dateRange && qp.dateRange.length === 2) {
-    const [start, end] = qp.dateRange
-    ret = ret.filter((v) => {
-      const ts = new Date(v.createdAt ?? '').getTime()
-      const s = new Date(start).getTime()
-      const e = new Date(end).getTime()
-      return Number.isFinite(ts) && ts >= s && ts <= e
-    })
-  }
-  return ret
+    // if (res.code === 200) {
+    //   list.value = res.data
+    //   total.value = res.total
+    // }
+  }).finally(() => {
+    loading.value = false
+  })
 }
 
 /** 重置查询 */
 function retQuery(): void {
-  queryParams.value = { pageNum: 1, pageSize: 10, name: '', status: '', dateRange: undefined }
+  queryParams.value = { name: '', page: {
+    current: 1,
+    size: 10,
+  } }
   resetForm(queryRef.value)
   getList()
 }
@@ -236,13 +191,6 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
   })
 }
 
-/** 选择变化 */
-function handleSelectionChange(selection: VideoCategoryModel[]): void {
-  ids.value = selection.map(item => item.id!)
-  single.value = selection.length !== 1
-  multiple.value = selection.length === 0
-}
-
 /** 初次加载 */
 onMounted(() => {
   total.value = list.value.length
@@ -262,13 +210,6 @@ onMounted(() => {
           style="width: 220px"
           @keyup.enter="getList"
         />
-      </el-form-item>
-
-      <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="状态" clearable size="large" style="width: 160px">
-          <el-option label="启用" value="enabled" />
-          <el-option label="停用" value="disabled" />
-        </el-select>
       </el-form-item>
 
       <el-form-item>
@@ -333,8 +274,8 @@ onMounted(() => {
     <!-- 分页（静态演示：total 来自 list.length 或筛选长度） -->
     <Pagination
       v-show="total > 0"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
+      v-model:page="queryParams.page.current"
+      v-model:limit="queryParams.page.size"
       :total="total"
       @pagination="getList"
     />
