@@ -40,11 +40,12 @@ export function PutVideoCategory(data: VideoCategoryModel) {
 /**
  * @description 删除数据
  */
-export function DelVideoCategory(idList: string[]) {
+export function DelVideoCategory(idList: number[]) {
   // 将数组转换为多个 `idList` 查询参数
   const queryString = idList.map(id => `idList=${id}`).join('&')
 
   return request.delete({
-    url: `/api/videoType/delete?${queryString}`,
+    url: `/api/videoType/delete`,
+    data: idList,
   })
 }

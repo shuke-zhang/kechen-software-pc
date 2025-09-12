@@ -1,4 +1,5 @@
 export * from './function'
 export * from './globalMethods'
+export * from './lodash-fn'
 export * from './tree'
 export * from './validate'

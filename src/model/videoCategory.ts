@@ -19,4 +19,6 @@ export interface VideoCategoryModel {
    * 诊疗项id
    */
   visitId?: string
+
+  children?: VideoCategoryModel[]
 }

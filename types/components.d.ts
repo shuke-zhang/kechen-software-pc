@@ -42,6 +42,7 @@ declare module 'vue' {
     ElUpload: typeof import('element-plus/es')['ElUpload']
     IconFont: typeof import('./../src/components/icon-font/icon-font.vue')['default']
     KcTable: typeof import('./../src/components/KcTable/KcTable.vue')['default']
+    NConfigProvider: typeof import('naive-ui')['NConfigProvider']
     Pagination: typeof import('./../src/components/Pagination/Pagination.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

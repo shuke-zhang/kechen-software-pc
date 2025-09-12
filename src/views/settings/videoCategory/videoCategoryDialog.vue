@@ -1,18 +1,19 @@
 <!-- videoCategoryDialog.vue -->
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus'
+import type { PropType } from 'vue'
 import type { VideoCategoryModel } from '@/model/videoCategory'
-import { addVideoCategory, getVideoCategoryTree } from '@/api/videoCategory'
+import { addVideoCategory } from '@/api/videoCategory'
 
 const props = defineProps({
   isAdd: { type: Boolean, required: true },
   data: { type: Object, default: () => ({}) },
   allCategories: { type: Array as () => VideoCategoryModel[], default: () => [] },
+  videoCategoryTree: { type: Array as PropType<VideoCategoryModel[]>, default: () => [] },
 })
 const emit = defineEmits(['success'])
 
 const visible = defineModel({ type: Boolean, required: false })
-const videoCategoryTree = ref<VideoCategoryModel[]>([])
 
 const submitLoading = ref(false)
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
@@ -25,7 +26,7 @@ const visitList = ref([{
   value: 1,
 }])
 const rules: FormRules = {
-  parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
+  // parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
   name: [{ required: true, trigger: 'blur', message: '请输入类别名称' }],
   // visitName: [{ required: true, trigger: 'change', message: '请选择诊疗项' }],
 }
@@ -35,12 +36,6 @@ const rules: FormRules = {
  */
 function getVisitList() {
 
-}
-
-function getTree() {
-  getVideoCategoryTree().then((res) => {
-    videoCategoryTree.value = res.data
-  })
 }
 
 function cancel(): void {
@@ -88,7 +83,6 @@ watch(
 )
 watch(() => visible.value, (newVal) => {
   if (newVal) {
-    getTree()
     getVisitList()
   }
 }, { immediate: true })

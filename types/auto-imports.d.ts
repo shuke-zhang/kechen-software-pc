@@ -50,6 +50,7 @@ declare global {
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const getSelectData: typeof import('../src/utils/helpers/globalMethods')['getSelectData']
+  const getTreeFlatList: typeof import('../src/utils/helpers/lodash-fn')['getTreeFlatList']
   const h: typeof import('vue')['h']
   const handleTree: typeof import('../src/utils/helpers/tree')['handleTree']
   const inject: typeof import('vue')['inject']

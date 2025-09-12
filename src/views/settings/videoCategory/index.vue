@@ -3,9 +3,9 @@
 import type { ElForm } from 'element-plus'
 import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { getVideoCategoryTree } from '@/api/videoCategory'
-import VideoCategoryDialog from './videoCategoryDialog.vue'
 
+import { DelVideoCategory, getVideoCategoryTree } from '@/api/videoCategory'
+import VideoCategoryDialog from './videoCategoryDialog.vue'
 /** 分页/弹窗等状态 */
 const total = ref(0)
 const loading = ref(false)
@@ -13,7 +13,9 @@ const dialogVisible = ref(false)
 const isAdd = ref(false)
 const dialogData = ref<VideoCategoryModel>({})
 const ids = ref<number[]>([])
-
+const single = ref(true)
+const multiple = ref(true)
+const currentPreTree = ref<VideoCategoryModel[]>([])
 /** 查询表单 */
 const queryRef = useTemplateRef('queryEl')
 const queryParams = ref<ListPageParamsWrapper<VideoCategoryModel>>({
@@ -22,7 +24,6 @@ const queryParams = ref<ListPageParamsWrapper<VideoCategoryModel>>({
     size: 10,
   },
 })
-
 /** 静态数据：模拟类别列表 */
 const list = ref<VideoCategoryModel[]>([])
 
@@ -36,6 +37,12 @@ function getTree(): void {
   }).finally(() => {
     loading.value = false
   })
+}
+
+function handleSelectionChange(selection: VideoCategoryModel[]) {
+  ids.value = selection.map(item => item.id!)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
 }
 
 /** 重置查询 */
@@ -53,21 +60,33 @@ function handleAdd(): void {
   isAdd.value = true
   dialogData.value = {}
   dialogVisible.value = true
+  currentPreTree.value = list.value
 }
 
 /** 打开编辑 */
 function handlePut(row: VideoCategoryModel): void {
   isAdd.value = false
   dialogData.value = { ...row }
+  currentPreTree.value = list.value.filter(item => item.id !== row.id)
   dialogVisible.value = true
 }
 
 /** 删除（支持批量） */
 function handleDel(_ids: number[] | VideoCategoryModel): void {
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
-  confirmWarning('是否确认删除所选视频类别？').then(() => {
-    console.log('删除 IDs:', delIds)
-    // TODO: 调用删除接口；当前为静态演示
+  const hasChildren = list.value.some(item => delIds.includes(item.id!) && item.children && item.children.length > 0)
+  if (hasChildren) {
+    showMessageError('请先删除所选项下的子类数据')
+    return
+  }
+  const selectedNames = getTreeFlatList(list.value.filter(item => delIds.includes(item.id!))).map(item => item.name).join(', ')
+
+  confirmWarning(`是否确认删除所选视频类别：${selectedNames}？`).then(() => {
+    DelVideoCategory(delIds).then(() => {
+      getTree()
+      ids.value = []
+      showMessageSuccess('删除成功')
+    })
   })
 }
 
@@ -123,11 +142,15 @@ onMounted(() => {
 
     <!-- 表格 -->
     <el-table
+      v-loading="loading"
       :data="list"
       style="width: 100%; margin-bottom: 20px"
       row-key="id"
       default-expand-all
+      @selection-change="handleSelectionChange"
     >
+      <el-table-column type="selection" width="55" />
+
       <el-table-column align="center" prop="id" label="编号" width="80" />
 
       <!-- ② 真正显示名称的列：不会再有缩进，顶格对齐 -->
@@ -143,7 +166,7 @@ onMounted(() => {
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
           </el-button>
-          <el-button size="small" type="danger" @click="handleDel(row)">
+          <el-button :disabled="!multiple" size="small" type="danger" @click="handleDel(row)">
             删除
           </el-button>
         </template>
@@ -151,7 +174,7 @@ onMounted(() => {
     </el-table>
 
     <!-- 弹窗：把完整类别列表作为可选父级传入 -->
-    <VideoCategoryDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" :all-categories="list" />
+    <VideoCategoryDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" :all-categories="list" :video-category-tree="currentPreTree" @success="getTree" />
   </div>
 </template>
 

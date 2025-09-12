@@ -151,6 +151,7 @@
     "getSelectData": true,
     "selectDictLabels": true,
     "isTextTruncated": true,
-    "handleTree": true
+    "handleTree": true,
+    "getTreeFlatList": true
   }
 }
