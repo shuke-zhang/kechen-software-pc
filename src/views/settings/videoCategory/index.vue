@@ -15,14 +15,11 @@ const dialogData = ref<VideoCategoryModel>({})
 const ids = ref<number[]>([])
 const single = ref(true)
 const multiple = ref(true)
-const currentPreTree = ref<VideoCategoryModel[]>([])
+const currentPreTree = ref<VideoCategoryModel[] | null>(null)
 /** 查询表单 */
 const queryRef = useTemplateRef('queryEl')
-const queryParams = ref<ListPageParamsWrapper<VideoCategoryModel>>({
-  page: {
-    current: 1,
-    size: 10,
-  },
+const queryParams = ref<VideoCategoryModel>({
+
 })
 /** 静态数据：模拟类别列表 */
 const list = ref<VideoCategoryModel[]>([])
@@ -32,7 +29,7 @@ function getTree(): void {
   if (loading.value)
     return
   loading.value = true
-  getVideoCategoryTree().then((res) => {
+  getVideoCategoryTree(queryParams.value).then((res) => {
     list.value = res.data
   }).finally(() => {
     loading.value = false
@@ -47,27 +44,39 @@ function handleSelectionChange(selection: VideoCategoryModel[]) {
 
 /** 重置查询 */
 function retQuery(): void {
-  queryParams.value = { name: '', page: {
-    current: 1,
-    size: 10,
-  } }
+  queryParams.value = { }
   resetForm(queryRef.value)
   getTree()
 }
 
 /** 打开新增 */
-function handleAdd(): void {
+function handleAdd(_event: MouseEvent, row?: VideoCategoryModel): void {
   isAdd.value = true
   dialogData.value = {}
   dialogVisible.value = true
-  currentPreTree.value = list.value
+
+  currentPreTree.value = row?.id
+    ? getCurrentPreTree(list.value, row!.id!) as VideoCategoryModel[]
+    : [{
+        id: -1,
+        name: '根目录',
+      }, ...list.value]
 }
 
 /** 打开编辑 */
 function handlePut(row: VideoCategoryModel): void {
+  // 是否是顶层目录 使用时需要 !isTopLevel
+  const isTopLevel = !!row.parentId
+  console.log(isTopLevel, 'isTopLevel')
+
   isAdd.value = false
   dialogData.value = { ...row }
-  currentPreTree.value = list.value.filter(item => item.id !== row.id)
+  currentPreTree.value = !isTopLevel
+    ? [{
+        id: -1,
+        name: '根目录',
+      }, ...list.value]
+    : list.value
   dialogVisible.value = true
 }
 
@@ -90,6 +99,24 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
   })
 }
 
+/**
+ * 在树中找到指定 id 的节点（包含它的子树）
+ */
+function getCurrentPreTree(tree: VideoCategoryModel[], id: number): VideoCategoryModel[] | null {
+  for (const item of tree) {
+    if (item.id === id) {
+      return [item]
+    }
+    if (item.children) {
+      const found = getCurrentPreTree(item.children, id)
+      if (found) {
+        return found
+      }
+    }
+  }
+  return null
+}
+
 /** 初次加载 */
 onMounted(() => {
   total.value = list.value.length
@@ -100,27 +127,15 @@ onMounted(() => {
 <template>
   <div class="container">
     <!-- 查询区域 -->
-    <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
+    <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.name"
-          placeholder="类别名称 / 编码"
+          placeholder="类别名称"
           clearable
           size="large"
           style="width: 220px"
           @keyup.enter="getTree"
-        />
-      </el-form-item>
-
-      <el-form-item>
-        <el-date-picker
-          v-model="queryParams.dateRange"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="创建开始"
-          end-placeholder="创建结束"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          size="large"
         />
       </el-form-item>
 
@@ -151,7 +166,7 @@ onMounted(() => {
     >
       <el-table-column type="selection" width="55" />
 
-      <el-table-column align="center" prop="id" label="编号" width="80" />
+      <el-table-column align="center" prop="id" label="编号" min-width="50" />
 
       <!-- ② 真正显示名称的列：不会再有缩进，顶格对齐 -->
       <el-table-column align="center" label="类别名称" class-name="name-col">
@@ -163,6 +178,9 @@ onMounted(() => {
       <el-table-column align="center" prop="createdTime" label="创建时间" min-width="180" />
       <el-table-column align="center" label="操作" width="220" fixed="right">
         <template #default="{ row }">
+          <el-button size="small" type="success" @click="handleAdd($event, row)">
+            新增
+          </el-button>
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
           </el-button>

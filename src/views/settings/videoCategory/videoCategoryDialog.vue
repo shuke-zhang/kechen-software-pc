@@ -9,7 +9,7 @@ const props = defineProps({
   isAdd: { type: Boolean, required: true },
   data: { type: Object, default: () => ({}) },
   allCategories: { type: Array as () => VideoCategoryModel[], default: () => [] },
-  videoCategoryTree: { type: Array as PropType<VideoCategoryModel[]>, default: () => [] },
+  videoCategoryTree: { type: Array as PropType<VideoCategoryModel[] | null>, default: () => [] },
 })
 const emit = defineEmits(['success'])
 
@@ -26,7 +26,7 @@ const visitList = ref([{
   value: 1,
 }])
 const rules: FormRules = {
-  // parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
+  parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
   name: [{ required: true, trigger: 'blur', message: '请输入类别名称' }],
   // visitName: [{ required: true, trigger: 'change', message: '请选择诊疗项' }],
 }
@@ -56,7 +56,12 @@ function submit(): void {
     if (submitLoading.value)
       return
     submitLoading.value = true
-    addVideoCategory(form.value as VideoCategoryModel).then(() => {
+    const data = {
+      ...form.value,
+      parentId: form.value.parentId === -1 ? undefined : form.value.parentId,
+    }
+
+    addVideoCategory(data).then(() => {
       visible.value = false
       reset()
       emit('success')
@@ -66,24 +71,21 @@ function submit(): void {
   })
 }
 
-watch(
-  () => props.data,
-  (newVal) => {
-    if (!newVal)
-      return
-    const v = newVal as VideoCategoryModel
-
-    form.value = {
-      id: v.id,
-      name: v.name ?? '',
-      parentId: v.parentId ?? undefined,
-    }
-  },
-  { immediate: true },
-)
 watch(() => visible.value, (newVal) => {
   if (newVal) {
     getVisitList()
+    if (props.videoCategoryTree) {
+      form.value.parentId = props.videoCategoryTree.length > 0 && props.isAdd ? props.videoCategoryTree[0].id : undefined
+    }
+    const v = props.data
+    if (!props.isAdd) {
+      form.value = {
+        id: v.id,
+        name: v.name,
+        parentId: v.parentId ? v.parentId : props.videoCategoryTree ? props.videoCategoryTree[0].id : -1,
+        visitName: v.visitName,
+      }
+    }
   }
 }, { immediate: true })
 </script>

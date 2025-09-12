@@ -11,11 +11,12 @@ export function getVideoCategoryList(data?: ListPageQuery<VideoCategoryModel>) {
 }
 
 /**
- * @description 分页查询视频类别树形结构
+ * @description 查询视频类别树形结构
  */
-export function getVideoCategoryTree() {
+export function getVideoCategoryTree(params: VideoCategoryModel) {
   return request.get<ResponseData<VideoCategoryModel[]>>({
     url: '/api/videoType/tree',
+    params,
   })
 }
 
