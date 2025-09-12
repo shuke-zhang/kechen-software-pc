@@ -152,6 +152,7 @@
     "selectDictLabels": true,
     "isTextTruncated": true,
     "handleTree": true,
-    "getTreeFlatList": true
+    "getTreeFlatList": true,
+    "getCurrentNodeTree": true
   }
 }

@@ -1,4 +1,4 @@
-import type { DictModel } from '@/model/dict'
+import type { DictDataModel, DictModel } from '@/model/dict'
 
 /**
  * @description 分页查询字典类型-键列表
@@ -50,21 +50,23 @@ export function DelDict(idList: number[]) {
 // **==============================>🗾 字典数据 ✍<==============================**
 
 /**
- * @description 分页查询字典类型-键列表
+ * @description 根据dictType查询字典数据
  */
-export function getDictDataList(data?: ListPageQuery<DictModel>) {
-  return request.post<ResponseListData<DictModel[]>>({
-    url: '/api/sysDictType/list',
-    data,
+export function getDictDataList(params?: {
+  dictType?: string
+}) {
+  return request.get<ResponseListData<DictDataModel[]>>({
+    url: '/api/sysDictData/dictType',
+    params,
   })
 }
 
 /**
- * @description 新增字典类型-键数据
+ * @description 根据id查询字典类型
  */
 export function getDictDataInfo(id: number) {
   return request.post({
-    url: `/api/sysDictType/${id}`,
+    url: `/api/sysDictData/${id}`,
   })
 }
 
@@ -73,7 +75,7 @@ export function getDictDataInfo(id: number) {
  */
 export function addDictData(data: DictModel) {
   return request.post({
-    url: '/api/sysDictType/add',
+    url: '/api/sysDictData/add',
     data,
   })
 }
@@ -82,7 +84,7 @@ export function addDictData(data: DictModel) {
  */
 export function PutDictData(data: DictModel) {
   return request.post({
-    url: '/api/sysDictType/update',
+    url: '/api/sysDictData/update',
     data,
   })
 }
@@ -91,7 +93,7 @@ export function PutDictData(data: DictModel) {
  */
 export function DelDictData(idList: number[]) {
   return request.delete({
-    url: `/api/sysDictType/delete`,
+    url: `/api/sysDictData/delete`,
     data: idList,
   })
 }

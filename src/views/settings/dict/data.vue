@@ -1,49 +1,44 @@
-<!-- LogPage.vue -->
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus'
-import type { DictModel } from '@/model/dict'
+import type { DictDataModel } from '@/model/dict'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { addDict, getDictList, PutDict } from '@/api/dict'
+import { addDictData, getDictDataList, PutDictData } from '@/api/dict'
 
 const total = ref(0)
 const loading = ref(false)
 const queryRef = useTemplateRef('queryEl')
-const router = useRouter()
+const route = useRoute()
 const visible = ref(false)
 const isAdd = ref(false)
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
 const submitLoading = ref(false)
-const queryParams = ref<ListPageParamsWrapper<DictModel>>({
-  page: {
-    current: 1,
-    size: 10,
-  },
+const queryParams = ref<DictDataModel>({
+
 })
-const form = ref<DictModel>({
-  status: '1',
+const form = ref<DictDataModel>({
+  dictType: route.params.dictType as string,
+  dictSort: 0,
+  status: '0',
 })
+const currentDictType = computed(() => route.params.dictType as string)
+
 const rules: FormRules = {
-  dictName: [{ required: true, trigger: 'change', message: '请输入字典名称' }],
   dictType: [{ required: true, trigger: 'blur', message: '请输入字典类型' }],
+  dictLabel: [{ required: true, trigger: 'change', message: '请输入数据标签' }],
+  dictValue: [{ required: true, trigger: 'change', message: '请输入数据键值' }],
 }
 /** 静态日志数据（示例） */
-const list = ref<DictModel[]>([])
-/** 自定义跳转详情 */
-function linkTo(row: DictModel) {
-  router.push({
-    name: 'DictData',
-    params: {
-      dictType: row.dictType,
-    },
-  })
-}
+const list = ref<DictDataModel[]>([])
 
 function getList(): void {
   if (loading.value)
     return
   loading.value = true
-  getDictList(queryParams.value).then((res) => {
-    console.log('字典列表', res)
+  const data = {
+    dictType: currentDictType.value,
+  }
+
+  getDictDataList(data).then((res) => {
     list.value = res.data.records
     total.value = res.data.total
   }).finally(() => {
@@ -56,21 +51,18 @@ function handleAddDict() {
   isAdd.value = true
 }
 
-function handlePut(row: DictModel) {
+function _handlePut(row: DictDataModel) {
   isAdd.value = false
   form.value = { ...row }
   visible.value = true
 }
 
-function handleDelete(row: DictModel) {
+function handleDelete(row: DictDataModel) {
   console.log('删除', row)
 }
 
 function retQuery(): void {
-  queryParams.value = { page: {
-    current: 1,
-    size: 10,
-  } }
+  queryParams.value = { }
   resetForm(queryRef.value)
   getList()
 }
@@ -84,13 +76,14 @@ function handleSubmit() {
       if (submitLoading.value)
         return
       submitLoading.value = true
-      const api = isAdd.value ? addDict : PutDict
+      const api = isAdd.value ? addDictData : PutDictData
       const data = {
-        dictId: form.value.dictId,
-        dictName: form.value.dictName,
         dictType: form.value.dictType,
-        remark: form.value.remark,
+        dictLabel: form.value.dictLabel,
+        dictValue: form.value.dictValue,
+        dictSort: form.value.dictSort,
         status: form.value.status,
+        remark: form.value.remark,
       }
       api(data).then(() => {
         visible.value = false
@@ -105,7 +98,6 @@ function handleSubmit() {
 
 function reset() {
   form.value = {
-    status: '1',
   }
   resetForm(formRef.value)
   submitLoading.value = false
@@ -132,23 +124,10 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="状态码" clearable size="large" style="width: 140px">
-          <el-option label="200 成功" :value="200" />
-          <el-option label="403 禁止" :value="403" />
-          <el-option label="500 服务器错误" :value="500" />
+        <el-select v-model="queryParams.status" placeholder="状态" clearable size="large" style="width: 140px" @change="getList">
+          <el-option label="正常" value="0" />
+          <el-option label="停用" value="1" />
         </el-select>
-      </el-form-item>
-
-      <el-form-item>
-        <el-date-picker
-          v-model="queryParams.dateRange"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          size="large"
-        />
       </el-form-item>
 
       <el-form-item>
@@ -173,19 +152,15 @@ onMounted(() => {
       :data="list"
       style="width: 100%"
     >
-      <el-table-column prop="dictId" label="字典编号" align="center" width="90" />
+      <el-table-column type="selection" width="55" />
 
-      <el-table-column prop="dictName" label="字典名称" align="center" width="240" />
+      <el-table-column align="center" prop="dictCode" label="字典编码" width="200" />
 
-      <el-table-column align="center" prop="dictType" label="字典类型" min-width="180">
-        <template #default="scope">
-          <el-button link type="primary" @click="linkTo(scope.row)">
-            {{ scope.row.dictType }}
-          </el-button>
-        </template>
-      </el-table-column>
+      <el-table-column align="center" prop="dictLabel" label="字典类型" width="200" />
 
-      <el-table-column prop="status" label="状态" min-width="80">
+      <el-table-column align="center" prop="dictValue" label="字典键值" width="200" />
+
+      <el-table-column align="center" prop="status" label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === '0' ? 'success' : 'danger'">
             {{ row.status === '0' ? '正常' : '停用' }}
@@ -193,39 +168,34 @@ onMounted(() => {
         </template>
       </el-table-column>
 
-      <el-table-column prop="remark" label="备注" align="center" width="180" show-overflow-tooltip />
-
-      <el-table-column label="创建时间" align="center" prop="createdTime" width="220">
+      <el-table-column label="备注" align="center" prop="createTime" show-overflow-tooltip>
         <template #default="{ row }">
-          <span>{{ row.createdTime }}</span>
+          <span>{{ row.remark || '-' }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="创建时间" align="center" prop="createTime">
+        <template #default="{ row }">
+          <span>{{ row.createTime }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="180" fixed="right" class-name="small-padding fixed-width">
-        <template #default="{ row }">
-          <el-button type="primary" @click="handlePut(row)">
+        <template #default="scope">
+          <el-button type="primary">
             修改
           </el-button>
-          <el-button type="danger" @click="handleDelete(row)">
+          <el-button type="danger" @click="handleDelete(scope.row)">
             删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-
-    <!-- 分页 -->
-    <Pagination
-      v-show="total > 0"
-      v-model:page="queryParams.page.current"
-      v-model:limit="queryParams.page.size"
-      :total="total"
-      @pagination="getList"
-    />
   </div>
 
   <el-dialog
     v-model="visible"
-    :title="isAdd ? '新增字典' : '修改字典'"
+    :title="isAdd ? '新增字典数据' : '修改字典数据'"
     width="500"
     :close-on-click-modal="false"
     @close="cancel"
@@ -233,13 +203,26 @@ onMounted(() => {
     <el-form ref="formRef" :inline="true" :model="form" :rules="rules" class="large-form" label-width="100">
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="字典名称" prop="dictName" style="width: 100%">
-            <el-input v-model="form.dictName" placeholder="请输入字典名称" size="large" />
+          <el-form-item label="字典类型" prop="dictType" style="width: 100%">
+            <el-input v-model="form.dictType" disabled placeholder="请输入字典类型" size="large" />
           </el-form-item>
         </el-col>
+
         <el-col :span="24">
-          <el-form-item label="字典类型" prop="dictType" style="width: 100%">
-            <el-input v-model="form.dictType" placeholder="请输入字典类型" size="large" />
+          <el-form-item label="数据标签" prop="dictLabel" style="width: 100%">
+            <el-input v-model="form.dictLabel" placeholder="请输入数据标签" size="large" />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="24">
+          <el-form-item label="数据键值" prop="dictValue" style="width: 100%">
+            <el-input v-model="form.dictValue" placeholder="请输入数据键值" size="large" />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="24">
+          <el-form-item label="显示排序" prop="dictSort" style="width: 100%">
+            <el-input-number v-model="form.dictSort" controls-position="right" />
           </el-form-item>
         </el-col>
 

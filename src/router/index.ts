@@ -108,6 +108,16 @@ const router = createRouter({
             hidden: true,
           },
         },
+        {
+          path: 'dict/data/:dictType',
+          name: 'DictData',
+          component: () => import('@/views/settings/dict/data.vue'),
+          // props: true, // 自动注册为props
+          meta: {
+            title: '字典数据',
+            hidden: true,
+          },
+        },
 
       ],
     },

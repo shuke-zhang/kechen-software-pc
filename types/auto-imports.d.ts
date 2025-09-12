@@ -48,6 +48,7 @@ declare global {
   const getCache: typeof import('../src/utils/cache/index')['getCache']
   const getCacheToken: typeof import('../src/utils/cache/index')['getCacheToken']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
+  const getCurrentNodeTree: typeof import('../src/utils/helpers/lodash-fn')['getCurrentNodeTree']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const getSelectData: typeof import('../src/utils/helpers/globalMethods')['getSelectData']
   const getTreeFlatList: typeof import('../src/utils/helpers/lodash-fn')['getTreeFlatList']

@@ -3,6 +3,9 @@ export interface DictModel {
   dictName?: string
   remark?: string
   dictId?: number
+  /**
+   * 0-正常 1-停用
+   */
   status?: string
   /**
    * 时间-前端判断
@@ -10,30 +13,12 @@ export interface DictModel {
   dateRange?: string[]
 }
 
-export interface DictSelectorModel {
-  dictId: number
-  dictName: string
-  dictType: string
-}
-
-export interface DictDataSelectorModel {
-  dictCode: number
-  dictLabel: string
-  dictSort: string
-  dictType: string
-  dictValue: string
-  /**
-   * 是否停用 0-启用 1-停用
-   */
-  status: number
-}
-
 export interface DictDataModel {
   dictType?: string
   dictName?: string
   remark?: string
   dictId?: number
-  status?: number
+  status?: string
   /**
    * 字典编码
    */
@@ -46,6 +31,10 @@ export interface DictDataModel {
    * 字典键值
    */
   dictValue?: string
+  /**
+   * 排序
+   */
+  dictSort?: number
 }
 
 export interface DictDataCssModel {
