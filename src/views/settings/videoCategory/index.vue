@@ -5,6 +5,7 @@ import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 
 import { DelVideoCategory, getVideoCategoryTree } from '@/api/videoCategory'
+import { getCurrentNodeTree } from '@/utils'
 import VideoCategoryDialog from './videoCategoryDialog.vue'
 /** 分页/弹窗等状态 */
 const total = ref(0)
@@ -56,7 +57,7 @@ function handleAdd(_event: MouseEvent, row?: VideoCategoryModel): void {
   dialogVisible.value = true
 
   currentPreTree.value = row?.id
-    ? getCurrentPreTree(list.value, row!.id!) as VideoCategoryModel[]
+    ? getCurrentNodeTree<VideoCategoryModel>(list.value, row!.id!) as VideoCategoryModel[]
     : [{
         id: -1,
         name: '根目录',
@@ -67,8 +68,6 @@ function handleAdd(_event: MouseEvent, row?: VideoCategoryModel): void {
 function handlePut(row: VideoCategoryModel): void {
   // 是否是顶层目录 使用时需要 !isTopLevel
   const isTopLevel = !!row.parentId
-  console.log(isTopLevel, 'isTopLevel')
-
   isAdd.value = false
   dialogData.value = { ...row }
   currentPreTree.value = !isTopLevel
@@ -97,24 +96,6 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
       showMessageSuccess('删除成功')
     })
   })
-}
-
-/**
- * 在树中找到指定 id 的节点（包含它的子树）
- */
-function getCurrentPreTree(tree: VideoCategoryModel[], id: number): VideoCategoryModel[] | null {
-  for (const item of tree) {
-    if (item.id === id) {
-      return [item]
-    }
-    if (item.children) {
-      const found = getCurrentPreTree(item.children, id)
-      if (found) {
-        return found
-      }
-    }
-  }
-  return null
 }
 
 /** 初次加载 */

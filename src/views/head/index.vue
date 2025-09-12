@@ -24,6 +24,7 @@ const settingDropdownItems: Array<{ label: string, value: SettingDropdownValueMo
   { label: '视频', value: 'video' },
   { label: '视频类别', value: 'videoCategory' },
   { label: '用户管理', value: 'userManagement' },
+  { label: '字典管理', value: 'dict' },
   { label: '日志', value: 'logs' },
 ]
 

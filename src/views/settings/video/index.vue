@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
 import type { VideoModel } from '@/model/video'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import VideoDialog from './videoDialog.vue'
 
 type MeasurableEl = HTMLElement | {
@@ -171,7 +171,7 @@ onMounted(() => {
           <el-button type="primary" plain :icon="Refresh" @click="retQuery">
             查询重置
           </el-button>
-          <el-button type="success" :icon="Plus" @click="handleVideoAdd">
+          <el-button type="success" :icon="CirclePlus" @click="handleVideoAdd">
             新增
           </el-button>
         </el-form-item>

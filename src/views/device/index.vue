@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import DeviceDialog from './deviceDialog.vue'
 
 const queryRef = ref<InstanceType<typeof ElForm> | null>(null)
@@ -72,7 +72,7 @@ function handleDel(item: Device.DeviceModel) {
           <el-button type="primary" plain :icon="Refresh">
             查询重置
           </el-button>
-          <el-button type="success" :icon="Plus" @click="handleDeviceAdd">
+          <el-button type="success" :icon="CirclePlus" @click="handleDeviceAdd">
             新增
           </el-button>
         </el-form-item>

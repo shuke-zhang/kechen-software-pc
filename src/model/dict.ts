@@ -3,7 +3,11 @@ export interface DictModel {
   dictName?: string
   remark?: string
   dictId?: number
-  status?: number
+  status?: string
+  /**
+   * 时间-前端判断
+   */
+  dateRange?: string[]
 }
 
 export interface DictSelectorModel {

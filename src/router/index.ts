@@ -99,6 +99,15 @@ const router = createRouter({
             hidden: true,
           },
         },
+        {
+          path: 'dict',
+          name: 'Dict',
+          component: () => import('@/views/settings/dict/index.vue'),
+          meta: {
+            title: '字典管理',
+            hidden: true,
+          },
+        },
 
       ],
     },
