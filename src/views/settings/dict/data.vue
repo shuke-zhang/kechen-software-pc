@@ -2,18 +2,25 @@
 import type { ElForm, FormRules } from 'element-plus'
 import type { DictDataModel } from '@/model/dict'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { addDictData, getDictDataList, PutDictData } from '@/api/dict'
+import { addDictData, DelDictData, getDictDataList, PutDictData } from '@/api/dict'
 
-const total = ref(0)
 const loading = ref(false)
 const queryRef = useTemplateRef('queryEl')
 const route = useRoute()
 const visible = ref(false)
+const total = ref(0)
 const isAdd = ref(false)
+const ids = ref<number[]>([])
+const names = ref<string[]>([])
+const single = ref(true)
+const multiple = ref(true)
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
 const submitLoading = ref(false)
-const queryParams = ref<DictDataModel>({
-
+const queryParams = ref<ListPageParamsWrapper<DictDataModel>>({
+  page: {
+    current: 1,
+    size: 10,
+  },
 })
 const form = ref<DictDataModel>({
   dictType: route.params.dictType as string,
@@ -34,8 +41,11 @@ function getList(): void {
   if (loading.value)
     return
   loading.value = true
+  console.log(loading.value, 'loading.value')
+
   const data = {
     dictType: currentDictType.value,
+    ...queryParams.value,
   }
 
   getDictDataList(data).then((res) => {
@@ -51,18 +61,43 @@ function handleAddDict() {
   isAdd.value = true
 }
 
-function _handlePut(row: DictDataModel) {
+function handlePut(row: DictDataModel) {
   isAdd.value = false
   form.value = { ...row }
   visible.value = true
 }
 
-function handleDelete(row: DictDataModel) {
-  console.log('删除', row)
+function handleDel(_ids: number[] | DictDataModel) {
+  const delIds = Array.isArray(_ids) ? _ids : [_ids.dictCode!]
+  const delNames = Array.isArray(_ids) ? names.value : [_ids.dictLabel!]
+  confirmWarning(`是否确认删除字典标签为：${delNames.join(', ')} 的数据？`).then(() => {
+    // 删除接口
+    delMsgLoading(DelDictData(delIds), '正在删除 …').then(() => {
+      loading.value = false
+      ids.value = []
+      names.value = []
+      getList()
+      showMessageSuccess('删除成功')
+    }).finally(() => {
+      loading.value = false
+    })
+  })
+}
+
+function handleSelectionChange(selection: DictDataModel[]) {
+  ids.value = selection.map(item => item.dictCode!)
+  names.value = selection.map(item => item.dictLabel!)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
 }
 
 function retQuery(): void {
-  queryParams.value = { }
+  queryParams.value = {
+    page: {
+      current: 1,
+      size: 10,
+    },
+  }
   resetForm(queryRef.value)
   getList()
 }
@@ -78,6 +113,7 @@ function handleSubmit() {
       submitLoading.value = true
       const api = isAdd.value ? addDictData : PutDictData
       const data = {
+        dictCode: isAdd.value ? undefined : form.value.dictCode,
         dictType: form.value.dictType,
         dictLabel: form.value.dictLabel,
         dictValue: form.value.dictValue,
@@ -98,6 +134,9 @@ function handleSubmit() {
 
 function reset() {
   form.value = {
+    dictType: currentDictType.value,
+    dictSort: 0,
+    status: '0',
   }
   resetForm(formRef.value)
   submitLoading.value = false
@@ -140,7 +179,7 @@ onMounted(() => {
         <el-button type="success" :icon="CirclePlus" @click="handleAddDict">
           新增
         </el-button>
-        <el-button type="danger" :icon="CircleClose">
+        <el-button type="danger" :disabled="ids.length <= 0" :icon="CircleClose" @click="handleDel(ids)">
           删除
         </el-button>
       </el-form-item>
@@ -151,14 +190,17 @@ onMounted(() => {
       v-loading="loading"
       :data="list"
       style="width: 100%"
+      @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" />
 
       <el-table-column align="center" prop="dictCode" label="字典编码" width="200" />
 
-      <el-table-column align="center" prop="dictLabel" label="字典类型" width="200" />
+      <el-table-column align="center" prop="dictLabel" label="字典标签" width="200" />
 
       <el-table-column align="center" prop="dictValue" label="字典键值" width="200" />
+
+      <el-table-column align="center" prop="dictSort" label="字典排序" width="200" sortable />
 
       <el-table-column align="center" prop="status" label="状态" width="80">
         <template #default="{ row }">
@@ -174,23 +216,32 @@ onMounted(() => {
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column label="创建时间" align="center" prop="createdTime" width="180">
         <template #default="{ row }">
-          <span>{{ row.createTime }}</span>
+          <span>{{ row.createdTime }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="180" fixed="right" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button type="primary">
+          <el-button type="primary" size="small" @click="handlePut(scope.row)">
             修改
           </el-button>
-          <el-button type="danger" @click="handleDelete(scope.row)">
+          <el-button type="danger" size="small" @click="handleDel(scope.row)">
             删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 分页 -->
+    <Pagination
+      v-show="total > 0"
+      v-model:page="queryParams.page.current"
+      v-model:limit="queryParams.page.size"
+      :total="total"
+      @pagination="getList"
+    />
   </div>
 
   <el-dialog
@@ -203,7 +254,7 @@ onMounted(() => {
     <el-form ref="formRef" :inline="true" :model="form" :rules="rules" class="large-form" label-width="100">
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="字典类型" prop="dictType" style="width: 100%">
+          <el-form-item label="字典标签" prop="dictType" style="width: 100%">
             <el-input v-model="form.dictType" disabled placeholder="请输入字典类型" size="large" />
           </el-form-item>
         </el-col>

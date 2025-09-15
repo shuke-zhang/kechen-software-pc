@@ -3,10 +3,14 @@
 import type { ElForm, FormRules } from 'element-plus'
 import type { DictModel } from '@/model/dict'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { addDict, getDictList, PutDict } from '@/api/dict'
+import { addDict, DelDict, getDictList, PutDict } from '@/api/dict'
 
 const total = ref(0)
 const loading = ref(false)
+const ids = ref<number[]>([])
+const names = ref<string[]>([])
+const single = ref(true)
+const multiple = ref(true)
 const queryRef = useTemplateRef('queryEl')
 const router = useRouter()
 const visible = ref(false)
@@ -62,8 +66,27 @@ function handlePut(row: DictModel) {
   visible.value = true
 }
 
-function handleDelete(row: DictModel) {
-  console.log('删除', row)
+function handleDel(_ids: number[] | DictModel) {
+  const delIds = Array.isArray(_ids) ? _ids : [_ids.dictId!]
+  const delNames = Array.isArray(_ids) ? names.value : [_ids.dictType!]
+  confirmWarning(`是否确认删除字典名称为：${delNames.join(', ')} 的数据？`).then(() => {
+    // 删除接口
+    delMsgLoading(DelDict(delIds), '正在删除 …').then(() => {
+      loading.value = false
+      ids.value = []
+      names.value = []
+      getList()
+      showMessageSuccess('删除成功')
+    }).finally(() => {
+      loading.value = false
+    })
+  })
+}
+function handleSelectionChange(selection: DictModel[]) {
+  ids.value = selection.map(item => item.dictId!)
+  names.value = selection.map(item => item.dictName!)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
 }
 
 function retQuery(): void {
@@ -161,7 +184,7 @@ onMounted(() => {
         <el-button type="success" :icon="CirclePlus" @click="handleAddDict">
           新增
         </el-button>
-        <el-button type="danger" :icon="CircleClose">
+        <el-button type="danger" :icon="CircleClose" @click="handleDel(ids)">
           删除
         </el-button>
       </el-form-item>
@@ -172,7 +195,10 @@ onMounted(() => {
       v-loading="loading"
       :data="list"
       style="width: 100%"
+      @selection-change="handleSelectionChange"
     >
+      <el-table-column type="selection" width="55" />
+
       <el-table-column prop="dictId" label="字典编号" align="center" width="90" />
 
       <el-table-column prop="dictName" label="字典名称" align="center" width="240" />
@@ -206,7 +232,7 @@ onMounted(() => {
           <el-button type="primary" @click="handlePut(row)">
             修改
           </el-button>
-          <el-button type="danger" @click="handleDelete(row)">
+          <el-button type="danger" @click="handleDel(row)">
             删除
           </el-button>
         </template>

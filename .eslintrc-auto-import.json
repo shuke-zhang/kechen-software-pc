@@ -153,6 +153,15 @@
     "isTextTruncated": true,
     "handleTree": true,
     "getTreeFlatList": true,
-    "getCurrentNodeTree": true
+    "getCurrentNodeTree": true,
+    "ElIcon": true,
+    "showLoadingMessageError": true,
+    "showLoadingMessageInfo": true,
+    "showLoadingMessageSuccess": true,
+    "showLoadingMessageWarning": true,
+    "useMessageLoading": true,
+    "useCallWithMessageLoading": true,
+    "runDelDictData": true,
+    "delMsgLoading": true
   }
 }

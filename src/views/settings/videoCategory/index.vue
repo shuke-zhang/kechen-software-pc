@@ -81,6 +81,9 @@ function handlePut(row: VideoCategoryModel): void {
 
 /** 删除（支持批量） */
 function handleDel(_ids: number[] | VideoCategoryModel): void {
+  loading.value = true
+  if (loading.value)
+    return
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
   const hasChildren = list.value.some(item => delIds.includes(item.id!) && item.children && item.children.length > 0)
   if (hasChildren) {
@@ -94,6 +97,7 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
       getTree()
       ids.value = []
       showMessageSuccess('删除成功')
+      loading.value = false
     })
   })
 }

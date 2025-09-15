@@ -52,12 +52,10 @@ export function DelDict(idList: number[]) {
 /**
  * @description 根据dictType查询字典数据
  */
-export function getDictDataList(params?: {
-  dictType?: string
-}) {
-  return request.get<ResponseListData<DictDataModel[]>>({
-    url: '/api/sysDictData/dictType',
-    params,
+export function getDictDataList(data: ListPageQuery<DictDataModel>) {
+  return request.post<ResponseListData<DictDataModel[]>>({
+    url: '/api/sysDictData/list',
+    data,
   })
 }
 

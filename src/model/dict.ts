@@ -18,6 +18,9 @@ export interface DictDataModel {
   dictName?: string
   remark?: string
   dictId?: number
+  /**
+   * 0-正常 1-停用
+   */
   status?: string
   /**
    * 字典编码
