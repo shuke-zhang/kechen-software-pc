@@ -1,4 +1,5 @@
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { vTrunc } from './directive'
@@ -14,7 +15,9 @@ app.config.globalProperties.$formatDefaultDate = formatDefaultDate
 app.config.globalProperties.$selectDictLabels = selectDictLabels
 app.config.globalProperties.$getSelectData = getSelectData
 app.directive('trunc', vTrunc)
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')

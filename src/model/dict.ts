@@ -40,6 +40,24 @@ export interface DictDataModel {
   dictSort?: number
 }
 
+/**
+ * 字典查询出的数据结构
+ */
+export interface DictDataResultModel {
+  /**
+   *  字典类型
+   */
+  dictLabel?: string
+  /**
+   * 字典键值
+   */
+  dictValue?: string
+  /**
+   * 字典编码
+   */
+  dictCode?: number
+}
+
 export interface DictDataCssModel {
   label: string
   value: string

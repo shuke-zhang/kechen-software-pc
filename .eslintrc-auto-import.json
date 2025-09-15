@@ -162,6 +162,8 @@
     "useMessageLoading": true,
     "useCallWithMessageLoading": true,
     "runDelDictData": true,
-    "delMsgLoading": true
+    "delMsgLoading": true,
+    "useDict": true,
+    "useDictStore": true
   }
 }

@@ -60,6 +60,18 @@ export function getDictDataList(data: ListPageQuery<DictDataModel>) {
 }
 
 /**
+ * @description 根据dictType查询字典数据
+ */
+export function getDictDataSelect(params: {
+  dictType: string
+}) {
+  return request.get<ResponseData<DictDataModel[]>>({
+    url: '/api/sysDictData/dictType',
+    params,
+  })
+}
+
+/**
  * @description 根据id查询字典类型
  */
 export function getDictDataInfo(id: number) {

@@ -140,6 +140,8 @@ declare global {
   const useCounterStore: typeof import('../src/stores/counter')['useCounterStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
+  const useDict: typeof import('../src/hooks/useDict/index')['useDict']
+  const useDictStore: typeof import('../src/stores/modules/dict/index')['useDictStore']
   const useId: typeof import('vue')['useId']
   const useLink: typeof import('vue-router')['useLink']
   const useMessageLoading: typeof import('../src/hooks/useMessageLoading')['useMessageLoading']

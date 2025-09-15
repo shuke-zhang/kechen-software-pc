@@ -37,7 +37,7 @@ export function getCurrentNodeTree<T extends { id?: number, children?: T[] }>(
     if (item.children) {
       const found = getCurrentNodeTree(item.children, id)
       if (found) {
-        return [item, ...found]
+        return found
         // return found
       }
     }

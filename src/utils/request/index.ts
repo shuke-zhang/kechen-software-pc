@@ -1,7 +1,7 @@
 import type { HttpRequestConfig } from '@shuke~/request'
-
 import type { AxiosRequestConfig, Canceler } from 'axios'
 import type { ResponseResult, UserCustomConfig } from './types'
+import { logger } from '@shuke~/logger'
 import { getSystemErrorMessage, HttpRequest, RequestMethodsEnum } from '@shuke~/request'
 import axios from 'axios'
 
@@ -23,11 +23,8 @@ const request = new HttpRequest<UserCustomConfig>(
        * token
        */
       const token = getCacheToken().value
-      console.log(token, '请求拦截器token')
-
+      logger.info('请求拦截器token', token)
       if (config?.withToken && token) {
-        console.log('确定携带token', token)
-
         config.headers![config.tokenKey || 'Authorization'] = `${config?.tokenKeyScheme || ''} ${token}`
       }
       /**
@@ -54,8 +51,6 @@ const request = new HttpRequest<UserCustomConfig>(
     },
     // 响应拦截器
     async response(_response) {
-      console.log('_response', _response)
-
       cancelMap.delete(generateKey(_response.config))
       const config = _response.config as HttpRequestConfig<UserCustomConfig>
 

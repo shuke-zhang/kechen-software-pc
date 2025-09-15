@@ -2,14 +2,16 @@
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus'
 import type { PropType } from 'vue'
+import type { DictDataCssModel } from '@/model/dict'
 import type { VideoCategoryModel } from '@/model/videoCategory'
 import { addVideoCategory } from '@/api/videoCategory'
 
 const props = defineProps({
   isAdd: { type: Boolean, required: true },
-  data: { type: Object, default: () => ({}) },
+  data: { type: Object as PropType<VideoCategoryModel>, default: () => ({}) },
   allCategories: { type: Array as () => VideoCategoryModel[], default: () => [] },
   videoCategoryTree: { type: Array as PropType<VideoCategoryModel[] | null>, default: () => [] },
+  visitList: { type: Array as PropType<DictDataCssModel[]>, default: () => [] },
 })
 const emit = defineEmits(['success'])
 
@@ -21,21 +23,10 @@ const form = ref<VideoCategoryModel>({
   name: '',
   parentId: undefined,
 })
-const visitList = ref([{
-  label: '测试',
-  value: 1,
-}])
+
 const rules: FormRules = {
   parentId: [{ required: true, trigger: 'change', message: '请选择父级类别' }],
   name: [{ required: true, trigger: 'blur', message: '请输入类别名称' }],
-  // visitName: [{ required: true, trigger: 'change', message: '请选择诊疗项' }],
-}
-
-/**
- * 获取诊疗项列表
- */
-function getVisitList() {
-
 }
 
 function cancel(): void {
@@ -56,11 +47,10 @@ function submit(): void {
     if (submitLoading.value)
       return
     submitLoading.value = true
-    const data = {
+    const data: VideoCategoryModel = {
       ...form.value,
-      parentId: form.value.parentId === -1 ? undefined : form.value.parentId,
+      treatProjectName: props.visitList?.find(el => el.value === form.value.treatProjectId)?.label,
     }
-
     addVideoCategory(data).then(() => {
       visible.value = false
       reset()
@@ -73,7 +63,6 @@ function submit(): void {
 
 watch(() => visible.value, (newVal) => {
   if (newVal) {
-    getVisitList()
     if (props.videoCategoryTree) {
       form.value.parentId = props.videoCategoryTree.length > 0 && props.isAdd ? props.videoCategoryTree[0].id : undefined
     }
@@ -82,8 +71,9 @@ watch(() => visible.value, (newVal) => {
       form.value = {
         id: v.id,
         name: v.name,
-        parentId: v.parentId ? v.parentId : props.videoCategoryTree ? props.videoCategoryTree[0].id : -1,
-        visitName: v.visitName,
+        parentId: v.parentId,
+        treatProjectName: v.treatProjectName,
+        treatProjectId: v.treatProjectId,
       }
     }
   }
@@ -124,8 +114,8 @@ watch(() => visible.value, (newVal) => {
         </el-col>
 
         <el-col :span="12">
-          <el-form-item label="诊疗项" prop="visitName" style="width: 100%">
-            <el-select v-model="form.visitName" placeholder="请选择诊疗项" style="width: 240px">
+          <el-form-item label="诊疗项" prop="treatProjectId" style="width: 100%">
+            <el-select v-model="form.treatProjectId" placeholder="请选择诊疗项" style="width: 240px">
               <el-option
                 v-for="item in visitList"
                 :key="item.value"

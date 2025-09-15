@@ -47,7 +47,6 @@ function getList(): void {
     return
   loading.value = true
   getDictList(queryParams.value).then((res) => {
-    console.log('字典列表', res)
     list.value = res.data.records
     total.value = res.data.total
   }).finally(() => {
@@ -200,7 +199,7 @@ onMounted(() => {
 
       <el-table-column prop="dictId" label="字典编号" align="center" width="90" />
 
-      <el-table-column prop="dictName" label="字典名称" align="center" />
+      <el-table-column prop="dictName" label="字典名称" align="center" show-overflow-tooltip />
 
       <el-table-column align="center" prop="dictType" label="字典类型" min-width="180">
         <template #default="scope">

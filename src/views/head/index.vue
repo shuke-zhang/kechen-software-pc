@@ -79,7 +79,6 @@ function handleAvatarClick() {
 
 onMounted(() => {
   // 获取用户信息
-  console.log(currentRoute.value, 'ssss')
 
   if (settingDropdownItems.some(item => item.value === currentRoute.value) || currentRoute.value === 'user/profile') {
     activeNavItem.value = 'settings'

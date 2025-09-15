@@ -14,11 +14,11 @@ export interface VideoCategoryModel {
   /**
    * 诊疗项名称
    */
-  visitName?: string
+  treatProjectName?: string
   /**
    * 诊疗项id
    */
-  visitId?: string
+  treatProjectId?: string
 
   children?: VideoCategoryModel[]
 }

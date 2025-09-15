@@ -17,8 +17,6 @@ interface K {
  * :formatter="formatterTableEmpty"
  */
 export function formatterTableEmpty<T extends DefaultRow>(row: T, column: TableColumnCtx<T>, cellValue: T[keyof T], _index: number): string {
-  console.log(cellValue, 'cellValue')
-
   return cellValue ? String(cellValue) : '-' // 如果值为空则输出 "-"
 }
 

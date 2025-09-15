@@ -2,11 +2,14 @@
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
 import type { VideoCategoryModel } from '@/model/videoCategory'
-import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 
+import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import { DelVideoCategory, getVideoCategoryTree } from '@/api/videoCategory'
 import { getCurrentNodeTree } from '@/utils'
 import VideoCategoryDialog from './videoCategoryDialog.vue'
+
+const { treat_project_type } = useDict('treat_project_type')
+
 /** 分页/弹窗等状态 */
 const total = ref(0)
 const loading = ref(false)
@@ -58,26 +61,15 @@ function handleAdd(_event: MouseEvent, row?: VideoCategoryModel): void {
   dialogData.value = {}
   dialogVisible.value = true
 
-  currentPreTree.value = row?.id
-    ? getCurrentNodeTree<VideoCategoryModel>(list.value, row!.id!) as VideoCategoryModel[]
-    : [{
-        id: -1,
-        name: '根目录',
-      }, ...list.value]
+  currentPreTree.value = row?.id ? getCurrentNodeTree<VideoCategoryModel>(list.value, row!.id!) as VideoCategoryModel[] : list.value
 }
 
 /** 打开编辑 */
 function handlePut(row: VideoCategoryModel): void {
   // 是否是顶层目录 使用时需要 !isTopLevel
-  const isTopLevel = !!row.parentId
   isAdd.value = false
   dialogData.value = { ...row }
-  currentPreTree.value = !isTopLevel
-    ? [{
-        id: -1,
-        name: '根目录',
-      }, ...list.value]
-    : list.value
+  currentPreTree.value = list.value
   dialogVisible.value = true
 }
 
@@ -89,7 +81,7 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
     showMessageError('请先删除所选项下的子类数据')
     return
   }
-  const selectedNames = getTreeFlatList(list.value.filter(item => delIds.includes(item.id!))).map(item => item.name).join(', ')
+  const selectedNames = getTreeFlatList(list.value).filter(el => delIds.includes(el.id!)).map(it => it.name).join('、')
 
   confirmWarning(`是否确认删除所选视频类别：${selectedNames} 的数据？`).then(() => {
     // 删除接口
@@ -113,19 +105,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
     <!-- 查询区域 -->
     <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.name"
-          placeholder="类别名称"
+          placeholder="请输入类别名称查询"
           clearable
           size="large"
           style="width: 220px"
           @keyup.enter="getTree"
         />
       </el-form-item>
+
+      <!-- <el-form-item>
+        <el-select v-model="queryParams.treatProjectName" placeholder="请选择诊疗项" clearable size="large" style="width: 160px" @change="getTree">
+          <el-option v-for="it in treat_project_type" :key="it.value" :label="it.label" :value="it.value" />
+        </el-select>
+      </el-form-item> -->
 
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="getTree">
@@ -163,6 +161,8 @@ onMounted(() => {
         </template>
       </el-table-column>
 
+      <el-table-column align="center" prop="treatProjectName" label="诊疗项" :formatter="$formatterTableEmpty" />
+
       <el-table-column align="center" prop="createdTime" label="创建时间" min-width="180" />
       <el-table-column align="center" label="操作" width="220" fixed="right">
         <template #default="{ row }">
@@ -180,7 +180,15 @@ onMounted(() => {
     </el-table>
 
     <!-- 弹窗：把完整类别列表作为可选父级传入 -->
-    <VideoCategoryDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" :all-categories="list" :video-category-tree="currentPreTree" @success="getTree" />
+    <VideoCategoryDialog
+      v-model="dialogVisible"
+      :is-add="isAdd"
+      :data="dialogData"
+      :all-categories="list"
+      :video-category-tree="currentPreTree"
+      :visit-list="treat_project_type"
+      @success="getTree"
+    />
   </div>
 </template>
 
