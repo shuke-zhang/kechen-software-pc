@@ -14,6 +14,7 @@ const dialogVisible = ref(false)
 const isAdd = ref(false)
 const dialogData = ref<VideoCategoryModel>({})
 const ids = ref<number[]>([])
+const names = ref<string[]>([])
 const single = ref(true)
 const multiple = ref(true)
 const currentPreTree = ref<VideoCategoryModel[] | null>(null)
@@ -39,6 +40,7 @@ function getTree(): void {
 
 function handleSelectionChange(selection: VideoCategoryModel[]) {
   ids.value = selection.map(item => item.id!)
+  names.value = selection.map(item => item.name!)
   single.value = selection.length !== 1
   multiple.value = !selection.length
 }
@@ -81,9 +83,6 @@ function handlePut(row: VideoCategoryModel): void {
 
 /** 删除（支持批量） */
 function handleDel(_ids: number[] | VideoCategoryModel): void {
-  loading.value = true
-  if (loading.value)
-    return
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
   const hasChildren = list.value.some(item => delIds.includes(item.id!) && item.children && item.children.length > 0)
   if (hasChildren) {
@@ -92,11 +91,15 @@ function handleDel(_ids: number[] | VideoCategoryModel): void {
   }
   const selectedNames = getTreeFlatList(list.value.filter(item => delIds.includes(item.id!))).map(item => item.name).join(', ')
 
-  confirmWarning(`是否确认删除所选视频类别：${selectedNames}？`).then(() => {
-    DelVideoCategory(delIds).then(() => {
-      getTree()
+  confirmWarning(`是否确认删除所选视频类别：${selectedNames} 的数据？`).then(() => {
+    // 删除接口
+    delMsgLoading(DelVideoCategory(delIds), '正在删除 …').then(() => {
+      loading.value = false
       ids.value = []
+      names.value = []
+      getTree()
       showMessageSuccess('删除成功')
+    }).finally(() => {
       loading.value = false
     })
   })

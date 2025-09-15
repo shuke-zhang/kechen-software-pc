@@ -24,7 +24,7 @@ const queryParams = ref<ListPageParamsWrapper<DictModel>>({
   },
 })
 const form = ref<DictModel>({
-  status: '1',
+  status: '0',
 })
 const rules: FormRules = {
   dictName: [{ required: true, trigger: 'change', message: '请输入字典名称' }],
@@ -140,13 +140,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
     <!-- 查询 -->
     <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
       <el-form-item>
         <el-input
           v-model="queryParams.dictName"
-          placeholder="字典名称"
+          placeholder="请输入字典名称查询"
           clearable
           size="large"
           style="width: 200px"
@@ -155,13 +155,12 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="状态码" clearable size="large" style="width: 140px">
-          <el-option label="200 成功" :value="200" />
-          <el-option label="403 禁止" :value="403" />
-          <el-option label="500 服务器错误" :value="500" />
+        <el-select v-model="queryParams.status" placeholder="请选择状态查询" clearable size="large" style="width: 160px" @change="getList">
+          <el-option label="正常" :value="0" />
+          <el-option label="停用" :value="1" />
         </el-select>
       </el-form-item>
-
+      <!--
       <el-form-item>
         <el-date-picker
           v-model="queryParams.dateRange"
@@ -172,14 +171,14 @@ onMounted(() => {
           value-format="YYYY-MM-DD HH:mm:ss"
           size="large"
         />
-      </el-form-item>
+      </el-form-item> -->
 
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="getList">
           查询
         </el-button>
         <el-button type="primary" plain :icon="Refresh" @click="retQuery">
-          重置
+          查询重置
         </el-button>
         <el-button type="success" :icon="CirclePlus" @click="handleAddDict">
           新增
@@ -201,7 +200,7 @@ onMounted(() => {
 
       <el-table-column prop="dictId" label="字典编号" align="center" width="90" />
 
-      <el-table-column prop="dictName" label="字典名称" align="center" width="240" />
+      <el-table-column prop="dictName" label="字典名称" align="center" />
 
       <el-table-column align="center" prop="dictType" label="字典类型" min-width="180">
         <template #default="scope">
@@ -211,7 +210,7 @@ onMounted(() => {
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="状态" min-width="80">
+      <el-table-column prop="status" label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === '0' ? 'success' : 'danger'">
             {{ row.status === '0' ? '正常' : '停用' }}
@@ -219,7 +218,13 @@ onMounted(() => {
         </template>
       </el-table-column>
 
-      <el-table-column prop="remark" label="备注" align="center" width="180" show-overflow-tooltip />
+      <el-table-column prop="remark" label="备注" align="center" show-overflow-tooltip :formatter="$formatterTableEmpty" />
+
+      <el-table-column label="创建人" align="center" prop="createdUserName" width="220">
+        <template #default="{ row }">
+          <span>{{ row.createdUserName }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column label="创建时间" align="center" prop="createdTime" width="220">
         <template #default="{ row }">

@@ -148,13 +148,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
     <!-- 查询 -->
     <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
       <el-form-item>
         <el-input
-          v-model="queryParams.dictName"
-          placeholder="字典名称"
+          v-model="queryParams.dictLabel"
+          placeholder="请输入字典标签查询"
           clearable
           size="large"
           style="width: 200px"
@@ -163,7 +163,7 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="状态" clearable size="large" style="width: 140px" @change="getList">
+        <el-select v-model="queryParams.status" placeholder="请选择状态查询" clearable size="large" style="width: 160px" @change="getList">
           <el-option label="正常" value="0" />
           <el-option label="停用" value="1" />
         </el-select>
@@ -174,7 +174,7 @@ onMounted(() => {
           查询
         </el-button>
         <el-button type="primary" plain :icon="Refresh" @click="retQuery">
-          重置
+          查询重置
         </el-button>
         <el-button type="success" :icon="CirclePlus" @click="handleAddDict">
           新增
@@ -210,9 +210,11 @@ onMounted(() => {
         </template>
       </el-table-column>
 
-      <el-table-column label="备注" align="center" prop="createTime" show-overflow-tooltip>
+      <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip :formatter="$formatterTableEmpty" />
+
+      <el-table-column label="创建人" align="center" prop="createdUserName" width="220">
         <template #default="{ row }">
-          <span>{{ row.remark || '-' }}</span>
+          <span>{{ row.createdUserName }}</span>
         </template>
       </el-table-column>
 
