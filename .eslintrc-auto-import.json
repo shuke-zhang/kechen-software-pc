@@ -164,6 +164,7 @@
     "runDelDictData": true,
     "delMsgLoading": true,
     "useDict": true,
-    "useDictStore": true
+    "useDictStore": true,
+    "copyText": true
   }
 }

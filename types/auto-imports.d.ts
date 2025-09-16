@@ -25,6 +25,7 @@ declare global {
   const confirmInfo: typeof import('../src/utils/ui/index')['confirmInfo']
   const confirmSuccess: typeof import('../src/utils/ui/index')['confirmSuccess']
   const confirmWarning: typeof import('../src/utils/ui/index')['confirmWarning']
+  const copyText: typeof import('../src/utils/helpers/function')['copyText']
   const createApp: typeof import('vue')['createApp']
   const createLocalStorage: typeof import('../src/utils/cache/local')['createLocalStorage']
   const createPinia: typeof import('pinia')['createPinia']

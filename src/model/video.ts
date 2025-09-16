@@ -5,17 +5,19 @@ export interface VideoModel {
   /** 视频唯一标识（通常由数据库或时间戳生成） */
   id?: string
 
-  /** 视频标题 */
-  title?: string
+  /**
+   * 视频id
+   */
+  videoId?: string
+
+  /** 视频名称 */
+  videoName?: string
 
   /** 视频简介/描述（简短文本，支持 1~2 行） */
   description?: string
 
   /** 视频所属分类，例如：冥想、培训、宣传等 */
-  category?: string
-
-  /** 视频标签（用于筛选/搜索），如 ["教育", "4K"] */
-  tags?: string[]
+  planType?: string
 
   /** 视频封面图片地址（URL 或本地预览地址） */
   coverUrl?: string
@@ -33,4 +35,10 @@ export interface VideoModel {
   views?: number
   /** 视频文本是否被截断 */
   isTextTruncated?: boolean
+  /**
+   * 视频封面
+   */
+  cover?: string
+
+  video?: string
 }

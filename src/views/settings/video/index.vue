@@ -2,7 +2,9 @@
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
 import type { VideoModel } from '@/model/video'
+import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { getVideoCategoryTree } from '@/api/videoCategory'
 import VideoDialog from './videoDialog.vue'
 
 type MeasurableEl = HTMLElement | {
@@ -14,14 +16,12 @@ type VideoStatus = 'published' | 'draft' | 'archived'
 
 const categories = ['冥想', '培训', '宣传', '案例', '其它']
 const suggestTags = ['疗程', '英语', '演讲', '风光', '夜景', '4K', '教育', '编程']
+const videoTree = ref<VideoCategoryModel[]>([])
 const isAdd = ref(false)
 const visible = ref(false)
 const currentData = ref<VideoModel>({
   id: '',
-  title: '',
   description: '',
-  category: '',
-  tags: [],
   coverUrl: '',
   videoUrl: '',
   durationSec: 120,
@@ -81,6 +81,12 @@ function makeMock(n = 40): VideoModel[] {
 }
 const list = ref<VideoModel[]>([])
 
+function getVideoTree() {
+  getVideoCategoryTree().then((res) => {
+    videoTree.value = res.data
+  })
+}
+
 /**
  * 获取视频列表
  */
@@ -136,6 +142,7 @@ function fmtDuration(sec: number) {
 
 onMounted(() => {
   getList()
+  getVideoTree()
 })
 </script>
 
@@ -155,7 +162,7 @@ onMounted(() => {
 
         <el-form-item style="margin-bottom: 0;">
           <el-select
-            v-model="queryParams.category"
+            v-model="queryParams"
             placeholder="请选择视频分类"
             page-size="large"
             style="width: 240px"
@@ -238,7 +245,7 @@ onMounted(() => {
             v-trunc="{ item: v, key: 'isTextTruncated' }"
             class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
           >
-            简介：{{ v.description }}
+            简介：{{ v.description || '-' }}
           </div>
 
           <div class="flex items-center justify-between">
@@ -272,7 +279,7 @@ onMounted(() => {
     </transition>
   </main>
 
-  <VideoDialog v-model="visible" :is-add="isAdd" :data="currentData" />
+  <VideoDialog v-model="visible" :is-add="isAdd" :data="currentData" :video-tree="videoTree" />
 </template>
 
 <style scoped>
