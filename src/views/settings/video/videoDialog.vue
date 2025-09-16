@@ -47,13 +47,19 @@ function handleUploadSuccess(file: UploadRow) {
   form.value.fileType = file.response?.data.fileExtension
 }
 
-function copyaddress() {
+function copyAddress() {
   const url = form.value.address
   if (!url) {
     ElMessage.warning('视频地址为空，无法复制')
     return
   }
   copyText(url)
+}
+
+function uploadAbort() {
+  if (!uploadFile?.value?.uid)
+    return
+  DragUploadFileRef.value?.abortUpload(uploadFile?.value?.uid)
 }
 
 function cancel() {
@@ -65,6 +71,7 @@ function cancel() {
 
 function cancelConfirm() {
   confirmWarning('视频上传未完成，关闭后视频将取消上传。是否确认关闭？').then(() => {
+    uploadAbort()
     cancel()
   })
 }
@@ -224,7 +231,7 @@ watch(() => props.data, (newVal) => {
                     <span class="truncate text-xs">上传成功后自动填充视频地址
                     </span>
                   </div>
-                  <el-button type="primary" size="small" class="ml-[5px]" plain @click="copyaddress">
+                  <el-button type="primary" size="small" class="ml-[5px]" plain @click="copyAddress">
                     复制
                   </el-button>
                 </div>
@@ -240,9 +247,7 @@ watch(() => props.data, (newVal) => {
         <el-button @click="uploadFile?.status === 'uploading' ? cancelConfirm() : cancel()">
           取 消
         </el-button>
-        <el-button type="danger" size="small" class="mt-2" plain @click="DragUploadFileRef?.abortUpload(uploadFile)">
-          取 消请求
-        </el-button>
+
         <el-button type="primary" :loading="submitLoading" @click="submit">
           提 交
         </el-button>

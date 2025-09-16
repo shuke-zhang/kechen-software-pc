@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { UploadFile, UploadInstance, UploadProgressEvent, UploadRawFile, UploadRequestOptions, UploadUserFile } from 'element-plus'
+
 import type { PropType } from 'vue'
 import type { UploadRow } from '@/model/upload'
 import axios from 'axios'
 import { dayjs, ElMessage, genFileId } from 'element-plus'
+
+import { computed, defineExpose, defineModel, defineProps, nextTick, ref, watch } from 'vue'
 
 const props = defineProps({
   action: { type: String, default: '/file/upload' },
@@ -34,22 +37,19 @@ const VIDEO_EXTS = ['mp4', 'avi', 'mov', 'rmvb', 'wmv', 'flv', 'mkv', 'webm', 'm
 const KNOWN_MIMES: Record<string, string[]> = { 'application/pdf': ['pdf'], 'application/zip': ['zip'], 'application/x-zip-compressed': ['zip'] }
 
 const uploadRef = ref<UploadInstance | null>(null)
-/** v-model:files —— 当 limit===1 时为 UploadRow|null；当 limit>1 时为 UploadRow[] */
 const files = defineModel<UploadRow[] | UploadRow | null>('files', { default: () => null })
+const inFlight = new Map<string, AbortController>()
 
-/** 内部是否单文件模式 */
 const isSingle = computed(() => {
   return props.limit === 1
 })
 
-/** 统一的最终上传地址 */
 const finalUploadUrl = computed(() => {
   const base = import.meta.env.VITE_API_URL || ''
   const act = props.action || ''
   return props.uploadUrl ?? `${base}${act}`
 })
 
-/** ========== 工具：把对外模型与内部数组互转 ========== */
 function getRows(): UploadRow[] {
   const val = files.value
   if (Array.isArray(val)) {
@@ -96,7 +96,6 @@ watch(
   { immediate: true },
 )
 
-/* ========= 工具：字节格式化 ========= */
 function formatBytes(bytes: number): string {
   const KB = 1024
   const MB = KB * 1024
@@ -110,7 +109,6 @@ function formatBytes(bytes: number): string {
   return `${(bytes / GB).toFixed(2)} GB`
 }
 
-/* ========= 工具：规范化 fileTypes → {exts, mimes, acceptAttr} ========= */
 interface NormalizedTypes {
   exts: Set<string>
   mimes: Set<string>
@@ -180,7 +178,6 @@ const normalizedTypes = computed(() => {
   return normalizeFileTypes(props.fileTypes)
 })
 
-/* ========= 校验：类型 + 大小 ========= */
 function matchByType(file: UploadRawFile, norm: NormalizedTypes): boolean {
   if (norm.exts.size === 0 && norm.mimes.size === 0) {
     return true
@@ -215,7 +212,6 @@ function checkSize(file: UploadRawFile, maxMB: number): true | string {
   return `文件过大，最大支持 ${maxMB} MB，当前 ${formatBytes(file.size)}`
 }
 
-/* ========= beforeUpload ========= */
 function beforeUpload(file: UploadRawFile) {
   const okType = matchByType(file, normalizedTypes.value)
   if (!okType) {
@@ -232,17 +228,15 @@ function beforeUpload(file: UploadRawFile) {
   return true
 }
 
-function onExceed(files: File[]) {
-  const raw = files[0] as UploadRawFile
+function onExceed(filesRaw: File[]) {
+  const raw = filesRaw[0] as UploadRawFile
   uploadRef.value?.clearFiles()
-  setRows([]) // 你的 v-model 外部状态也清空
+  setRows([])
   raw.uid = genFileId()
-  // 重新加入队列并立即提交
   uploadRef.value?.handleStart(raw)
   uploadRef.value?.submit()
 }
 
-/* ========= 其余逻辑：支持单文件与多文件 ========= */
 function upsert(uid: string, patch: Partial<UploadRow> & Pick<UploadRow, 'uid'>) {
   const rows = getRows()
   if (isSingle.value) {
@@ -280,7 +274,7 @@ function currentForUid(uid: string): UploadRow {
 }
 
 function handleChange(uploadFile: UploadUserFile) {
-  const uid = (uploadFile as any).uid as string
+  const uid = String((uploadFile as any).uid)
   const rows = getRows()
   const exists = rows.some((r) => {
     return r.uid === uid
@@ -314,21 +308,19 @@ function makeUploadProgressEvent(percent: number, loaded = 0, total = 100): Uplo
 }
 
 async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestOptions) {
-  console.log('触发doUpload')
-
   const f = file as File
-  const uid = (file as any).uid as string
+  const uidStr = String((file as any).uid)
   const rows = getRows()
   const exists = rows.some((r) => {
-    return r.uid === uid
+    return r.uid === uidStr
   })
   if (!exists) {
     if (isSingle.value) {
       setRows([])
     }
     const sizeBytes = f.size
-    upsert(uid, {
-      uid,
+    upsert(uidStr, {
+      uid: uidStr,
       name: f.name,
       type: f.type || '',
       size: formatBytes(sizeBytes),
@@ -339,6 +331,8 @@ async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestO
       status: 'uploading',
     })
   }
+  const controller = new AbortController()
+  inFlight.set(uidStr, controller)
   try {
     const form = new FormData()
     form.append('file', f)
@@ -352,6 +346,7 @@ async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestO
       data: form,
       headers: { 'Content-Type': 'multipart/form-data', ...props.headers },
       withCredentials: props.withCredentials,
+      signal: controller.signal,
       onUploadProgress: (e) => {
         if (!e.total) {
           return
@@ -362,50 +357,59 @@ async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestO
         }
         if (p > last) {
           last = p
-          upsert(uid, { uid, progress: p, status: 'uploading' })
+          upsert(uidStr, { uid: uidStr, progress: p, status: 'uploading' })
           onProgress?.(makeUploadProgressEvent(p, e.loaded, e.total))
-          emit('progress', currentForUid(uid))
+          emit('progress', currentForUid(uidStr))
         }
       },
     })
     const data = res.data
-
     if (data?.code && data.code !== 0) {
       throw new Error(data?.msg || '上传失败')
     }
     const url = props.resolveUrl(data)
-    upsert(uid, { uid, progress: 100, status: 'success', url, response: data })
+    upsert(uidStr, { uid: uidStr, progress: 100, status: 'success', url, response: data })
     onSuccess?.(data)
     onProgress?.(makeUploadProgressEvent(100, 1, 1))
-    await nextTick() // 确保 UI 先更新 这样success回调里取值才是最新的
-    emit('success', currentForUid(uid))
+    await nextTick()
+    emit('success', currentForUid(uidStr))
     clearAfterEnd()
   }
   catch (err: any) {
-    upsert(uid, { uid, status: 'fail', message: err?.message || '上传失败' })
-    onError?.(err)
-    emit('error', currentForUid(uid))
-    clearAfterEnd()
-    ElMessage.error(err?.message || '上传失败')
+    const canceled = err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError' || err?.message === 'canceled'
+    if (canceled) {
+      upsert(uidStr, { uid: uidStr, status: 'fail', message: '已取消' })
+      onError?.(err)
+    }
+    else {
+      upsert(uidStr, { uid: uidStr, status: 'fail', message: err?.message || '上传失败' })
+      onError?.(err)
+      emit('error', currentForUid(uidStr))
+      ElMessage.error(err?.message || '上传失败')
+    }
+  }
+  finally {
+    inFlight.delete(uidStr)
   }
 }
 
-// 上传成功/失败后，单文件模式下清空内部，以便再次选择相同文件也会触发
 function clearAfterEnd() {
   if (isSingle.value) {
     uploadRef.value?.clearFiles()
   }
 }
 
-/**
- * 取消上传
- */
-
-function abortUpload(UploadFile: UploadFile) {
-  console.log('触发取消上传', UploadFile)
-
-  uploadRef.value?.abort(UploadFile)
+function abortUpload(target: UploadFile | UploadRow | string | number) {
+  const uidStr = typeof target === 'object' ? String((target as any).uid) : String(target)
+  const controller = inFlight.get(uidStr)
+  if (controller) {
+    controller.abort()
+  }
+  const elFile = { name: '', status: 'ready', uid: Number(uidStr) } as UploadFile
+  uploadRef.value?.abort(elFile)
+  upsert(uidStr, { uid: uidStr, status: 'fail', message: '已取消' })
 }
+
 defineExpose({
   abortUpload,
 })
