@@ -9,11 +9,12 @@ import type {
 } from 'element-plus'
 import type { EpPropMergeType } from 'element-plus/es/utils'
 import type { PropType } from 'vue'
+import type { UploadFileModel } from '@/model/upload'
 import { Plus, Upload } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+
 // pdf.js（v4）
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
-
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?url'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
@@ -288,9 +289,9 @@ function handleProgress(_evt: UploadProgressEvent, _uploadFile: UploadFile, _upl
 }
 
 /** 成功回调（非 200 也视为失败处理） */
-async function handleSuccess(response: any, uploadFile: UploadFile, uploadFiles: UploadFiles) {
-  if (response?.code === 200 && response?.data) {
-    const publicUrl = response.data.public_url || response.data.download_url
+async function handleSuccess(response: ResponseData<UploadFileModel>, uploadFile: UploadFile, uploadFiles: UploadFiles) {
+  if (response.code === 0 && response?.data) {
+    const publicUrl = response.data.accessPath
     uploadFile.url = publicUrl
     ;(uploadFile as any).originUrl = publicUrl
 

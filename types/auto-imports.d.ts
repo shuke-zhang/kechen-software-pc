@@ -44,6 +44,7 @@ declare global {
   const emptySysConfigInfo: typeof import('../src/utils/factory/chat')['emptySysConfigInfo']
   const emptyTtsSetting: typeof import('../src/utils/factory/chat')['emptyTtsSetting']
   const encrypt: typeof import('../src/utils/jsencrypt/jsencrypt')['encrypt']
+  const findNodeById: typeof import('../src/utils/helpers/lodash-fn')['findNodeById']
   const formatDefaultDate: typeof import('../src/utils/helpers/globalMethods')['formatDefaultDate']
   const formatterTableEmpty: typeof import('../src/utils/helpers/globalMethods')['formatterTableEmpty']
   const generateKey: typeof import('../src/utils/request/index')['generateKey']

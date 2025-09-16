@@ -1,3 +1,5 @@
+import type { UploadStatus } from 'element-plus'
+
 /**
  * 拖拽文件上传示例
  */
@@ -40,11 +42,6 @@ export interface UploadRow {
 }
 
 /**
- * 状态
- */
-export type UploadStatus = 'uploading' | 'success' | 'error'
-
-/**
  * 接口返回的模型
  */
 export interface UploadFileModel {
@@ -59,7 +56,7 @@ export interface UploadFileModel {
   /**
    * 返回的实际文件时长 - 秒
    */
-  duration: string
+  duration: number
   /**
    * 文件扩展名
    */

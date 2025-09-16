@@ -4,6 +4,7 @@ import type { ElForm } from 'element-plus'
 import type { VideoModel } from '@/model/video'
 import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { DelVideo, getVideoList } from '@/api/video'
 import { getVideoCategoryTree } from '@/api/videoCategory'
 import VideoDialog from './videoDialog.vue'
 
@@ -12,26 +13,18 @@ type MeasurableEl = HTMLElement | {
   clientWidth: number
   clientHeight: number
 }
-type VideoStatus = 'published' | 'draft' | 'archived'
 
-const categories = ['冥想', '培训', '宣传', '案例', '其它']
-const suggestTags = ['疗程', '英语', '演讲', '风光', '夜景', '4K', '教育', '编程']
+const loading = ref(false)
 const videoTree = ref<VideoCategoryModel[]>([])
 const isAdd = ref(false)
 const visible = ref(false)
-const currentData = ref<VideoModel>({
-  id: '',
-  description: '',
-  coverUrl: '',
-  videoUrl: '',
-  durationSec: 120,
-  createdAt: '',
-  views: 0,
-})
+const currentData = ref<VideoModel>({})
 const queryRef = ref<InstanceType<typeof ElForm> | null>(null)
-const queryParams = ref<ListQueryParams<VideoModel>>({
-  pageNum: 1,
-  pageSize: 10,
+const queryParams = ref<ListPageParamsWrapper<VideoModel>>({
+  page: {
+    current: 1,
+    size: 10,
+  },
 })
 const triggerRefMap = ref<Record<string, MeasurableEl | undefined>>({})
 const tooltipVisibleMap = ref<Record<string, boolean>>({})
@@ -53,32 +46,9 @@ function setTriggerRef(id: string) {
     triggerRefMap.value[id] = undefined
   }
 }
-function randomDescription(i: number): string {
-  const chars = '这是一个用于展示的视频内容测试随机文本示例标题简介说明更多信息演示效果非常不错'
-  const length = Math.floor(Math.random() * 26) + 5 // 5~30
-  let result = ''
-  for (let j = 0; j < length; j++) {
-    const index = Math.floor(Math.random() * chars.length)
-    result += chars[index]
-  }
-  return `${result}（编号 ${i + 1}）`
-}
+
 /* ---------------- Mock 数据 ---------------- */
-function makeMock(n = 40): VideoModel[] {
-  return Array.from({ length: n }).map((_, i) => ({
-    id: String(i + 1),
-    title: `示例视频 ${i + 1}`,
-    description: randomDescription(i),
-    category: categories[i % categories.length],
-    tags: suggestTags.slice(0, (i % 4) + 1),
-    status: (['published', 'draft', 'archived'] as VideoStatus[])[i % 3],
-    coverUrl: `https://picsum.photos/seed/v${i}/640/360`,
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    durationSec: 60 + (i % 300),
-    createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-    views: 500 + i * 13,
-  }))
-}
+
 const list = ref<VideoModel[]>([])
 
 function getVideoTree() {
@@ -91,7 +61,14 @@ function getVideoTree() {
  * 获取视频列表
  */
 function getList() {
-  list.value = makeMock()
+  if (loading.value)
+    return
+  loading.value = true
+  getVideoList(queryParams.value).then((res) => {
+    list.value = res.data.records
+  }).finally(() => {
+    loading.value = false
+  })
 }
 
 function retQuery() {
@@ -121,8 +98,11 @@ function openEdit(row: VideoModel) {
 /* ---------------- 单条 / 批量操作 ---------------- */
 function confirmDelete(v: VideoModel) {
   confirmWarning('是否确认删除视频？').then(() => {
-    console.log(v)
-  }).catch(() => {})
+    delMsgLoading(DelVideo(v.id!), '正在删除...').then(() => {
+      showMessageSuccess('删除成功')
+      getList()
+    })
+  })
 }
 
 /* ---------------- 预览 ---------------- */
@@ -147,12 +127,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen bg-slate-50 text-slate-900  p-4">
+  <main class="h-full bg-slate-50 text-slate-900  p-4">
     <div class="flex flex-1 ">
       <el-form ref="queryRef" :inline="true" :model="queryParams">
         <el-form-item style="margin-bottom: 0;">
           <el-input
-            v-model="queryParams.title"
+            v-model="queryParams.name"
             placeholder="请输入视频名称"
             clearable
 
@@ -167,7 +147,7 @@ onMounted(() => {
             page-size="large"
             style="width: 240px"
           >
-            <el-option v-for="item in categories" :key="item" :label="item" :value="item" />
+            <el-option v-for="item in videoTree" :key="item.id" :label="item.name" :value="item.id!" />
           </el-select>
         </el-form-item>
 
@@ -186,15 +166,15 @@ onMounted(() => {
     </div>
     <el-divider />
     <!-- 卡片区域：固定宽度容器 + 平均分配横向空白 -->
-    <div class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-center gap-[10px]">
+    <div v-loading="loading" class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-start gap-[10px]">
       <article
         v-for="v in list"
         :key="v.id"
-        class="w-[320px] h-[240px] rounded-xl border border-slate-200  bg-white  overflow-hidden flex flex-col gap-10px"
+        class="w-[300px] h-[240px] rounded-xl border border-slate-200  bg-white  overflow-hidden flex flex-col gap-10px"
       >
         <!-- 固定缩略图区域，高度 180px -->
-        <div class="relative w-full h-[180px] bg-slate-900 overflow-hidden">
-          <img :src="v.coverUrl" class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative w-full h-[150px] bg-slate-900 overflow-hidden">
+          <img :src="v.coverLink" class="absolute inset-0 w-full h-full object-cover">
 
           <!-- 视频类型 -->
           <div
@@ -202,7 +182,7 @@ onMounted(() => {
             rounded-tr rounded-br bg-gray-700/60
             text-gray-100 text-[12px] px-2"
           >
-            MP4
+            {{ v.fileType }}
           </div>
 
           <!-- 播放按钮 -->
@@ -212,45 +192,44 @@ onMounted(() => {
 
           <!-- 时长 -->
           <span class="absolute right-2 bottom-2 rounded bg-black/70 text-white text-xs px-2">
-            {{ fmtDuration(v.durationSec!) }}
+            {{ fmtDuration(Number(v.videoLength)) }}
           </span>
         </div>
 
         <!-- 信息区 -->
         <div class="flex-1 p-2 flex flex-col justify-between">
-          <div class="flex items-center" :title="v.title">
+          <div class="flex items-center" :title="v.name">
             <div class="text-sm font-semibold line-clamp-1">
-              {{ v.title }}
+              {{ v.name }}
             </div>
             <el-tag type="info" size="small" class="ml-[4px]">
-              {{ v.category }}
+              {{ v.videoTypeName }}
             </el-tag>
           </div>
 
           <el-tooltip
             v-model:visible="tooltipVisibleMap[v.id!]"
-            :content="v.description"
+            :content="v.comment"
             placement="bottom"
             effect="light"
             trigger="hover"
             virtual-triggering
             :virtual-ref="triggerRefMap[v.id!]"
-            :disabled="!v.isTextTruncated"
             append-to="body"
           />
 
           <!-- 触发源：用函数模板 ref 把当前元素放到 triggerRefMap -->
           <div
-            :ref="setTriggerRef(v.id!)"
+            :ref="setTriggerRef(String(v.id))"
             v-trunc="{ item: v, key: 'isTextTruncated' }"
             class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
           >
-            简介：{{ v.description || '-' }}
+            简介：{{ v.comment || '-' }}
           </div>
 
           <div class="flex items-center justify-between">
             <div class="text-xs  mt-1">
-              {{ $formatDefaultDate(v.createdAt!) }}
+              {{ $formatDefaultDate(v.createdTime!) }}
             </div>
             <div class="gap-[4px]">
               <el-button type="primary" plain size="small" @click="openEdit(v)">
@@ -270,7 +249,7 @@ onMounted(() => {
       <div v-if="previewVisible" class="fixed inset-0 z-40 grid place-items-center">
         <div class="absolute inset-0 bg-black/60" @click="previewVisible = false" />
         <div class="relative w-[94vw] max-w-4xl rounded-2xl bg-black p-3 shadow-xl">
-          <video v-if="current?.videoUrl" :src="current.videoUrl" controls class="w-full rounded-lg" />
+          <video v-if="current?.address" autoplay :src="current.address" controls class="w-full rounded-lg" />
           <button class="absolute right-3 top-3 rounded-md bg-white/90 px-2 py-1 text-sm" @click="previewVisible = false">
             关闭
           </button>
@@ -279,7 +258,7 @@ onMounted(() => {
     </transition>
   </main>
 
-  <VideoDialog v-model="visible" :is-add="isAdd" :data="currentData" :video-tree="videoTree" />
+  <VideoDialog v-model="visible" :is-add="isAdd" :data="currentData" :video-tree="videoTree" @success="getList" />
 </template>
 
 <style scoped>

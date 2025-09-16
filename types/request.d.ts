@@ -81,6 +81,9 @@ declare type ListQueryParams<T extends AnyObject = AnyObject>
  */
 declare type ListParamsWrapper<T extends AnyObject = AnyObject> = ListParamsBase & Partial<T>
 
+/**
+ * @description page分页参数查询 可用于定义 queryParams
+ */
 declare type ListPageParamsWrapper<T extends AnyObject = AnyObject> = ListParamsPageBase & Partial<T>
 
 declare type ListQuery<T extends AnyObject = AnyObject> = ListParamsBase | ListParamsWrapper<T> | Partial<T>

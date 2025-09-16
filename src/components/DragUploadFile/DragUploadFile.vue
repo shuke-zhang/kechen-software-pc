@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { UploadProgressEvent, UploadRawFile, UploadRequestOptions, UploadUserFile } from 'element-plus'
+import type { UploadFile, UploadInstance, UploadProgressEvent, UploadRawFile, UploadRequestOptions, UploadUserFile } from 'element-plus'
 import type { PropType } from 'vue'
 import type { UploadRow } from '@/model/upload'
 import axios from 'axios'
-import { dayjs, ElMessage } from 'element-plus'
+import { dayjs, ElMessage, genFileId } from 'element-plus'
 
 const props = defineProps({
   action: { type: String, default: '/file/upload' },
@@ -33,6 +33,7 @@ const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']
 const VIDEO_EXTS = ['mp4', 'avi', 'mov', 'rmvb', 'wmv', 'flv', 'mkv', 'webm', 'm4v', '3gp']
 const KNOWN_MIMES: Record<string, string[]> = { 'application/pdf': ['pdf'], 'application/zip': ['zip'], 'application/x-zip-compressed': ['zip'] }
 
+const uploadRef = ref<UploadInstance | null>(null)
 /** v-model:files —— 当 limit===1 时为 UploadRow|null；当 limit>1 时为 UploadRow[] */
 const files = defineModel<UploadRow[] | UploadRow | null>('files', { default: () => null })
 
@@ -220,6 +221,7 @@ function beforeUpload(file: UploadRawFile) {
   if (!okType) {
     const hint = normalizedTypes.value.acceptAttr || '所需类型'
     ElMessage.error(`文件类型不符合要求，仅支持：${hint}`)
+    files.value = isSingle.value ? null : []
     return false
   }
   const sizeCheck = checkSize(file, props.maxSizeMB)
@@ -228,6 +230,16 @@ function beforeUpload(file: UploadRawFile) {
     return false
   }
   return true
+}
+
+function onExceed(files: File[]) {
+  const raw = files[0] as UploadRawFile
+  uploadRef.value?.clearFiles()
+  setRows([]) // 你的 v-model 外部状态也清空
+  raw.uid = genFileId()
+  // 重新加入队列并立即提交
+  uploadRef.value?.handleStart(raw)
+  uploadRef.value?.submit()
 }
 
 /* ========= 其余逻辑：支持单文件与多文件 ========= */
@@ -302,6 +314,8 @@ function makeUploadProgressEvent(percent: number, loaded = 0, total = 100): Uplo
 }
 
 async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestOptions) {
+  console.log('触发doUpload')
+
   const f = file as File
   const uid = (file as any).uid as string
   const rows = getRows()
@@ -355,7 +369,6 @@ async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestO
       },
     })
     const data = res.data
-    console.log(data, 'datadatadatadata')
 
     if (data?.code && data.code !== 0) {
       throw new Error(data?.msg || '上传失败')
@@ -366,18 +379,41 @@ async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestO
     onProgress?.(makeUploadProgressEvent(100, 1, 1))
     await nextTick() // 确保 UI 先更新 这样success回调里取值才是最新的
     emit('success', currentForUid(uid))
+    clearAfterEnd()
   }
   catch (err: any) {
-    upsert(uid, { uid, status: 'error', message: err?.message || '上传失败' })
+    upsert(uid, { uid, status: 'fail', message: err?.message || '上传失败' })
     onError?.(err)
     emit('error', currentForUid(uid))
+    clearAfterEnd()
     ElMessage.error(err?.message || '上传失败')
   }
 }
+
+// 上传成功/失败后，单文件模式下清空内部，以便再次选择相同文件也会触发
+function clearAfterEnd() {
+  if (isSingle.value) {
+    uploadRef.value?.clearFiles()
+  }
+}
+
+/**
+ * 取消上传
+ */
+
+function abortUpload(UploadFile: UploadFile) {
+  console.log('触发取消上传', UploadFile)
+
+  uploadRef.value?.abort(UploadFile)
+}
+defineExpose({
+  abortUpload,
+})
 </script>
 
 <template>
   <el-upload
+    ref="uploadRef"
     class="upload-demo h-full"
     drag
     action=""
@@ -385,6 +421,7 @@ async function doUpload({ file, onProgress, onSuccess, onError }: UploadRequestO
     :http-request="doUpload"
     :on-change="handleChange"
     :before-upload="beforeUpload"
+    :on-exceed="onExceed"
     multiple
     :limit="limit > 0 ? limit : undefined"
     :accept="normalizedTypes.acceptAttr"

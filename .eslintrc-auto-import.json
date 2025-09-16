@@ -165,6 +165,7 @@
     "delMsgLoading": true,
     "useDict": true,
     "useDictStore": true,
-    "copyText": true
+    "copyText": true,
+    "findNodeById": true
   }
 }

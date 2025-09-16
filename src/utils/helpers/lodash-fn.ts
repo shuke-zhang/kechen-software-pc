@@ -19,9 +19,6 @@ export function getTreeFlatList<T extends Record<string, any>>(
 }
 
 /**
- * 在树中找到指定 id 的节点（包含它的子树）
- */
-/**
  * 从树中找到指定 id 的节点路径
  * @param tree 树数据
  * @param id   要查找的 id
@@ -38,8 +35,30 @@ export function getCurrentNodeTree<T extends { id?: number, children?: T[] }>(
       const found = getCurrentNodeTree(item.children, id)
       if (found) {
         return found
-        // return found
       }
+    }
+  }
+  return null
+}
+
+/**
+ * 在树中找到指定 id 的节点
+ * @param tree 树数据
+ * @param id   要查找的 id
+ * @returns    找到的节点对象，未找到返回 null
+ */
+export function findNodeById<T extends { id?: number, children?: T[] }>(
+  tree: T[],
+  id: number,
+): T | null {
+  const stack: T[] = [...tree]
+  while (stack.length > 0) {
+    const node = stack.pop()!
+    if (node.id === id) {
+      return node
+    }
+    if (node.children && node.children.length) {
+      stack.push(...node.children)
     }
   }
   return null
