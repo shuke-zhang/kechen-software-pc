@@ -64,7 +64,6 @@ function uploadAbort() {
 
 function cancel() {
   console.log('触发取消')
-
   visible.value = false
   reset()
 }
@@ -114,6 +113,10 @@ watch(() => props.data, (newVal) => {
     console.log(form.value, 'form.value')
   }
 })
+watch(() => visible.value, () => {
+  // 重置
+  uploadFile.value = null
+})
 </script>
 
 <template>
@@ -122,6 +125,7 @@ watch(() => props.data, (newVal) => {
     :title="isAdd ? '新增视频' : '修改视频'"
     width="800"
     :close-on-click-modal="false"
+    :destroy-on-close="true"
   >
     <el-form
       ref="formRef"
