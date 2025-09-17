@@ -3,7 +3,7 @@
 import type { ElForm } from 'element-plus'
 import type { VideoModel } from '@/model/video'
 import type { VideoCategoryModel } from '@/model/videoCategory'
-import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import { DelVideo, getVideoList } from '@/api/video'
 import { getVideoCategoryTree } from '@/api/videoCategory'
 import VideoDialog from './videoDialog.vue'
@@ -14,9 +14,11 @@ type MeasurableEl = HTMLElement | {
   clientHeight: number
 }
 
+const total = ref(0)
 const loading = ref(false)
 const videoTree = ref<VideoCategoryModel[]>([])
 const isAdd = ref(false)
+const isBatchDel = ref(false)
 const visible = ref(false)
 const currentData = ref<VideoModel>({})
 const queryRef = ref<InstanceType<typeof ElForm> | null>(null)
@@ -26,6 +28,8 @@ const queryParams = ref<ListPageParamsWrapper<VideoModel>>({
     size: 10,
   },
 })
+const ids = ref<number[]>([])
+const names = ref<string[]>([])
 const triggerRefMap = ref<Record<string, MeasurableEl | undefined>>({})
 const tooltipVisibleMap = ref<Record<string, boolean>>({})
 
@@ -65,23 +69,69 @@ function getList() {
     return
   loading.value = true
   getVideoList(queryParams.value).then((res) => {
-    list.value = res.data.records
+    list.value = res.data.records.map(item => ({
+      ...item,
+      isDelChecked: false,
+    }))
+    total.value = res.data.total
   }).finally(() => {
     loading.value = false
   })
 }
 
+function checkChange() {
+  if (!isBatchDel.value) {
+    // 取消批量删除，清空已选
+    ids.value = []
+    names.value = []
+    list.value.forEach((it) => {
+      it.isDelChecked = false
+    })
+  }
+  else {
+    showMessageInfo('点击卡片选中后，点击删除按钮可删除选中视频')
+  }
+}
+
+/**
+ * 批量删除模式选选中
+ */
+function activeCard(it: VideoModel) {
+  if (!isBatchDel.value)
+    return
+  it.isDelChecked = !it.isDelChecked
+  if (it.isDelChecked) {
+    ids.value.push(it.id!)
+    names.value.push(it.name!)
+  }
+  else {
+    ids.value = ids.value.filter(id => id !== it.id)
+    names.value = names.value.filter(name => name !== it.name)
+  }
+}
+
+function handleDel(_ids: number[] | VideoModel) {
+  const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
+  if (delIds.length === 0)
+    return
+  const delNames = Array.isArray(_ids) ? names.value : [_ids.name!]
+  confirmWarning(`是否确认删除视频：${delNames.join(', ')}？`).then(() => {
+    delMsgLoading(DelVideo(delIds), '正在删除...').then(() => {
+      showMessageSuccess('删除成功')
+      getList()
+    })
+  })
+}
+
 function retQuery() {
   queryParams.value = {
-    pageNum: 1,
-    pageSize: 10,
-    patientName: '',
-    reportType: '',
-    status: '',
-    dateRange: undefined,
-  } as any
+    page: {
+      current: 1,
+      size: 10,
+    },
+  }
   resetForm(queryRef.value)
-  // getList()
+  getList()
 }
 
 function handleVideoAdd() {
@@ -93,16 +143,6 @@ function openEdit(row: VideoModel) {
   currentData.value = JSON.parse(JSON.stringify(row))
   isAdd.value = false
   visible.value = true
-}
-
-/* ---------------- 单条 / 批量操作 ---------------- */
-function confirmDelete(v: VideoModel) {
-  confirmWarning('是否确认删除视频？').then(() => {
-    delMsgLoading(DelVideo(v.id!), '正在删除...').then(() => {
-      showMessageSuccess('删除成功')
-      getList()
-    })
-  })
 }
 
 /* ---------------- 预览 ---------------- */
@@ -135,24 +175,29 @@ onMounted(() => {
             v-model="queryParams.name"
             placeholder="请输入视频名称"
             clearable
-
             style="width: 240px"
+            @keyup.enter="getList"
           />
         </el-form-item>
 
         <el-form-item style="margin-bottom: 0;">
-          <el-select
-            v-model="queryParams"
+          <el-tree-select
+            v-model="queryParams.videoType"
+            :data="videoTree"
             placeholder="请选择视频分类"
-            page-size="large"
+            :render-after-expand="false"
+            :props="{
+              label: 'name',
+              value: 'id',
+              children: 'children',
+            }"
             style="width: 240px"
-          >
-            <el-option v-for="item in videoTree" :key="item.id" :label="item.name" :value="item.id!" />
-          </el-select>
+            @change="getList"
+          />
         </el-form-item>
 
         <el-form-item style="margin-bottom: 0;">
-          <el-button type="primary" :icon="Search">
+          <el-button type="primary" :icon="Search" @click="getList">
             查询
           </el-button>
           <el-button type="primary" plain :icon="Refresh" @click="retQuery">
@@ -161,20 +206,30 @@ onMounted(() => {
           <el-button type="success" :icon="CirclePlus" @click="handleVideoAdd">
             新增
           </el-button>
+
+          <el-button type="danger" :icon="CircleClose" :disabled="ids.length === 0" @click="handleDel(ids)">
+            删除
+          </el-button>
+
+          <el-checkbox v-model="isBatchDel" class="ml-[12px]" @change="checkChange">
+            批量删除
+          </el-checkbox>
         </el-form-item>
       </el-form>
     </div>
     <el-divider />
-    <!-- 卡片区域：固定宽度容器 + 平均分配横向空白 -->
+    <!-- 卡片区域 -->
     <div v-loading="loading" class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-start gap-[10px]">
       <article
-        v-for="v in list"
-        :key="v.id"
+        v-for="it in list"
+        :key="it.id"
         class="w-[300px] h-[240px] rounded-xl border border-slate-200  bg-white  overflow-hidden flex flex-col gap-10px"
+        :class="{ 'cursor-pointer': isBatchDel, 'del-active': it.isDelChecked }"
+        @click.prevent="activeCard(it)"
       >
         <!-- 固定缩略图区域，高度 180px -->
         <div class="relative w-full h-[150px] bg-slate-900 overflow-hidden">
-          <img :src="v.coverLink" class="absolute inset-0 w-full h-full object-cover">
+          <img :src="it.coverLink" class="absolute inset-0 w-full h-full object-cover">
 
           <!-- 视频类型 -->
           <div
@@ -182,60 +237,60 @@ onMounted(() => {
             rounded-tr rounded-br bg-gray-700/60
             text-gray-100 text-[12px] px-2"
           >
-            {{ v.fileType }}
+            {{ it.fileType }}
           </div>
 
           <!-- 播放按钮 -->
-          <div class="absolute inset-0 m-auto h-10 w-10 rounded-full bg-white/90 text-slate-900 shadow grid place-items-center hover:scale-105 transition cursor-pointer" @click="preview(v)">
+          <div class="absolute inset-0 m-auto h-10 w-10 rounded-full bg-white/90 text-slate-900 shadow grid place-items-center hover:scale-105 transition cursor-pointer" @click="preview(it)">
             ▶
           </div>
 
           <!-- 时长 -->
           <span class="absolute right-2 bottom-2 rounded bg-black/70 text-white text-xs px-2">
-            {{ fmtDuration(Number(v.videoLength)) }}
+            {{ fmtDuration(Number(it.videoLength)) }}
           </span>
         </div>
 
         <!-- 信息区 -->
         <div class="flex-1 p-2 flex flex-col justify-between">
-          <div class="flex items-center" :title="v.name">
+          <div class="flex items-center" :title="it.name">
             <div class="text-sm font-semibold line-clamp-1">
-              {{ v.name }}
+              {{ it.name }}
             </div>
             <el-tag type="info" size="small" class="ml-[4px]">
-              {{ v.videoTypeName }}
+              {{ it.videoTypeName }}
             </el-tag>
           </div>
 
           <el-tooltip
-            v-model:visible="tooltipVisibleMap[v.id!]"
-            :content="v.comment"
+            v-model:visible="tooltipVisibleMap[it.id!]"
+            :content="it.comment"
             placement="bottom"
             effect="light"
             trigger="hover"
             virtual-triggering
-            :virtual-ref="triggerRefMap[v.id!]"
+            :virtual-ref="triggerRefMap[it.id!]"
             append-to="body"
           />
 
           <!-- 触发源：用函数模板 ref 把当前元素放到 triggerRefMap -->
           <div
-            :ref="setTriggerRef(String(v.id))"
-            v-trunc="{ item: v, key: 'isTextTruncated' }"
+            :ref="setTriggerRef(String(it.id))"
+            v-trunc="{ item: it, key: 'isTextTruncated' }"
             class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
           >
-            简介：{{ v.comment || '-' }}
+            简介：{{ it.comment || '-' }}
           </div>
 
           <div class="flex items-center justify-between">
             <div class="text-xs  mt-1">
-              {{ $formatDefaultDate(v.createdTime!) }}
+              {{ $formatDefaultDate(it.createdTime!) }}
             </div>
             <div class="gap-[4px]">
-              <el-button type="primary" plain size="small" @click="openEdit(v)">
+              <el-button type="primary" plain size="small" @click.stop="openEdit(it)">
                 编辑
               </el-button>
-              <el-button type="danger" plain size="small" @click="confirmDelete(v)">
+              <el-button type="danger" plain size="small" @click.stop="handleDel(it)">
                 删除
               </el-button>
             </div>
@@ -244,13 +299,22 @@ onMounted(() => {
       </article>
     </div>
 
+    <!-- 分页 -->
+    <Pagination
+      v-show="total > 0"
+      v-model:page="queryParams.page.current"
+      v-model:limit="queryParams.page.size"
+      class="mt-[10px]"
+      :total="total"
+      @pagination="getList"
+    />
     <!-- 预览弹窗 -->
     <transition name="zoom">
       <div v-if="previewVisible" class="fixed inset-0 z-40 grid place-items-center">
         <div class="absolute inset-0 bg-black/60" @click="previewVisible = false" />
         <div class="relative w-[94vw] max-w-4xl rounded-2xl bg-black p-3 shadow-xl">
           <video v-if="current?.address" autoplay :src="current.address" controls class="w-full rounded-lg" />
-          <button class="absolute right-3 top-3 rounded-md bg-white/90 px-2 py-1 text-sm" @click="previewVisible = false">
+          <button class="absolute right-3 top-3 rounded-md bg-white/90 px-2 py-1 text-sm cursor-pointer" @click="previewVisible = false">
             关闭
           </button>
         </div>
@@ -281,5 +345,12 @@ onMounted(() => {
 .zoom-leave-to {
   transform: scale(0.96);
   opacity: 0;
+}
+
+.del-active {
+  border: 1px solid;
+  border-color: red;
+  scale: 0.95;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
 }
 </style>

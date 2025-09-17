@@ -126,6 +126,7 @@ watch(() => visible.value, () => {
     width="800"
     :close-on-click-modal="false"
     :destroy-on-close="true"
+    :before-close="uploadFile?.status === 'uploading' ? cancelConfirm : cancel"
   >
     <el-form
       ref="formRef"

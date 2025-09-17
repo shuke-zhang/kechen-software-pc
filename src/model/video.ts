@@ -74,4 +74,8 @@ export interface VideoModel {
    * 视频类型名称
    */
   videoTypeName?: string
+  /**
+   * 表示是否是删除时选中状态
+   */
+  isDelChecked?: boolean
 }

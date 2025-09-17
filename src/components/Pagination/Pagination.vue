@@ -10,7 +10,7 @@ const props = defineProps({
   },
   limit: {
     type: Number,
-    default: 20,
+    default: 10,
   },
   pageSizes: {
     type: Array,
@@ -49,7 +49,7 @@ const currentPage = defineModel('pageNum', {
 
 const pageSize = defineModel('pageSize', {
   type: Number,
-  default: 20,
+  default: 10,
 })
 
 function handleSizeChange(val: number) {
