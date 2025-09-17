@@ -166,6 +166,10 @@
     "useDict": true,
     "useDictStore": true,
     "copyText": true,
-    "findNodeById": true
+    "findNodeById": true,
+    "validateCodeReg": true,
+    "validateEmailReg": true,
+    "validateIdCardReg": true,
+    "validatePhoneReg": true
   }
 }

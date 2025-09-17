@@ -115,6 +115,7 @@ function handleSubmit() {
         status: form.value.status,
       }
       api(data).then(() => {
+        showMessageSuccess('操作成功')
         visible.value = false
         reset()
         getList()
@@ -141,20 +142,19 @@ onMounted(() => {
 <template>
   <div>
     <!-- 查询 -->
-    <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
+    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.dictName"
           placeholder="请输入字典名称查询"
           clearable
-          size="large"
           style="width: 200px"
           @keyup.enter="getList"
         />
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="请选择状态查询" clearable size="large" style="width: 160px" @change="getList">
+        <el-select v-model="queryParams.status" placeholder="请选择状态查询" clearable style="width: 160px" @change="getList">
           <el-option label="正常" :value="0" />
           <el-option label="停用" :value="1" />
         </el-select>

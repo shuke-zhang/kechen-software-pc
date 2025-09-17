@@ -1,51 +1,50 @@
 <script setup lang="ts">
+import type { DictDataCssModel } from '@/model/dict'
 import type { PatientModel } from '@/model/patient'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { DelPatient, getPatientList } from '@/api/patient'
 import PatientDialog from './patientDialog.vue'
 
+const { sys_user_sex, sys_education } = useDict('sys_user_sex', 'sys_education')
 const total = ref(0)
 const dialogVisible = ref(false)
 const isAdd = ref(false)
 const dialogData = ref<PatientModel>({})
 const ids = ref<number[]>([])
+const names = ref<string[]>([])
 const single = ref(true)
 const multiple = ref(true)
 const queryRef = useTemplateRef('queryEl')
 
-const queryParams = ref<ListQueryParams<PatientModel>>({
-  pageNum: 1,
-  pageSize: 10,
+const queryParams = ref<ListPageParamsWrapper<PatientModel>>({
+  page: {
+    current: 1,
+    size: 10,
+  },
   name: '',
 })
 const loading = ref(false)
-const list = ref<PatientModel[]>([
-  {
-    id: 1,
-    name: '张三',
-    age: 30,
-    gender: 1,
-    phone: '12345678901',
-    email: 'zhangsan@example.com',
-    address: '北京市朝阳区',
-    medicalHistory: ['高血压'],
-  },
-  {
-    id: 2,
-    name: '李四',
-    age: 25,
-    gender: 2,
-    phone: '19876543210',
-    email: 'lisi@example.com',
-    address: '上海市浦东新区',
-    medicalHistory: ['糖尿病'],
-  },
-])
+const list = ref<PatientModel[]>([])
+
+const sysUserSexCss = computed<DictDataCssModel[]>(() => {
+  return sys_user_sex.value.map(item => ({
+    ...item,
+    cssType: item.value === '1' ? 'primary' : item.value === '2' ? 'danger' : 'info',
+  }))
+})
 
 function getList() {
   if (loading.value)
     return
   loading.value = true
-  console.log('获取列表')
+  getPatientList(queryParams.value)
+    .then((res) => {
+      list.value = res.data.records
+      total.value = res.data.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function handleAdd() {
@@ -60,16 +59,24 @@ function handlePut(row: PatientModel) {
   dialogData.value = { ...row }
 }
 
-function handleDel(_item: number[]) {
-  confirmWarning(`是否确认删除设备？`).then(() => {
-    console.log('确定')
+function handleDel(_ids: number[] | PatientModel) {
+  const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
+  const delNames = list.value.filter(i => delIds.includes(i.id!)).map(i => i.name!)
+  confirmWarning(`是否确认删除患者：${delNames.join(', ')}？`).then(() => {
+    delMsgLoading(DelPatient(delIds), '正在删除 …').then(() => {
+      showMessageSuccess('删除成功')
+      ids.value = []
+      names.value = []
+      getList()
+    }).finally(() => {
+      loading.value = false
+    })
   })
 }
 
 function retQuery() {
   queryParams.value = {
-    pageNum: 1,
-    pageSize: 10,
+    page: { current: 1, size: 10 },
     name: '',
   }
   resetForm(queryRef.value)
@@ -78,22 +85,53 @@ function retQuery() {
 
 function handleSelectionChange(selection: PatientModel[]) {
   ids.value = selection.map(item => item.id!)
+  names.value = selection.map(item => item.name!)
   single.value = selection.length !== 1
   multiple.value = !selection.length
 }
+onMounted(() => {
+  getList()
+})
 </script>
 
 <template>
-  <div class="container">
-    <el-form ref="queryEl" :inline="true" :model="queryParams">
+  <div>
+    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.name"
           placeholder="请输入患者名称"
           clearable
-          size="large"
           style="width: 240px"
-          @click.enter="getList"
+          @keyup.enter="getList"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-input
+          v-model="queryParams.idCard"
+          placeholder="请输入身份证号"
+          clearable
+          maxlength="18"
+          style="width: 240px"
+          @keyup.enter="getList"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-select v-model="queryParams.education" placeholder="请选择学历" clearable style="width: 160px" @change="getList">
+          <el-option v-for="it in sys_education" :key="it.value" :label="it.label" :value="it.value" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item>
+        <el-input
+          v-model="queryParams.address"
+          placeholder="请输入家庭地址"
+          clearable
+          maxlength="18"
+          style="width: 240px"
+          @keyup.enter="getList"
         />
       </el-form-item>
 
@@ -114,17 +152,35 @@ function handleSelectionChange(selection: PatientModel[]) {
     </el-form>
     <el-table v-loading="loading" :data="list" style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
-      <el-table-column align="center" prop="id" label="ID" show-overflow-tooltip />
+      <el-table-column align="center" prop="id" label="患者编号" show-overflow-tooltip width="80" />
 
       <el-table-column prop="name" label="患者姓名" align="center" show-overflow-tooltip />
 
-      <el-table-column prop="gender" label="性别" align="center">
+      <el-table-column prop="gender" label="性别" align="center" width="80">
         <template #default="{ row }">
-          <TableGender :gender="row.gender" />
+          <dict-tag :options="sysUserSexCss" :value="row.sex" />
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="240" fixed="right">
+      <el-table-column prop="phone" label="手机号" align="center" show-overflow-tooltip width="120" />
+
+      <el-table-column prop="idCard" label="身份证号" align="center" show-overflow-tooltip width="180" />
+
+      <el-table-column prop="birthday" label="生日" align="center" show-overflow-tooltip width="120" />
+
+      <el-table-column prop="education" label="学历" align="center" width="80">
+        <template #default="{ row }">
+          <dict-tag :options="sys_education" :value="row.education" />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="address" label="家庭住址" align="left" show-overflow-tooltip min-width="180" />
+
+      <el-table-column label="创建人" align="center" prop="createdUserName" width="120" />
+
+      <el-table-column label="创建时间" align="center" prop="createdTime" width="180" />
+
+      <el-table-column align="center" label="操作" width="160" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
@@ -138,13 +194,20 @@ function handleSelectionChange(selection: PatientModel[]) {
 
     <Pagination
       v-show="total > 0"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
+      v-model:page="queryParams.page.current"
+      v-model:limit="queryParams.page.size"
       :total="total"
       @pagination="getList"
     />
 
-    <PatientDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" />
+    <PatientDialog
+      v-model="dialogVisible"
+      :is-add="isAdd"
+      :data="dialogData"
+      :sys-user-sex="sys_user_sex"
+      :sys-education="sys_education"
+      @success="getList"
+    />
   </div>
 </template>
 

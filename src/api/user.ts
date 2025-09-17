@@ -1,7 +1,7 @@
 import type { UserModel } from '@/model/user'
 
 /**
- * @description 分页查询字典类型-键列表
+ * @description 分页查询用户列表
  */
 export function getUserList(data?: ListPageQuery<UserModel>) {
   return request.post<ResponseListData<UserModel[]>>({
@@ -44,6 +44,16 @@ export function DelUser(idList: number[]) {
   return request.delete({
     url: `/api/user/delete`,
     data: idList,
+  })
+}
+
+/**
+ * 修改密码
+ */
+export function putUserPassword(data: { id: number, password: string }) {
+  return request.post({
+    url: `/api/user/password`,
+    data,
   })
 }
 

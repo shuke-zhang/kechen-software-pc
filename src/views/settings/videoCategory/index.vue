@@ -107,13 +107,12 @@ onMounted(() => {
 <template>
   <div>
     <!-- 查询区域 -->
-    <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3" @submit.prevent>
+    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.name"
           placeholder="请输入类别名称查询"
           clearable
-          size="large"
           style="width: 220px"
           @keyup.enter="getTree"
         />

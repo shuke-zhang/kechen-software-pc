@@ -169,7 +169,7 @@ onMounted(() => {
 <template>
   <main class="h-full bg-slate-50 text-slate-900  p-4">
     <div class="flex flex-1 ">
-      <el-form ref="queryRef" :inline="true" :model="queryParams">
+      <el-form ref="queryRef" :inline="true" :model="queryParams" @submit.prevent>
         <el-form-item style="margin-bottom: 0;">
           <el-input
             v-model="queryParams.name"

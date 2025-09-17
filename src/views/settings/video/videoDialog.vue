@@ -95,7 +95,7 @@ function submit() {
       console.log(data, 'submit')
       const api = props.isAdd ? addVideo : PutVideo
       api(data).then(() => {
-        showMessageSuccess(props.isAdd ? '新增成功' : '修改成功')
+        showMessageSuccess('操作成功')
         visible.value = false
         reset()
         // 触发父组件刷新

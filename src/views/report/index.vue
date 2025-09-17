@@ -127,21 +127,21 @@ function openReport(row: ReportRow): void {
 
 <template>
   <div class="container">
-    <el-form ref="queryEl" :inline="true" :model="queryParams">
+    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
-        <el-input v-model="queryParams.patientName" placeholder="患者名称" clearable size="large" style="width: 200px" @keyup.enter="getList" />
+        <el-input v-model="queryParams.patientName" placeholder="患者名称" clearable style="width: 200px" @keyup.enter="getList" />
       </el-form-item>
       <el-form-item>
-        <el-input v-model="queryParams.recordNo" placeholder="诊疗编号" clearable size="large" style="width: 200px" @keyup.enter="getList" />
+        <el-input v-model="queryParams.recordNo" placeholder="诊疗编号" clearable style="width: 200px" @keyup.enter="getList" />
       </el-form-item>
       <el-form-item>
-        <el-input v-model="queryParams.picoSn" placeholder="Pico 编号" clearable size="large" style="width: 180px" @keyup.enter="getList" />
+        <el-input v-model="queryParams.picoSn" placeholder="Pico 编号" clearable style="width: 180px" @keyup.enter="getList" />
       </el-form-item>
       <el-form-item>
-        <el-input v-model="queryParams.itemName" placeholder="诊疗项名称" clearable size="large" style="width: 200px" @keyup.enter="getList" />
+        <el-input v-model="queryParams.itemName" placeholder="诊疗项名称" clearable style="width: 200px" @keyup.enter="getList" />
       </el-form-item>
       <el-form-item>
-        <el-date-picker v-model="queryParams.dateRange" type="datetimerange" range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" value-format="YYYY-MM-DD HH:mm:ss" size="large" />
+        <el-date-picker v-model="queryParams.dateRange" type="datetimerange" range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" value-format="YYYY-MM-DD HH:mm:ss" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="getList">

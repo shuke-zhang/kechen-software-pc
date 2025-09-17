@@ -31,8 +31,8 @@ const currentDictType = computed(() => route.params.dictType as string)
 
 const rules: FormRules = {
   dictType: [{ required: true, trigger: 'blur', message: '请输入字典类型' }],
-  dictLabel: [{ required: true, trigger: 'change', message: '请输入数据标签' }],
-  dictValue: [{ required: true, trigger: 'change', message: '请输入数据键值' }],
+  dictLabel: [{ required: true, trigger: 'change', message: '请输入字典标签' }],
+  dictValue: [{ required: true, trigger: 'change', message: '请输入字典键值' }],
 }
 /** 静态日志数据（示例） */
 const list = ref<DictDataModel[]>([])
@@ -122,6 +122,7 @@ function handleSubmit() {
         remark: form.value.remark,
       }
       api(data).then(() => {
+        showMessageSuccess('操作成功')
         visible.value = false
         reset()
         getList()
@@ -150,20 +151,19 @@ onMounted(() => {
 <template>
   <div>
     <!-- 查询 -->
-    <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
+    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.dictLabel"
           placeholder="请输入字典标签查询"
           clearable
-          size="large"
           style="width: 200px"
           @keyup.enter="getList"
         />
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="请选择状态查询" clearable size="large" style="width: 160px" @change="getList">
+        <el-select v-model="queryParams.status" placeholder="请选择状态查询" clearable style="width: 160px" @change="getList">
           <el-option label="正常" value="0" />
           <el-option label="停用" value="1" />
         </el-select>
@@ -262,14 +262,14 @@ onMounted(() => {
         </el-col>
 
         <el-col :span="24">
-          <el-form-item label="数据标签" prop="dictLabel" style="width: 100%">
-            <el-input v-model="form.dictLabel" placeholder="请输入数据标签" size="large" />
+          <el-form-item label="字典标签" prop="dictLabel" style="width: 100%">
+            <el-input v-model="form.dictLabel" placeholder="请输入字典标签" size="large" />
           </el-form-item>
         </el-col>
 
         <el-col :span="24">
-          <el-form-item label="数据键值" prop="dictValue" style="width: 100%">
-            <el-input v-model="form.dictValue" placeholder="请输入数据键值" size="large" />
+          <el-form-item label="字典键值" prop="dictValue" style="width: 100%">
+            <el-input v-model="form.dictValue" placeholder="请输入字典键值" size="large" />
           </el-form-item>
         </el-col>
 

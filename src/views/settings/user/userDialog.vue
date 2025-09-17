@@ -58,6 +58,7 @@ function submit(): void {
     const api = props.isAdd ? addUser : PutUser
     const data = { ...form.value }
     api(data).then(() => {
+      showLoadingMessageSuccess('操作成功')
       visible.value = false
       reset()
       emit('success')

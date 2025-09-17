@@ -3,7 +3,7 @@
 import type { ElForm } from 'element-plus'
 import type { UserModel } from '@/model/user'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { DelUser, getUserList } from '@/api/user'
+import { DelUser, getUserList, putUserPassword } from '@/api/user'
 import UserDialog from './userDialog.vue'
 
 const { sys_user_sex } = useDict('sys_user_sex')
@@ -63,6 +63,27 @@ function handlePut(row: UserModel): void {
   dialogVisible.value = true
 }
 
+/**
+ * 修改密码
+ */
+function handleUpdatePassWord(row: UserModel) {
+  ElMessageBox.prompt(`请输入"${row.name}"的新密码`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    closeOnClickModal: false,
+    inputErrorMessage: '用户密码长度至少 6 位',
+  })
+    .then(({ value }) => {
+      return putUserPassword({
+        id: row.id!,
+        password: value,
+      })
+    })
+    .then(() => {
+      showLoadingMessageSuccess('操作成功')
+    })
+}
+
 function handleDel(_ids: number[] | UserModel): void {
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
   const delNames = Array.isArray(_ids) ? names.value : [_ids.name!]
@@ -94,13 +115,12 @@ onMounted(() => {
 <template>
   <div class="container">
     <!-- 查询 -->
-    <el-form ref="queryEl" :inline="true" :model="queryParams" class="mb-3">
+    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.name"
           placeholder="请输入用户名查询"
           clearable
-          size="large"
           style="width: 220px"
           @keyup.enter="getList"
         />
@@ -111,7 +131,6 @@ onMounted(() => {
           v-model="queryParams.departName"
           placeholder="请输入部门名称查询"
           clearable
-          size="large"
           style="width: 220px"
           @keyup.enter="getList"
         />
@@ -122,7 +141,6 @@ onMounted(() => {
           v-model="queryParams.departHis"
           placeholder="请输入his编号查询"
           clearable
-          size="large"
           style="width: 220px"
           @keyup.enter="getList"
         />
@@ -167,12 +185,15 @@ onMounted(() => {
 
       <el-table-column prop="departHis" label="his编号" align="center" width="140" />
 
-      <el-table-column prop="createdTime" label="创建时间" align="center" width="180" />
+      <el-table-column prop="createdTime" label="创建时间" align="center" width="220" />
 
-      <el-table-column align="center" label="操作" width="180" fixed="right">
+      <el-table-column align="center" label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
+          </el-button>
+          <el-button size="small" type="warning" @click="handleUpdatePassWord(row)">
+            修改密码
           </el-button>
           <el-button size="small" type="danger" @click="handleDel(row)">
             删除

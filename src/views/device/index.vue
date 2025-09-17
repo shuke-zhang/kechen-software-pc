@@ -45,7 +45,7 @@ function handleDel(item: Device.DeviceModel) {
 <template>
   <div class="flex flex-1 ">
     <div>
-      <el-form ref="queryRef" :inline="true" :model="queryParams">
+      <el-form ref="queryRef" :inline="true" :model="queryParams" @submit.prevent>
         <el-form-item>
           <el-input
             v-model="queryParams.deviceName"
