@@ -1,1 +1,1 @@
-export type SettingDropdownValueModel = 'video' | 'videoCategory' | 'userManagement' | 'dict' | 'logs'
+export type SettingDropdownValueModel = 'video' | 'videoCategory' | 'videoPlan' | 'userManagement' | 'dict' | 'logs'

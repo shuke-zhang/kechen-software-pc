@@ -73,6 +73,15 @@ const router = createRouter({
           },
         },
         {
+          path: 'videoPlan',
+          name: 'VideoPlan',
+          component: () => import('@/views/settings/videoPlan/index.vue'),
+          meta: {
+            title: '视频方案',
+            hidden: true,
+          },
+        },
+        {
           path: '/user/profile',
           name: 'UserProfile',
           component: () => import('@/views/settings/user/profile.vue'),

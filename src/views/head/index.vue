@@ -26,6 +26,7 @@ const dropdownItems: Array<{ label: string, value: UserDropdownValueModel }> = [
 const settingDropdownItems: Array<{ label: string, value: SettingDropdownValueModel }> = [
   { label: '视频', value: 'video' },
   { label: '视频类别', value: 'videoCategory' },
+  { label: '视频方案', value: 'videoPlan' },
   { label: '用户管理', value: 'userManagement' },
   { label: '字典管理', value: 'dict' },
   { label: '日志', value: 'logs' },
@@ -50,12 +51,6 @@ function handleCommand(command: UserDropdownValueModel) {
     case 'logout':
       confirmError('是否确认退出登录', '提示').then(() => {
         UserStore.logout()
-          .then(() => {
-            router.replace('/login')
-          })
-          .catch((error) => {
-            console.error('退出登录失败', error)
-          })
       })
       break
   }
