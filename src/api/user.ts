@@ -63,5 +63,6 @@ export function putUserPassword(data: { id: number, password: string }) {
 export function outUser() {
   return request.get({
     url: `/api/user/loginout`,
+    enable401AuthGuard: false,
   })
 }

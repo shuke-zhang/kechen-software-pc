@@ -1,6 +1,7 @@
 import type { UserModel } from '@/model/user'
 import { defineStore } from 'pinia'
 import { getUserInfo as _getUserInfo, loginApi } from '@/api/login'
+import { outUser } from '@/api/user'
 import { removeCacheToken, setCacheToken } from '@/utils/cache'
 
 const SUPER_ADMIN = 'admin'
@@ -41,21 +42,21 @@ export const useUserStore = defineStore('user', () => {
     // await getInfo()
   }
   function logout() {
-    return new Promise<''>((resolve) => {
+    outUser().then(() => {
       resetAllState()
       removeCacheToken()
-
       router.replace({
         path: '/login',
         query: { redirect: route.fullPath },
       })
-      resolve('')
     })
   }
 
   async function getInfo() {
     const res = await _getUserInfo()
     userName.value = res.data.name || '默认'
+    console.log(userName.value, 'userName')
+
     userInfo.value = res.data
     setCache('IS_LOGGED_IN', true)
     setCache('USER_INFO', res.data)
@@ -68,6 +69,7 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn.value = false
     removeCacheToken()
     removeCache('IS_LOGGED_IN')
+    removeCache('USER_INFO')
   }
 
   function hasPermission(requiredPermission: string): boolean {

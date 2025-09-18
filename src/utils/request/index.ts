@@ -15,6 +15,7 @@ const request = new HttpRequest<UserCustomConfig>(
     showErrorMsg: true,
     joinTime: true,
     ignoreRepeatRequest: false,
+    enable401AuthGuard: true,
   },
   {
     // 请求拦截器
@@ -68,10 +69,11 @@ const request = new HttpRequest<UserCustomConfig>(
 
       const msg = responseData.msg || getSystemErrorMessage(responseData.code)
       if (responseData.code === 401) {
-        console.log('401需要退出登录123456')
-
         // handleError(msg)
         // 只做提示，不做其他操作
+        if (!config.enable401AuthGuard) {
+          return showMessageError(msg)
+        }
         showMessageError(msg)
         // 返回登录页
         return useUserStore().logout()

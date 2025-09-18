@@ -10,6 +10,7 @@ declare global {
   const CHAT_MESSAGE_CONTENT_TYPE: typeof import('../src/utils/helpers/constant')['CHAT_MESSAGE_CONTENT_TYPE']
   const EffectScope: typeof import('vue')['EffectScope']
   const ElIcon: typeof import('element-plus/es')['ElIcon']
+  const ElLoading: typeof import('element-plus/es')['ElLoading']
   const ElMessage: typeof import('element-plus/es')['ElMessage']
   const ElMessageBox: typeof import('element-plus/es')['ElMessageBox']
   const ElNotification: typeof import('element-plus/es')['ElNotification']

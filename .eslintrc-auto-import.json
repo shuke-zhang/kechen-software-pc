@@ -170,6 +170,7 @@
     "validateCodeReg": true,
     "validateEmailReg": true,
     "validateIdCardReg": true,
-    "validatePhoneReg": true
+    "validatePhoneReg": true,
+    "ElLoading": true
   }
 }

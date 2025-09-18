@@ -1,50 +1,69 @@
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus'
+import type { LoadingInstance } from 'element-plus/es/components/loading/src/loading'
+import type { UserModel } from '@/model/user'
+import { PutUser } from '@/api/user'
+
+const { userInfo, logout } = useUserStore()
 
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
-const form = ref({
-  name: 'admin',
-  phone: '15888888888',
-  email: 'admin@example.com',
-  gender: '1',
-})
+const form = ref<UserModel>({})
+const submitLoading = ref(false)
 const rules: FormRules = {
   name: [{ required: true, trigger: 'blur', message: '请输入用户名称' }],
-  phone: [{ required: true, trigger: 'blur', message: '请输入手机号码' }],
-  email: [{ required: true, trigger: 'blur', message: '请输入邮箱' }],
+  password: [
+    { required: true, trigger: 'blur', message: '请输入密码' },
+    { min: 6, message: '密码至少 6 位', trigger: 'blur' },
+  ],
+  departName: [{ required: true, trigger: 'blur', message: '请输入部门名称' }],
+  departHis: [{ required: true, trigger: 'blur', message: '请输入his编号' }],
 }
+
+function submit() {
+  let fullLoading: LoadingInstance | null = null
+
+  formRef.value?.validate((valid) => {
+    if (!valid)
+      return
+
+    if (submitLoading.value)
+      return
+    submitLoading.value = true
+
+    PutUser({ ...form.value })
+      .then(() => {
+        // ✅ 使用 ElMessage，非阻塞提示
+        return showMessageWarning('修改成功，即将退出登录!')
+      })
+      .then(() => {
+        fullLoading = ElLoading.service({
+          lock: true,
+          text: '正在退出登录...',
+          background: 'rgba(0, 0, 0, 0.7)',
+        })
+
+        return logout()
+      })
+      .finally(() => {
+        if (fullLoading) {
+          fullLoading.close()
+        }
+        submitLoading.value = false
+      })
+  })
+}
+
+onMounted(() => {
+  form.value = {
+    ...userInfo,
+  }
+})
 </script>
 
 <template>
   <div class="h-[500px]">
     <el-row :gutter="20">
-      <el-col :span="6">
-        <div class="card p-0">
-          <div class="h-[40px] flex items-center pl-[20px] border-b-[1px] border-[#e7eaec]">
-            个人信息
-          </div>
-          <UploadFile class="mb-[10px]" />
-          <div class="p-[20px]  flex flex-col items-center text-[12px]">
-            <ul class="list-group ">
-              <li class="list-group-item flex justify-between ">
-                <div>用户名称</div>
-                <div>admin</div>
-              </li>
-
-              <li class="list-group-item flex justify-between ">
-                <div>手机号码</div>
-                <div>15888888888</div>
-              </li>
-
-              <li class="list-group-item flex justify-between ">
-                <div>创建日期</div>
-                <div>2022-01-01</div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </el-col>
-      <el-col :span="12">
+      <el-col :span="24">
         <div class="card p-0">
           <div
             class="h-[40px] flex items-center pl-[20px] border-b-[1px] border-[#e7eaec]"
@@ -57,35 +76,23 @@ const rules: FormRules = {
                 <el-input v-model="form.name" placeholder="请输入用户名称" />
               </el-form-item>
 
-              <el-form-item label="手机号码" prop="phone">
-                <el-input v-model="form.phone" placeholder="请输入手机号码" />
+              <el-form-item label="密码" prop="password">
+                <el-input v-model="form.password" placeholder="请输入用户密码" type="password" show-password />
               </el-form-item>
 
-              <el-form-item label="邮箱" prop="email">
-                <el-input v-model="form.email" placeholder="请输入邮箱" />
+              <el-form-item label="部门" prop="departName">
+                <el-input v-model="form.departName" placeholder="请输入部门名称" />
               </el-form-item>
 
-              <el-form-item label="性别" prop="gender">
-                <el-radio-group v-model="form.gender">
-                  <el-radio value="1">
-                    男
-                  </el-radio>
-                  <el-radio value="2">
-                    女
-                  </el-radio>
-                </el-radio-group>
+              <el-form-item label="his编号" prop="departHis">
+                <el-input v-model="form.departHis" placeholder="请输入his编号" />
               </el-form-item>
 
-              <el-form-item>
-                <div class="w-full flex justify-end">
-                  <el-button type="primary">
-                    保存
-                  </el-button>
-                  <el-button type="danger">
-                    关闭
-                  </el-button>
-                </div>
-              </el-form-item>
+              <div class="w-full flex justify-end">
+                <el-button type="primary" :loading="submitLoading" @click="submit">
+                  保存
+                </el-button>
+              </div>
             </el-form>
           </div>
         </div>

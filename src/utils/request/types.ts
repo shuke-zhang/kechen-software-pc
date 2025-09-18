@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig } from 'axios'
 
 export interface UserCustomConfig {
   /**
@@ -29,6 +29,10 @@ export interface UserCustomConfig {
    * 是否打开接口请求失败时错误提示
    */
   showErrorMsg?: boolean
+  /**
+   * 是否进入401鉴权守卫
+   */
+  enable401AuthGuard?: boolean
 }
 
 export interface Canceler {
@@ -40,4 +44,4 @@ export type ResponseResult<T extends object = object> = {
   status: number
   msg: string
   message: string
-} & T;
+} & T

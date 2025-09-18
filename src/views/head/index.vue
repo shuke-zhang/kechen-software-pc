@@ -5,6 +5,9 @@ import type { SettingDropdownValueModel } from '@/model/setting'
 
 const UserStore = useUserStore()
 const { userName, isLoggedIn } = storeToRefs(UserStore)
+watch(() => userName.value, (newVal) => {
+  console.log(newVal, 'userName')
+})
 const router = useRouter()
 const currentRoute = ref(router.currentRoute.value.path.replace('/', ''))
 const topNavList: Array<{ label: string, value: TopNavValueModel }> = [
