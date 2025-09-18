@@ -1,39 +1,40 @@
+import type { DeviceModel } from '@/model/device'
+
 /**
  * @description 分页查询班级列表列表
  */
-export function getDeviceList(params?: ListQuery<Api.DeviceModel>) {
-  return request.get<ResponseData<Api.DeviceModel[]>>({
-    url: '/admin/device',
-    params,
+export function getDeviceList(data?: ListQuery<DeviceModel>) {
+  return request.post<ResponseListData<DeviceModel[]>>({
+    url: '/api/picoDevice/list',
+    data,
   })
 }
 
 /**
  * @description 新增数据
  */
-export function addDevice(data: ListQuery<Device.DeviceModel>) {
+export function addDevice(data: ListQuery<DeviceModel>) {
   return request.post({
-    url: '/admin/device',
+    url: '/api/picoDevice/add',
     data,
   })
 }
 /**
  * @description 修改数据
  */
-export function PutDevice(data: ListQuery<Device.DeviceModel>) {
+export function PutDevice(data: ListQuery<DeviceModel>) {
   return request.put({
-    url: '/admin/device',
+    url: '/api/picoDevice/update',
     data,
   })
 }
-/**
- * @description 删除数据
- */
-export function DelDevice(idList: string[]) {
-  // 将数组转换为多个 `idList` 查询参数
-  const queryString = idList.map(id => `idList=${id}`).join('&')
 
+/**
+ * @description 删除字典类型-键数据
+ */
+export function DelDevice(idList: number[]) {
   return request.delete({
-    url: `/admin/device?${queryString}`,
+    url: `/api/picoDevice/delete`,
+    data: idList,
   })
 }

@@ -219,84 +219,89 @@ onMounted(() => {
     </div>
     <el-divider />
     <!-- 卡片区域 -->
-    <div v-loading="loading" class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-start gap-[10px]">
-      <article
-        v-for="it in list"
-        :key="it.id"
-        class="w-[300px] h-[240px] rounded-xl border border-slate-200  bg-white  overflow-hidden flex flex-col gap-10px"
-        :class="{ 'cursor-pointer': isBatchDel, 'del-active': it.isDelChecked }"
-        @click.prevent="activeCard(it)"
-      >
-        <!-- 固定缩略图区域，高度 180px -->
-        <div class="relative w-full h-[150px] bg-slate-900 overflow-hidden">
-          <img :src="it.coverLink" class="absolute inset-0 w-full h-full object-cover">
-
-          <!-- 视频类型 -->
-          <div
-            class="absolute left-0 top-[10px] h-[22px] flex-center
-            rounded-tr rounded-br bg-gray-700/60
-            text-gray-100 text-[12px] px-2"
+    <div v-loading="loading" class="min-h-[200px]" element-loading-text="加载中...">
+      <template v-if="!loading">
+        <div v-if="list.length > 0" class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-start gap-[10px] min-h-[200px]">
+          <article
+            v-for="it in list"
+            :key="it.id"
+            class="w-[300px] h-[240px] rounded-xl border border-slate-200  bg-white  overflow-hidden flex flex-col gap-10px"
+            :class="{ 'cursor-pointer': isBatchDel, 'del-active': it.isDelChecked }"
+            @click.prevent="activeCard(it)"
           >
-            {{ it.fileType }}
-          </div>
+            <!-- 固定缩略图区域，高度 180px -->
+            <div class="relative w-full h-[150px] bg-slate-900 overflow-hidden">
+              <img :src="it.coverLink" class="absolute inset-0 w-full h-full object-cover">
 
-          <!-- 播放按钮 -->
-          <div class="absolute inset-0 m-auto h-10 w-10 rounded-full bg-white/90 text-slate-900 shadow grid place-items-center hover:scale-105 transition cursor-pointer" @click="preview(it)">
-            ▶
-          </div>
+              <!-- 视频类型 -->
+              <div
+                class="absolute left-0 top-[10px] h-[22px] flex-center
+                  rounded-tr rounded-br bg-gray-700/60
+                  text-gray-100 text-[12px] px-2"
+              >
+                {{ it.fileType }}
+              </div>
 
-          <!-- 时长 -->
-          <span class="absolute right-2 bottom-2 rounded bg-black/70 text-white text-xs px-2">
-            {{ fmtDuration(Number(it.videoLength)) }}
-          </span>
+              <!-- 播放按钮 -->
+              <div class="absolute inset-0 m-auto h-10 w-10 rounded-full bg-white/90 text-slate-900 shadow grid place-items-center hover:scale-105 transition cursor-pointer" @click="preview(it)">
+                ▶
+              </div>
+
+              <!-- 时长 -->
+              <span class="absolute right-2 bottom-2 rounded bg-black/70 text-white text-xs px-2">
+                {{ fmtDuration(Number(it.videoLength)) }}
+              </span>
+            </div>
+
+            <!-- 信息区 -->
+            <div class="flex-1 p-2 flex flex-col justify-between">
+              <div class="flex items-center" :title="it.name">
+                <div class="text-sm font-semibold line-clamp-1">
+                  {{ it.name }}
+                </div>
+                <el-tag type="info" size="small" class="ml-[4px]">
+                  {{ it.videoTypeName }}
+                </el-tag>
+              </div>
+
+              <el-tooltip
+                v-model:visible="tooltipVisibleMap[it.id!]"
+                :content="it.comment"
+                placement="bottom"
+                effect="light"
+                trigger="hover"
+                virtual-triggering
+                :virtual-ref="triggerRefMap[it.id!]"
+                append-to="body"
+              />
+
+              <!-- 触发源：用函数模板 ref 把当前元素放到 triggerRefMap -->
+              <div
+                :ref="setTriggerRef(String(it.id))"
+                v-trunc="{ item: it, key: 'isTextTruncated' }"
+                class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
+              >
+                简介：{{ it.comment || '-' }}
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="text-xs  mt-1">
+                  {{ $formatDefaultDate(it.createdTime!) }}
+                </div>
+                <div class="gap-[4px]">
+                  <el-button type="primary" plain size="small" @click.stop="openEdit(it)">
+                    编辑
+                  </el-button>
+                  <el-button type="danger" plain size="small" @click.stop="handleDel(it)">
+                    删除
+                  </el-button>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
-
-        <!-- 信息区 -->
-        <div class="flex-1 p-2 flex flex-col justify-between">
-          <div class="flex items-center" :title="it.name">
-            <div class="text-sm font-semibold line-clamp-1">
-              {{ it.name }}
-            </div>
-            <el-tag type="info" size="small" class="ml-[4px]">
-              {{ it.videoTypeName }}
-            </el-tag>
-          </div>
-
-          <el-tooltip
-            v-model:visible="tooltipVisibleMap[it.id!]"
-            :content="it.comment"
-            placement="bottom"
-            effect="light"
-            trigger="hover"
-            virtual-triggering
-            :virtual-ref="triggerRefMap[it.id!]"
-            append-to="body"
-          />
-
-          <!-- 触发源：用函数模板 ref 把当前元素放到 triggerRefMap -->
-          <div
-            :ref="setTriggerRef(String(it.id))"
-            v-trunc="{ item: it, key: 'isTextTruncated' }"
-            class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
-          >
-            简介：{{ it.comment || '-' }}
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div class="text-xs  mt-1">
-              {{ $formatDefaultDate(it.createdTime!) }}
-            </div>
-            <div class="gap-[4px]">
-              <el-button type="primary" plain size="small" @click.stop="openEdit(it)">
-                编辑
-              </el-button>
-              <el-button type="danger" plain size="small" @click.stop="handleDel(it)">
-                删除
-              </el-button>
-            </div>
-          </div>
-        </div>
-      </article>
+        <el-empty v-else description="暂无数据" />
+      </template>
     </div>
 
     <!-- 分页 -->

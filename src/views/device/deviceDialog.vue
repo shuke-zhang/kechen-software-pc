@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
+import type { DeviceModel } from '@/model/device'
+import { addDevice, PutDevice } from '@/api/device'
 
 const props = defineProps({
   isAdd: {
@@ -10,11 +12,10 @@ const props = defineProps({
     type: Object,
   },
 })
+const emit = defineEmits(['success'])
 const visible = defineModel({ type: Boolean, required: false })
 const submitLoading = ref(false)
-const form = ref({
-  deviceName: '',
-})
+const form = ref<DeviceModel>({})
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
 
 const rules = {
@@ -27,9 +28,7 @@ function cancel() {
 }
 
 function reset() {
-  form.value = {
-    deviceName: '',
-  }
+  form.value = {}
   resetForm(formRef.value)
   submitLoading.value = false
 }
@@ -40,10 +39,14 @@ function submit() {
       if (submitLoading.value)
         return
       submitLoading.value = true
-      setTimeout(() => {
-        visible.value = false
+      const api = props.isAdd ? addDevice : PutDevice
+      api(form.value).then(() => {
         reset()
-      }, 1000)
+        visible.value = false
+        emit('success')
+      }).finally(() => {
+        submitLoading.value = false
+      })
     }
   })
 }
@@ -60,8 +63,8 @@ watch(() => props.data, (newVal) => {
     <el-form ref="formRef" :inline="true" :rules="rules" :model="form" class="large-form" label-width="100">
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="设备名称" prop="deviceName" style="width: 100%">
-            <el-input v-model="form.deviceName" clearable placeholder="请输入设备名称" size="large" style="width: 100%" />
+          <el-form-item label="设备名称" prop="picoNumber" style="width: 100%">
+            <el-input v-model="form.picoNumber" clearable placeholder="请输入设备名称" size="large" style="width: 100%" />
           </el-form-item>
         </el-col>
       </el-row>
