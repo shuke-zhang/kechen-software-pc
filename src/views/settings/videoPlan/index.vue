@@ -130,7 +130,7 @@ onMounted(() => {
       <el-form-item>
         <el-input
           v-model="queryParams.departHis"
-          placeholder="请输入his编号查询"
+          placeholder="请输入科室编号查询"
           clearable
           style="width: 220px"
           @keyup.enter="getList"

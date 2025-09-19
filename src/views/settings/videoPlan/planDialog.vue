@@ -45,7 +45,7 @@ const videoSelectLoading = ref(false)
 const rules: FormRules = {
   name: [{ required: true, trigger: 'blur', message: '请输入方案名称' }],
   planType: [{ required: true, trigger: 'blur', message: '请输入视频类别' }],
-  departHis: [{ required: true, trigger: 'blur', message: '请输入his编号' }],
+  departHis: [{ required: true, trigger: 'blur', message: '请输入科室编号' }],
 
 }
 

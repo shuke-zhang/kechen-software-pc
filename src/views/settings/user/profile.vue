@@ -16,7 +16,7 @@ const rules: FormRules = {
     { min: 6, message: '密码至少 6 位', trigger: 'blur' },
   ],
   departName: [{ required: true, trigger: 'blur', message: '请输入部门名称' }],
-  departHis: [{ required: true, trigger: 'blur', message: '请输入his编号' }],
+  departHis: [{ required: true, trigger: 'blur', message: '请输入科室编号' }],
 }
 
 function submit() {
@@ -84,8 +84,8 @@ onMounted(() => {
                 <el-input v-model="form.departName" placeholder="请输入部门名称" />
               </el-form-item>
 
-              <el-form-item label="his编号" prop="departHis">
-                <el-input v-model="form.departHis" placeholder="请输入his编号" />
+              <el-form-item label="科室编号" prop="departHis">
+                <el-input v-model="form.departHis" placeholder="请输入科室编号" />
               </el-form-item>
 
               <div class="w-full flex justify-end">

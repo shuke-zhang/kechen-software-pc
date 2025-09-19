@@ -28,8 +28,8 @@ const form = ref<UserModel>({
 const rules: FormRules = {
   name: [{ required: true, trigger: 'blur', message: '请输入用户名' }],
   sexDesc: [{ required: true, trigger: 'blur', message: '请选择性别' }],
-  departName: [{ required: true, trigger: 'blur', message: '请输入部门名称' }],
-  departHis: [{ required: true, trigger: 'blur', message: '请输入his编号' }],
+  departName: [{ required: true, trigger: 'blur', message: '请输入所属科室名称' }],
+  departHis: [{ required: true, trigger: 'blur', message: '请输入科室编号' }],
   password: [
     { required: true, trigger: 'blur', message: '请输入密码' },
     { min: 6, message: '密码至少 6 位', trigger: 'blur' },
@@ -90,7 +90,7 @@ watch(
     :close-on-click-modal="false"
     @close="cancel"
   >
-    <el-form ref="formRef" :inline="true" :model="form" :rules="rules" class="large-form" label-width="100">
+    <el-form ref="formRef" :inline="true" :model="form" :rules="rules" class="large-form" label-width="120">
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="用户名" prop="name" style="width: 100%">
@@ -99,14 +99,14 @@ watch(
         </el-col>
 
         <el-col :span="12">
-          <el-form-item label="部门名称" prop="departName" style="width: 100%">
-            <el-input v-model="form.departName" clearable placeholder="请输入部门名称" size="large" />
+          <el-form-item label="所属科室名称" prop="departName" style="width: 100%">
+            <el-input v-model="form.departName" clearable placeholder="请输入所属科室名称" size="large" />
           </el-form-item>
         </el-col>
 
         <el-col :span="12">
-          <el-form-item label="his编号" prop="departHis" style="width: 100%">
-            <el-input v-model="form.departHis" clearable placeholder="请输入his编号" size="large" />
+          <el-form-item label="科室编号" prop="departHis" style="width: 100%">
+            <el-input v-model="form.departHis" clearable placeholder="请输入科室编号" size="large" />
           </el-form-item>
         </el-col>
 

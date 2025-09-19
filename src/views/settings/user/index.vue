@@ -129,7 +129,7 @@ onMounted(() => {
       <el-form-item>
         <el-input
           v-model="queryParams.departName"
-          placeholder="请输入部门名称查询"
+          placeholder="请输入所属科室名称查询"
           clearable
           style="width: 220px"
           @keyup.enter="getList"
@@ -139,7 +139,7 @@ onMounted(() => {
       <el-form-item>
         <el-input
           v-model="queryParams.departHis"
-          placeholder="请输入his编号查询"
+          placeholder="请输入科室编号查询"
           clearable
           style="width: 220px"
           @keyup.enter="getList"
@@ -181,9 +181,9 @@ onMounted(() => {
 
       <el-table-column prop="name" label="用户名" align="center" width="140" show-overflow-tooltip />
 
-      <el-table-column prop="departName" label="部门" align="center" width="140" />
+      <el-table-column prop="departName" label="所属科室" align="center" width="140" />
 
-      <el-table-column prop="departHis" label="his编号" align="center" width="140" />
+      <el-table-column prop="departHis" label="科室编号" align="center" width="140" />
 
       <el-table-column prop="createdTime" label="创建时间" align="center" width="220" />
 

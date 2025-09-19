@@ -4,6 +4,7 @@ import type { EpPropMergeType } from 'element-plus/es/utils/index.mjs'
 
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { getVideoTreatList } from '@/api/visitRecord'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
@@ -23,16 +24,12 @@ const loading = ref(false)
 
 const queryRef = useTemplateRef('queryEl')
 
-const queryParams = ref<ListQueryParams<VisitRecordQuery>>({
-  pageNum: 1,
-  pageSize: 10,
-  patientName: '',
-  videoPlanName: '',
-  itemName: '',
-  deviceSn: '',
-  department: '',
-  status: undefined,
-  dateRange: undefined,
+const queryParams = ref<ListPageParamsWrapper<VisitRecordQuery>>({
+  page: {
+    current: 1,
+    size: 10,
+  },
+
 })
 
 const statusOptions = [
@@ -69,10 +66,15 @@ function getList() {
   if (loading.value)
     return
   loading.value = true
-  console.log('获取诊疗记录列表', queryParams.value)
-  setTimeout(() => {
+  getVideoTreatList(queryParams.value).then((res) => {
+    list.value = res.data.records
+    total.value = res.data.total
+    ids.value = []
+    single.value = true
+    multiple.value = true
+  }).finally(() => {
     loading.value = false
-  }, 300)
+  })
 }
 
 function handleAdd() {
@@ -124,6 +126,9 @@ function tagType(status?: VisitRecordModel['status']): EpPropMergeType<StringCon
     return 'info'
   return undefined
 }
+onMounted(() => {
+  getList()
+})
 </script>
 
 <template>
@@ -184,7 +189,7 @@ function tagType(status?: VisitRecordModel['status']): EpPropMergeType<StringCon
         </template>
       </el-table-column>
       <el-table-column prop="createdAt" label="创建时间" align="center" width="180" />
-      <el-table-column label="操作" align="center" width="220" fixed="right">
+      <el-table-column label="操作" align="center" width="160" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
