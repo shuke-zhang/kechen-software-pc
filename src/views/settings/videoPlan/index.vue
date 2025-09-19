@@ -2,9 +2,10 @@
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
 import type { UserModel } from '@/model/user'
+import type { VideoCategoryModel } from '@/model/videoCategory'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { DelUser, putUserPassword } from '@/api/user'
-import { getVideoPlanList } from '@/api/videoPlan'
+import { getVideoCategoryTree } from '@/api/videoCategory'
+import { DelVideoPlan, getVideoPlanList } from '@/api/videoPlan'
 import UserDialog from './planDialog.vue'
 
 const { sys_user_sex } = useDict('sys_user_sex')
@@ -19,7 +20,7 @@ const ids = ref<number[]>([])
 const names = ref<string[]>([])
 const single = ref(true)
 const multiple = ref(true)
-
+const videoTypeList = ref<VideoCategoryModel[]>([])
 const queryRef = useTemplateRef('queryEl')
 const queryParams = ref<ListPageParamsWrapper<UserModel>>({
   page: {
@@ -38,6 +39,17 @@ function getList(): void {
   }).finally(() => {
     loading.value = false
   })
+}
+
+function getVideoType() {
+  getVideoCategoryTree().then((res) => {
+    videoTypeList.value = res.data
+  })
+}
+
+function getPlanTypeLabel(planType: number): string {
+  const item = findNodeById(videoTypeList.value, planType)
+  return item ? item.name || '' : ''
 }
 
 function retQuery(): void {
@@ -63,33 +75,11 @@ function handlePut(row: UserModel): void {
   dialogVisible.value = true
 }
 
-/**
- * 修改密码
- */
-function handleUpdatePassWord(row: UserModel) {
-  ElMessageBox.prompt(`请输入"${row.name}"的新密码`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    closeOnClickModal: false,
-    inputErrorMessage: '用户密码长度至少 6 位',
-  })
-    .then(({ value }) => {
-      return putUserPassword({
-        id: row.id!,
-        password: value,
-      })
-    })
-    .then(() => {
-      showLoadingMessageSuccess('操作成功')
-    })
-}
-
 function handleDel(_ids: number[] | UserModel): void {
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
   const delNames = Array.isArray(_ids) ? names.value : [_ids.name!]
-  confirmWarning(`是否确认删除用户：${delNames.join(', ')}？`).then(() => {
-    console.log('删除 IDs:', delIds)
-    delMsgLoading(DelUser(delIds), '删除中...').then(() => {
+  confirmWarning(`是否确认删除视频方案：${delNames.join(', ')}？`).then(() => {
+    delMsgLoading(DelVideoPlan(delIds), '删除中...').then(() => {
       loading.value = false
       ids.value = []
       names.value = []
@@ -109,6 +99,7 @@ function handleSelectionChange(selection: UserModel[]): void {
 
 onMounted(() => {
   getList()
+  getVideoType()
 })
 </script>
 
@@ -177,23 +168,26 @@ onMounted(() => {
     >
       <el-table-column type="selection" width="55" />
 
-      <el-table-column prop="id" label="用户编号" align="center" width="90" />
+      <el-table-column prop="id" label="方案编号" align="center" width="90" />
 
-      <el-table-column prop="name" label="用户名" align="center" width="140" show-overflow-tooltip />
+      <el-table-column prop="name" label="方案名称" align="center" width="140" show-overflow-tooltip />
 
-      <el-table-column prop="departName" label="部门" align="center" width="140" />
+      <el-table-column prop="planType" label="视频类别" align="center" width="140">
+        <template #default="{ row }">
+          {{ getPlanTypeLabel(row.planType) }}
+        </template>
+      </el-table-column>
 
-      <el-table-column prop="departHis" label="his编号" align="center" width="140" />
+      <el-table-column prop="videoName" label="视频名称" align="center" width="140" />
+
+      <el-table-column prop="createdUserName" label="创建人" align="center" width="220" />
 
       <el-table-column prop="createdTime" label="创建时间" align="center" width="220" />
 
-      <el-table-column align="center" label="操作" width="220" fixed="right">
+      <el-table-column align="center" label="操作" width="180" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="handlePut(row)">
             修改
-          </el-button>
-          <el-button size="small" type="warning" @click="handleUpdatePassWord(row)">
-            修改密码
           </el-button>
           <el-button size="small" type="danger" @click="handleDel(row)">
             删除

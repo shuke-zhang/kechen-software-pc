@@ -7,7 +7,6 @@ import type { VideoCategoryModel } from '@/model/videoCategory'
 import type { VideoPlanModel } from '@/model/videoPlan'
 
 import { QuestionFilled } from '@element-plus/icons-vue'
-import { addUser, PutUser } from '@/api/user'
 import { getVideoList } from '@/api/video'
 import { getVideoCategoryTree } from '@/api/videoCategory'
 import { addVideoPlan, putVideoPlan } from '@/api/videoPlan'
@@ -36,7 +35,6 @@ const submitLoading = ref(false)
 const formRef = ref<InstanceType<typeof ElForm> | null>(null)
 const videoSelect = ref<VideoModel[]>([])
 const form = ref<VideoPlanModel>({
-  name: '45123',
   orderNum: 0,
 })
 
@@ -187,7 +185,6 @@ watch(() => visible.value, () => {
 
         <el-col :span="12">
           <el-form-item prop="planType" style="width: 100%" size="large">
-            <!-- <el-input v-model="form.planType" clearable placeholder="请输入部门名称" size="large" /> -->
             <template #label>
               <span class="flex items-center">
                 <el-tooltip content="选择视频类别后会自动筛选视频" placement="top">
