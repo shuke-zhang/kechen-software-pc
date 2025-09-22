@@ -45,3 +45,9 @@ export type ResponseResult<T extends object = object> = {
   msg: string
   message: string
 } & T
+
+export type ResponseResultData<T extends object = object> = {
+  code: number
+  data: string | T
+  msg: string
+} & T

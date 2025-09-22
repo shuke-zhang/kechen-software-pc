@@ -1,6 +1,6 @@
 import type { HttpRequestConfig } from '@shuke~/request'
 import type { AxiosRequestConfig, Canceler } from 'axios'
-import type { ResponseResult, UserCustomConfig } from './types'
+import type { ResponseResultData, UserCustomConfig } from './types'
 import { logger } from '@shuke~/logger'
 import { getSystemErrorMessage, HttpRequest, RequestMethodsEnum } from '@shuke~/request'
 import axios from 'axios'
@@ -59,7 +59,7 @@ const request = new HttpRequest<UserCustomConfig>(
       if (config.getResponse) {
         return _response
       }
-      const responseData = _response.data as ResponseResult<object>
+      const responseData = _response.data as ResponseResultData<object>
       // 成功 - 0  警告300 没登录 401  服务器错误501
       if (responseData.code === 0) {
         // 请求成功
@@ -72,9 +72,9 @@ const request = new HttpRequest<UserCustomConfig>(
         // handleError(msg)
         // 只做提示，不做其他操作
         if (!config.enable401AuthGuard) {
-          return showMessageError(msg)
+          return showMessageError((responseData.data as string) || msg)
         }
-        showMessageError(msg)
+        showMessageError((responseData.data as string) || msg)
         // 返回登录页
         return useUserStore().logout()
       }
