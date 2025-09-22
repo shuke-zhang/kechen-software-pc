@@ -9,7 +9,7 @@ export type UserDropdownValueModel = 'put' | 'logout'
  * 头部nav菜单项值类型
  * -  device : 设备管理
  * - patient: 患者
- * - visitRecord: 诊疗记录
+ * - visitRecord: 治疗记录
  * - report: 报告
  * - settings: 设置
  */

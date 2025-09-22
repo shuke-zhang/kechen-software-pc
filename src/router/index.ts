@@ -32,7 +32,7 @@ const router = createRouter({
           name: 'visitRecord',
           component: () => import('@/views/visitRecord/index.vue'),
           meta: {
-            title: '诊疗记录',
+            title: '治疗记录',
             hidden: true,
           },
         },

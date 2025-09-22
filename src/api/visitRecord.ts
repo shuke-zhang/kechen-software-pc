@@ -1,7 +1,7 @@
 import type { VisitRecordModel } from '@/model/visitRecord'
 
 /**
- * @description 分页查询诊疗记录列表
+ * @description 分页查询治疗记录列表
  */
 export function getVideoTreatList(data?: ListPageQuery<VisitRecordModel>) {
   return request.post<ResponseListData<VisitRecordModel[]>>({
@@ -11,7 +11,7 @@ export function getVideoTreatList(data?: ListPageQuery<VisitRecordModel>) {
 }
 
 /**
- * @description 新增诊疗记录
+ * @description 新增治疗记录
  */
 export function addVideoTreat(data: VisitRecordModel) {
   return request.post({
@@ -20,7 +20,7 @@ export function addVideoTreat(data: VisitRecordModel) {
   })
 }
 /**
- * @description 修改诊疗记录
+ * @description 修改治疗记录
  */
 export function PutVideoTreat(data: VisitRecordModel) {
   return request.post({
@@ -29,7 +29,7 @@ export function PutVideoTreat(data: VisitRecordModel) {
   })
 }
 /**
- * @description 删除诊疗记录
+ * @description 删除治疗记录
  */
 export function DelVideoTreat(idList: number[]) {
   return request.delete({

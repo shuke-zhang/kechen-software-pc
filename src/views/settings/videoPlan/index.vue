@@ -1,8 +1,8 @@
 <!-- UserPage.vue -->
 <script setup lang="ts">
 import type { ElForm } from 'element-plus'
-import type { UserModel } from '@/model/user'
 import type { VideoCategoryModel } from '@/model/videoCategory'
+import type { VideoPlanModel } from '@/model/videoPlan'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import { getVideoCategoryTree } from '@/api/videoCategory'
 import { DelVideoPlan, getVideoPlanList } from '@/api/videoPlan'
@@ -11,18 +11,18 @@ import UserDialog from './planDialog.vue'
 const { sys_user_sex } = useDict('sys_user_sex')
 
 const total = ref(0)
-const list = ref<UserModel[]>([])
+const list = ref<VideoPlanModel[]>([])
 const loading = ref(false)
 const dialogVisible = ref(false)
 const isAdd = ref(false)
-const dialogData = ref<UserModel>({})
+const dialogData = ref<VideoPlanModel>({})
 const ids = ref<number[]>([])
 const names = ref<string[]>([])
 const single = ref(true)
 const multiple = ref(true)
 const videoTypeList = ref<VideoCategoryModel[]>([])
 const queryRef = useTemplateRef('queryEl')
-const queryParams = ref<ListPageParamsWrapper<UserModel>>({
+const queryParams = ref<ListPageParamsWrapper<VideoPlanModel>>({
   page: {
     current: 1,
     size: 10,
@@ -69,13 +69,13 @@ function handleAdd(): void {
   dialogVisible.value = true
 }
 
-function handlePut(row: UserModel): void {
+function handlePut(row: VideoPlanModel): void {
   isAdd.value = false
   dialogData.value = { ...row }
   dialogVisible.value = true
 }
 
-function handleDel(_ids: number[] | UserModel): void {
+function handleDel(_ids: number[] | VideoPlanModel): void {
   const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
   const delNames = Array.isArray(_ids) ? names.value : [_ids.name!]
   confirmWarning(`是否确认删除视频方案：${delNames.join(', ')}？`).then(() => {
@@ -90,7 +90,7 @@ function handleDel(_ids: number[] | UserModel): void {
   })
 }
 
-function handleSelectionChange(selection: UserModel[]): void {
+function handleSelectionChange(selection: VideoPlanModel[]): void {
   ids.value = selection.map(i => i.id!)
   names.value = selection.map(i => i.name!)
   single.value = selection.length !== 1
@@ -110,38 +110,12 @@ onMounted(() => {
       <el-form-item>
         <el-input
           v-model="queryParams.name"
-          placeholder="请输入用户名查询"
+          placeholder="请输入方案名查询"
           clearable
           style="width: 220px"
           @keyup.enter="getList"
         />
       </el-form-item>
-
-      <el-form-item>
-        <el-input
-          v-model="queryParams.departName"
-          placeholder="请输入部门名称查询"
-          clearable
-          style="width: 220px"
-          @keyup.enter="getList"
-        />
-      </el-form-item>
-
-      <el-form-item>
-        <el-input
-          v-model="queryParams.departHis"
-          placeholder="请输入科室编号查询"
-          clearable
-          style="width: 220px"
-          @keyup.enter="getList"
-        />
-      </el-form-item>
-
-      <!-- <el-form-item>
-        <el-select v-model="queryParams.sexDesc" placeholder="性别" clearable size="large" style="width: 160px">
-          <el-option v-for="it in sys_user_sex" :key="it.value" :label="it.label" :value="it.label" />
-        </el-select>
-      </el-form-item> -->
 
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="getList">

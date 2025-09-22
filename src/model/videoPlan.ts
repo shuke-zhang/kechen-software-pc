@@ -13,7 +13,7 @@ export interface VideoPlanModel {
   delFlag?: 0 | 1
   /** 主键 ID。 */
   id?: number
-  /** 计划名称。 */
+  /** 方案名称。 */
   name?: string
   /** 排序号，数字越小越靠前。 */
   orderNum?: number

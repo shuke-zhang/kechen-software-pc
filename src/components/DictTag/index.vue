@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { EpPropMergeType } from 'element-plus/es/utils/index.mjs'
 import type { PropType } from 'vue'
+
+export type CssTypeModel = EpPropMergeType<StringConstructor, 'primary' | 'success' | 'warning' | 'info' | 'danger', unknown>
 
 const props = defineProps({
   // 数据
@@ -10,7 +13,7 @@ const props = defineProps({
           label: string
           value: string
           dictType: string
-          cssType?: 'success' | 'warning' | 'info' | 'primary' | 'danger'
+          cssType?: CssTypeModel
         }[]
       >
     >,
