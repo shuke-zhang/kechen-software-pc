@@ -3,8 +3,8 @@ import type { DeviceModel } from '@/model/device'
 /**
  * @description 分页查询班级列表列表
  */
-export function getDeviceList(data?: ListQuery<DeviceModel>) {
-  return request.post<ResponseListData<DeviceModel[]>>({
+export function getDeviceList(data?: DeviceModel) {
+  return request.post<ResponseData<DeviceModel[]>>({
     url: '/api/picoDevice/list',
     data,
   })

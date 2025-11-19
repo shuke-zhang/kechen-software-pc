@@ -86,13 +86,8 @@ function getPicoList() {
   }
 
   picoLoading.value = true
-  getDeviceList({
-    page: {
-      current: 1,
-      size: 100,
-    },
-  } as ListPageParamsWrapper<DeviceModel>).then((res) => {
-    devicePicoList.value = res.data.records
+  getDeviceList().then((res) => {
+    devicePicoList.value = res.data
   }).finally(() => {
     picoLoading.value = false
   })
@@ -289,7 +284,7 @@ watch(() => visible.value, () => {
           </el-form-item>
         </el-col>
 
-        <el-col :span="12">
+        <!-- <el-col :span="12">
           <el-form-item label="诊断医生" prop="diagnosticDoctor" style="width: 100%">
             <el-input
               v-model="form.diagnosticDoctor"
@@ -309,7 +304,7 @@ watch(() => visible.value, () => {
               placeholder="请输入执行医生"
             />
           </el-form-item>
-        </el-col>
+        </el-col> -->
       </el-row>
     </el-form>
     <template #footer>

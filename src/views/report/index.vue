@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { Refresh, Search } from '@element-plus/icons-vue'
 
-import ReportDialog from './reportDialog.vue'
+import { getReportList } from '@/api/report'
 
 export interface ReportRow {
   id?: number
@@ -18,19 +18,18 @@ type DateRange = [string, string] | undefined
 interface ReportQuery extends ReportRow {
   dateRange?: DateRange
 }
-
+// planName|创建人、link、用户名称、
+// const list =
 const total = ref(0)
-const dialogVisible = ref(false)
-const isAdd = ref(false)
-const dialogData = ref<ReportRow>({})
 const ids = ref<number[]>([])
 const single = ref(true)
 const multiple = ref(true)
 const loading = ref(false)
+const list = ref<ReportRow[]>([])
 
 const queryRef = useTemplateRef('queryEl')
 
-const queryParams = ref<ListQueryParams<ReportQuery>>({
+const queryParams = ref<ListPageParamsWrapper<ReportQuery>>({
   pageNum: 1,
   pageSize: 10,
   patientName: '',
@@ -40,53 +39,13 @@ const queryParams = ref<ListQueryParams<ReportQuery>>({
   dateRange: undefined,
 })
 
-const list = ref<ReportRow[]>([
-  {
-    id: 6001,
-    patientName: '张三',
-    recordNo: 'VR-202508-0001',
-    picoSn: 'PICO-AX9-001',
-    itemName: '颈椎牵引',
-    createdAt: '2025-08-28 10:12:00',
-    reportUrl: '/report/VR-202508-0001',
-  },
-  {
-    id: 6002,
-    patientName: '李四',
-    recordNo: 'VR-202508-0002',
-    picoSn: 'PICO-AX9-017',
-    itemName: '眼部理疗',
-    createdAt: '2025-08-30 15:40:12',
-    reportUrl: 'https://example.com/report/VR-202508-0002',
-  },
-])
-
 function getList(): void {
   if (loading.value)
     return
   loading.value = true
-  console.log('获取报告列表', queryParams.value)
-  setTimeout(() => {
-    loading.value = false
-  }, 300)
-}
-
-function handleAdd(): void {
-  isAdd.value = true
-  dialogData.value = {}
-  dialogVisible.value = true
-}
-
-function handlePut(row: ReportRow): void {
-  isAdd.value = false
-  dialogData.value = { ...row }
-  dialogVisible.value = true
-}
-
-function handleDel(_ids: number[] | ReportRow): void {
-  const delIds = Array.isArray(_ids) ? _ids : [_ids.id!]
-  confirmWarning('是否确认删除所选报告？').then(() => {
-    console.log('删除 IDs:', delIds)
+  getReportList(queryParams.value).then((res) => {
+    list.value = res.data.records
+    total.value = res.data.total
   })
 }
 
@@ -123,6 +82,10 @@ function openReport(row: ReportRow): void {
   }
   ElMessage.warning('未配置报告链接')
 }
+
+onMounted(() => {
+  getList()
+})
 </script>
 
 <template>
@@ -150,12 +113,6 @@ function openReport(row: ReportRow): void {
         <el-button type="primary" plain :icon="Refresh" @click="retQuery">
           查询重置
         </el-button>
-        <el-button type="success" :icon="CirclePlus" @click="handleAdd">
-          新增
-        </el-button>
-        <el-button type="danger" :disabled="ids.length <= 0" :icon="CircleClose" @click="handleDel(ids)">
-          删除
-        </el-button>
       </el-form-item>
     </el-form>
 
@@ -166,29 +123,18 @@ function openReport(row: ReportRow): void {
       <el-table-column prop="picoSn" label="Pico 编号" align="center" width="140" />
       <el-table-column prop="itemName" label="诊疗项名称" align="center" width="160" show-overflow-tooltip />
       <el-table-column prop="createdAt" label="创建时间" align="center" width="180" />
-      <el-table-column label="报告链接" align="center">
+      <el-table-column prop="link" label="报告链接" align="center" />
+
+      <el-table-column align="center" label="操作" width="240" fixed="right">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="openReport(row)">
             查看
           </el-button>
         </template>
       </el-table-column>
-
-      <el-table-column align="center" label="操作" width="240" fixed="right">
-        <template #default="{ row }">
-          <el-button size="small" type="primary" @click="handlePut(row)">
-            修改
-          </el-button>
-          <el-button size="small" type="danger" @click="handleDel(row)">
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
     </el-table>
 
     <Pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
-
-    <ReportDialog v-model="dialogVisible" :is-add="isAdd" :data="dialogData" @ok="getList" />
   </div>
 </template>
 

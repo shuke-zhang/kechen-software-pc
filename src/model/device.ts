@@ -17,4 +17,10 @@ export interface DeviceModel {
   picoNumber?: string
   /** 更新时间，ISO 8601 字符串，如 "2025-09-18T06:05:24.143Z"。 */
   updatedTime?: string
+  /**
+   * 在线状态
+   *  - 0-在线
+   *  - 1-离线
+   */
+  status?: number
 }

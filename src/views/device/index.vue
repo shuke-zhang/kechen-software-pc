@@ -19,10 +19,20 @@ const queryParams = ref<ListPageParamsWrapper<DeviceModel>>({
   },
 })
 const currentData = ref({})
+const statusOptions = [
+  {
+    value: 0,
+    label: '在线',
+  },
+  {
+    value: 1,
+    label: '离线',
+  },
+]
 
-function deviceItemStyle(i: number) {
+function deviceItemStyle(status: number) {
   return {
-    backgroundImage: `url(${new URL(`../../assets/device-bg-${i % 2 === 0 ? 2 : 1}.png`, import.meta.url).href})`,
+    backgroundImage: `url(${new URL(`../../assets/device-bg-${status === 0 ? 1 : 2}.png`, import.meta.url).href})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   }
@@ -36,7 +46,7 @@ function getList() {
     return
   loading.value = true
   getDeviceList(queryParams.value).then((res) => {
-    list.value = res.data.records
+    list.value = res.data
   }).finally(() => {
     loading.value = false
   })
@@ -95,6 +105,7 @@ onMounted(() => {
             v-model="queryParams.status"
             placeholder="请选择状态"
             style="width: 240px"
+            @change="getList"
           >
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
@@ -115,13 +126,28 @@ onMounted(() => {
     </div>
   </div>
   <el-divider />
-  <div v-loading="loading" class="min-h-[200px]" element-loading-text="加载中...">
+  <div v-loading="loading" class="min-h-[180px]" element-loading-text="加载中...">
     <template v-if="!loading">
-      <div v-if="list.length > 0" class="grid gap-[10px] [grid-template-columns:repeat(auto-fill,200px)] min-h-[200px]">
-        <div v-for="item in list" :key="item.id" class="card relative w-[200px] h-[100px] flex flex-col justify-center items-center" :style="deviceItemStyle(item.id!)">
-          <div class="absolute! top-[12px] right-[12px] flex">
-            <icon-font name="edit" size="20" color="#BCBCBC" hover-style="#6e6e6e" class="cursor-pointer" @click="handlePut(item)" />
-            <icon-font name="delete" :size="20" color="#f56c6c" hover-style="#c93030" class="ml-[8px] cursor-pointer" @click="handleDel(item)" />
+      <div v-if="list && list.length > 0" class="grid gap-[10px] [grid-template-columns:repeat(auto-fill,180px)] min-h-[180px]">
+        <div v-for="item in list" :key="item.id" class="card relative w-[180px] h-[100px] flex flex-col justify-center items-center" :style="deviceItemStyle(item.status || 1)">
+          <div class="absolute! top-[12px] right-[12px] left-[12px]  flex flex-1 justify-between">
+            <div class="flex items-center gap-2">
+              <span
+                class="h-3 w-3 rounded-full"
+                :class="!item.status ? 'bg-green-500 animate-pulse' : 'bg-gray-400'"
+              />
+
+              <span
+                class="text-sm font-medium"
+                :class="!item.status ? 'text-green-600' : 'text-gray-500'"
+              >
+                {{ !item.status ? '在线' : '离线' }}
+              </span>
+            </div>
+            <div class="flex">
+              <icon-font name="edit" size="20" color="#BCBCBC" hover-style="#6e6e6e" class="cursor-pointer" @click="handlePut(item)" />
+              <icon-font name="delete" :size="20" color="#f56c6c" hover-style="#c93030" class="ml-[8px] cursor-pointer" @click="handleDel(item)" />
+            </div>
           </div>
           <div>{{ item.picoNumber }}</div>
         </div>
