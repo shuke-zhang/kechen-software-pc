@@ -113,7 +113,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
     <!-- 查询 -->
     <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
@@ -146,12 +146,6 @@ onMounted(() => {
         />
       </el-form-item>
 
-      <!-- <el-form-item>
-        <el-select v-model="queryParams.sexDesc" placeholder="性别" clearable size="large" style="width: 160px">
-          <el-option v-for="it in sys_user_sex" :key="it.value" :label="it.label" :value="it.label" />
-        </el-select>
-      </el-form-item> -->
-
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="getList">
           查询
@@ -181,11 +175,11 @@ onMounted(() => {
 
       <el-table-column prop="name" label="用户名" align="center" width="140" show-overflow-tooltip />
 
-      <el-table-column prop="departName" label="所属科室" align="center" width="140" />
+      <el-table-column prop="departName" label="所属科室" align="center" />
 
       <el-table-column prop="departHis" label="科室编号" align="center" width="140" />
 
-      <el-table-column prop="createdTime" label="创建时间" align="center" width="220" />
+      <el-table-column prop="createdTime" label="创建时间" align="center" />
 
       <el-table-column align="center" label="操作" width="220" fixed="right">
         <template #default="{ row }">

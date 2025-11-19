@@ -1,2 +1,7 @@
 $color-system-primary: #8989fa;
 $color-system-primary-active: #adadfc;
+/* 全局，仅定义一次即可 */
+:root {
+  // --sidebar-menu-width: #{vars.$sidebar-menu-width}; /* 例如 240px */
+  // --header-height: #{vars.$header-height}; /* 例如 60px */
+}

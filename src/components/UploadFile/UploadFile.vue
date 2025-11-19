@@ -488,15 +488,6 @@ watch(() => props.isOccupyCorner, () => updateExtBadges())
       </div>
     </el-upload>
 
-    <!-- 可选：文件名 -->
-    <!--
-    <div v-if="showFilename && fileData.length" class="filename-grid">
-      <div v-for="(f, i) in fileData" :key="i" class="name">
-        {{ (f as any).name || (f as any).originUrl || f.url }}
-      </div>
-    </div>
-    -->
-
     <el-dialog v-model="dialogVisible" append-to-body width="520px">
       <div class="mb-3 flex items-center justify-between">
         <div class="text-xs text-gray-500 truncate" :title="dialogOriginalUrl">

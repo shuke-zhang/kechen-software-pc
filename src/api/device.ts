@@ -23,7 +23,7 @@ export function addDevice(data: ListQuery<DeviceModel>) {
  * @description 修改数据
  */
 export function PutDevice(data: ListQuery<DeviceModel>) {
-  return request.put({
+  return request.post({
     url: '/api/picoDevice/update',
     data,
   })
