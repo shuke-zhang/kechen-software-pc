@@ -201,7 +201,7 @@ onMounted(() => {
 
       <el-table-column prop="createdTime" label="创建时间" align="center" width="180" />
 
-      <el-table-column label="操作" align="center" width="300" fixed="right">
+      <el-table-column label="操作" align="center" width="260" fixed="right">
         <template #default="{ row }">
           <el-button v-if="row.status === 0" size="small" type="primary" @click="handleIssued(row)">
             下发
