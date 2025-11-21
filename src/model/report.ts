@@ -4,11 +4,23 @@ export interface ReportModel {
    */
   id?: string
   /**
-   * string
+   * 报告连接
    */
   link?: string
   /**
-   * 治疗id
+   * 换着
+   */
+  patientName?: string
+  /**
+   * 医生
+   */
+  exeDoctor?: string
+  /**
+   * pico编号
+   */
+  picoNumber?: string
+  /**
+   * 方案id
    */
   planId?: string
   /**
@@ -19,4 +31,5 @@ export interface ReportModel {
    * 治疗记录id
    */
   treatId?: string
+
 }

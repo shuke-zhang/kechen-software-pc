@@ -65,7 +65,13 @@ declare interface ListParamsBase {
  */
 declare interface ListParamsPageBase {
   page: {
+    /**
+     * 当前页数 - 1
+     */
     current: number
+    /**
+     * 每页有几条 - 10
+     */
     size: number
   }
 }
