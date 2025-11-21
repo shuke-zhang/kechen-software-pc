@@ -47,3 +47,15 @@ export function DelVideoTreat(idList: number[]) {
     data: idList,
   })
 }
+
+/**
+ * @description 生成报告
+ */
+export function addVideoAddReport(treatId: string) {
+  return request.get({
+    url: '/api/videoTreat/addReport',
+    params: {
+      treatId,
+    },
+  })
+}

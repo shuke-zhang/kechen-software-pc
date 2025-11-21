@@ -4,7 +4,7 @@ import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import { putVideoPlan } from '@/api/videoPlan'
-import { DelVideoTreat, getVideoTreatList, PutVideoTreat, videoIssued } from '@/api/visitRecord'
+import { addVideoAddReport, DelVideoTreat, getVideoTreatList, PutVideoTreat, videoIssued } from '@/api/visitRecord'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
@@ -128,6 +128,12 @@ function handleReset(row: VisitRecordModel) {
   })
 }
 
+function handleResetT(_row: VisitRecordModel) {
+  addVideoAddReport('2').then(() => {
+    showMessageSuccess('操作成功')
+  })
+}
+
 onMounted(() => {
   getList()
 })
@@ -208,9 +214,12 @@ onMounted(() => {
             删除
           </el-button>
 
-          <el-button size="small" @click="handleReset(row)">
+          <!-- <el-button size="small" @click="handleReset(row)">
             状态重制
           </el-button>
+          <el-button size="small" @click="handleResetT(row)">
+            测试
+          </el-button> -->
         </template>
       </el-table-column>
     </el-table>

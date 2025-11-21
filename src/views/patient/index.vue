@@ -166,6 +166,8 @@ onMounted(() => {
 
       <el-table-column prop="idCard" label="身份证号" align="center" show-overflow-tooltip width="180" />
 
+      <el-table-column prop="patientNumber" label="病历号" align="center" show-overflow-tooltip width="180" :formatter="$formatterTableEmpty" />
+
       <el-table-column prop="birthday" label="生日" align="center" show-overflow-tooltip width="120" />
 
       <el-table-column prop="education" label="学历" align="center" width="80">

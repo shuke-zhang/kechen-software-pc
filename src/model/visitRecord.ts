@@ -35,6 +35,11 @@ export interface VisitRecordModel {
   /** 执行医生姓名 自己填 */
   executeDoctor?: string
 
+  /**
+   * 开单号
+   */
+  orderTreatNumber?: string
+
   /** 状态（0=未开始 当0有下发按钮，1=进行中，2=已完成 等） */
   status?: number
 

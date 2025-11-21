@@ -239,9 +239,12 @@ watch(() => visible.value, () => {
         </el-col>
 
         <el-col :span="12">
-          <el-form-item label="z" prop="treatProjectId" style="width: 100%">
-            <el-input
-              v-model="form.devicePicoId"
+          <el-form-item label="诊疗项" prop="treatProjectId" style="width: 100%">
+            <el-select
+              v-model="form.treatProjectId"
+              placeholder="请选择诊疗项"
+              clearable
+              size="large"
               style="width: 100%"
               @change="form.treatProjectName = treatProjectType.find(it => it.value === form.treatProjectId)?.label || ''"
             >
@@ -297,6 +300,18 @@ watch(() => visible.value, () => {
               :rows="2"
               type="textarea"
               placeholder="请输入诊断内容"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="备注" prop="comment" style="width: 100%">
+            <el-input
+              v-model="form.comment"
+              style="width: 100%"
+              :rows="2"
+              type="textarea"
+              placeholder="请输入备注"
             />
           </el-form-item>
         </el-col>

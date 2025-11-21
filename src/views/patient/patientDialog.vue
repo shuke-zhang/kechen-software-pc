@@ -162,6 +162,16 @@ watch(() => props.data, (newVal) => {
         </el-col>
 
         <el-col :span="12">
+          <el-form-item label="病历号" prop="patientNumber" style="width: 100%">
+            <el-input
+              v-model="form.patientNumber"
+              style="width: 100%"
+              placeholder="请输入病历号"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
           <el-form-item label="学历" prop="education" style="width: 100%">
             <el-select v-model="form.education" placeholder="请选择学历" size="large" style="width: 100%">
               <el-option v-for="it in sysEducation" :key="it.value" :label="it.label" :value="it.value" />

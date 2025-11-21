@@ -314,17 +314,23 @@ onMounted(() => {
       @pagination="getList"
     />
     <!-- 预览弹窗 -->
-    <transition name="zoom">
-      <div v-if="previewVisible" class="fixed inset-0 z-40 grid place-items-center">
-        <div class="absolute inset-0 bg-black/60" @click="previewVisible = false" />
-        <div class="relative w-[94vw] max-w-4xl rounded-2xl bg-black p-3 shadow-xl">
-          <video v-if="current?.address" autoplay :src="current.address" controls class="w-full rounded-lg" />
-          <button class="absolute right-3 top-3 rounded-md bg-white/90 px-2 py-1 text-sm cursor-pointer" @click="previewVisible = false">
-            关闭
-          </button>
+    <el-dialog v-model="previewVisible" title="视频预览">
+      <video
+        v-if="current?.address"
+        autoplay
+        :src="current.address"
+        controls
+        class="rounded-lg"
+      />
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="previewVisible = false">
+            关 闭
+          </el-button>
         </div>
-      </div>
-    </transition>
+      </template>
+    </el-dialog>
   </main>
 
   <VideoDialog v-model="visible" :is-add="isAdd" :data="currentData" :video-tree="videoTree" @success="getList" />

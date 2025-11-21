@@ -80,6 +80,11 @@ export interface PatientModel {
   sex?: string
 
   /**
+   * 病历号
+   */
+  patientNumber?: string
+
+  /**
    * 更新时间 (ISO 格式)
    * @example "2025-09-17T06:24:11.242Z"
    */
