@@ -3,8 +3,8 @@
 import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { rowProps } from 'element-plus'
-import { DelVideoTreat, getVideoTreatList } from '@/api/visitRecord'
+import { putVideoPlan } from '@/api/videoPlan'
+import { DelVideoTreat, getVideoTreatList, PutVideoTreat, videoIssued } from '@/api/visitRecord'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
@@ -21,7 +21,7 @@ const ids = ref<number[]>([])
 const single = ref(true)
 const multiple = ref(true)
 const loading = ref(false)
-
+const issuedLoading = ref(false)
 const queryRef = useTemplateRef('queryEl')
 
 const queryParams = ref<ListPageParamsWrapper<VisitRecordQuery>>({
@@ -87,6 +87,20 @@ function handleDel(_ids: number[] | VisitRecordModel) {
   })
 }
 
+function handleIssued(item: VisitRecordModel) {
+  if (issuedLoading.value)
+    return
+  issuedLoading.value = true
+  videoIssued({
+    id: item.id!,
+  }).then((res) => {
+    console.log(res, '下发成功')
+    getList()
+  }).finally(() => {
+    issuedLoading.value = false
+  })
+}
+
 function retQuery() {
   queryParams.value = {
     page: {
@@ -102,6 +116,16 @@ function handleSelectionChange(selection: VisitRecordModel[]) {
   ids.value = selection.map(item => item.id!)
   single.value = selection.length !== 1
   multiple.value = !selection.length
+}
+
+function handleReset(row: VisitRecordModel) {
+  PutVideoTreat({
+    ...row,
+    status: 0,
+  }).then(() => {
+    showMessageSuccess('操作成功')
+    getList()
+  })
 }
 
 onMounted(() => {
@@ -161,24 +185,20 @@ onMounted(() => {
 
       <el-table-column prop="executeDoctor" label="执行医生姓名" align="center" width="140" />
 
-      <el-table-column prop="treatDepart" label="诊疗项" align="center" width="140" />
+      <el-table-column prop="treatDepart" label="诊疗项" align="center" width="140" :formatter="$formatterTableEmpty" />
 
       <el-table-column prop="diagnostic" label="诊断内容" align="center" width="120" />
 
-      <el-table-column prop="comment" label="备注" align="center" width="180" :formatter="$formatterTableEmpty" />
+      <el-table-column prop="comment" label="备注" align="center" width="180" :formatter="$formatterTableEmpty" show-overflow-tooltip />
 
       <el-table-column prop="createdUserName" label="创建人" align="center" width="180" />
 
-      <el-table-column prop="createdAt" label="创建时间" align="center" width="180" />
+      <el-table-column prop="createdTime" label="创建时间" align="center" width="180" />
 
-      <el-table-column label="操作" align="center" width="160" fixed="right">
+      <el-table-column label="操作" align="center" width="300" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status === '0'" size="small" type="primary">
-            同步
-          </el-button>
-
-          <el-button v-if="row.status === '1'" size="small" type="primary">
-            完成
+          <el-button v-if="row.status === 0" size="small" type="primary" @click="handleIssued(row)">
+            下发
           </el-button>
 
           <el-button size="small" type="primary" @click="handlePut(row)">
@@ -186,6 +206,10 @@ onMounted(() => {
           </el-button>
           <el-button size="small" type="danger" @click="handleDel(row)">
             删除
+          </el-button>
+
+          <el-button size="small" @click="handleReset(row)">
+            状态重制
           </el-button>
         </template>
       </el-table-column>
@@ -199,7 +223,7 @@ onMounted(() => {
       :data="dialogData"
       :treat-project-type="treat_project_type"
       :treat-status="treat_status"
-      @ok="getList"
+      @success="getList"
     />
   </div>
 </template>

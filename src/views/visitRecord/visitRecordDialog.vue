@@ -86,7 +86,7 @@ function getPicoList() {
   }
 
   picoLoading.value = true
-  getDeviceList().then((res) => {
+  getDeviceList({}).then((res) => {
     devicePicoList.value = res.data
   }).finally(() => {
     picoLoading.value = false

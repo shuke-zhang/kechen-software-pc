@@ -65,7 +65,7 @@ const request = new HttpRequest<UserCustomConfig>(
         // 请求成功
         return responseData as any
       }
-      console.log(responseData, 'responseData')
+      console.log(_response, '_response')
 
       const msg = responseData.msg || getSystemErrorMessage(responseData.code)
       if (responseData.code === 401) {
@@ -86,7 +86,7 @@ const request = new HttpRequest<UserCustomConfig>(
       return handleError(msg, responseData.code !== 401 && config?.showErrorMsg)
     },
     responseError(error: any) {
-      console.log('错误')
+      console.log('错误,responseError')
 
       const config = error?.config as HttpRequestConfig<UserCustomConfig>
 

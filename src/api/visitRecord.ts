@@ -11,6 +11,16 @@ export function getVideoTreatList(data?: ListPageQuery<VisitRecordModel>) {
 }
 
 /**
+ * @description 分页查询治疗记录列表
+ */
+export function videoIssued(params?: { id: number }) {
+  return request.get({
+    url: '/api/videoTreat/publish',
+    params,
+  })
+}
+
+/**
  * @description 新增治疗记录
  */
 export function addVideoTreat(data: VisitRecordModel) {

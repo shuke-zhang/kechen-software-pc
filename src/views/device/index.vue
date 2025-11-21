@@ -12,11 +12,7 @@ const visible = ref(false)
 const ids = ref<number[]>([])
 const names = ref<string[]>([])
 const isAdd = ref(true)
-const queryParams = ref<ListPageParamsWrapper<DeviceModel>>({
-  page: {
-    current: 1,
-    size: 10,
-  },
+const queryParams = ref<DeviceModel>({
 })
 const currentData = ref({})
 const statusOptions = [
@@ -31,6 +27,8 @@ const statusOptions = [
 ]
 
 function deviceItemStyle(status: number) {
+  console.log(status, 'status')
+
   return {
     backgroundImage: `url(${new URL(`../../assets/device-bg-${status === 0 ? 1 : 2}.png`, import.meta.url).href})`,
     backgroundSize: 'cover',
@@ -73,10 +71,6 @@ function handleDel(item: number[] | DeviceModel) {
 
 function resetQuery() {
   queryParams.value = {
-    page: {
-      current: 1,
-      size: 10,
-    },
   }
   getList()
 }
@@ -129,7 +123,7 @@ onMounted(() => {
   <div v-loading="loading" class="min-h-[180px]" element-loading-text="加载中...">
     <template v-if="!loading">
       <div v-if="list && list.length > 0" class="grid gap-[10px] [grid-template-columns:repeat(auto-fill,180px)] min-h-[180px]">
-        <div v-for="item in list" :key="item.id" class="card relative w-[180px] h-[100px] flex flex-col justify-center items-center" :style="deviceItemStyle(item.status || 1)">
+        <div v-for="item in list" :key="item.id" class="card relative w-[180px] h-[100px] flex flex-col justify-center items-center" :style="deviceItemStyle(item.status!)">
           <div class="absolute! top-[12px] right-[12px] left-[12px]  flex flex-1 justify-between">
             <div class="flex items-center gap-2">
               <span
