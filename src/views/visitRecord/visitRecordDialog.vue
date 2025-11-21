@@ -219,12 +219,29 @@ watch(() => visible.value, () => {
         </el-col>
 
         <el-col :span="12">
-          <el-form-item label="诊疗项" prop="treatProjectId" style="width: 100%">
-            <el-select
-              v-model="form.treatProjectId"
-              placeholder="请选择诊疗项"
-              clearable
-              size="large"
+          <el-form-item label="开单号" prop="orderTreatNumber" style="width: 100%">
+            <el-input
+              v-model="form.orderTreatNumber"
+              style="width: 100%"
+              placeholder="请输入开单号"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="治疗科室" prop="treatDepart" style="width: 100%">
+            <el-input
+              v-model="form.treatDepart"
+              style="width: 100%"
+              placeholder="请输入治疗科室"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="z" prop="treatProjectId" style="width: 100%">
+            <el-input
+              v-model="form.devicePicoId"
               style="width: 100%"
               @change="form.treatProjectName = treatProjectType.find(it => it.value === form.treatProjectId)?.label || ''"
             >
