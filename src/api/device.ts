@@ -1,12 +1,21 @@
 import type { DeviceModel } from '@/model/device'
 
 /**
- * @description 分页查询班级列表列表
+ * @description 分页查询列表列表
  */
 export function getDeviceList(data?: DeviceModel) {
   return request.post<ResponseData<DeviceModel[]>>({
     url: '/api/picoDevice/list',
     data,
+  })
+}
+
+/**
+ * @description 查询所有在线设备
+ */
+export function getDeviceOnlineList() {
+  return request.get<ResponseData<DeviceModel[]>>({
+    url: '/api/videoTreat/alldevice',
   })
 }
 

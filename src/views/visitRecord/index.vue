@@ -3,7 +3,7 @@
 import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
+import { addVideoAddReport, DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
@@ -30,6 +30,11 @@ const queryParams = ref<ListPageParamsWrapper<VisitRecordQuery>>({
   },
 
 })
+function handleResetT(_row: VisitRecordModel) {
+  addVideoAddReport('1').then(() => {
+    showMessageSuccess('操作成功')
+  })
+}
 // "success" | "primary" | "info" | "warning" | "danger"
 const treatStatusCssType = computed(() => {
   return treat_status.value.map((it, i) => {
@@ -195,6 +200,9 @@ onMounted(() => {
           </el-button>
           <el-button size="small" type="danger" @click="handleDel(row)">
             删除
+          </el-button>
+          <el-button size="small" @click="handleResetT(row)">
+            测试-新增报告
           </el-button>
         </template>
       </el-table-column>

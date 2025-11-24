@@ -5,7 +5,7 @@ import type { DictDataCssModel } from '@/model/dict'
 import type { PatientModel } from '@/model/patient'
 import type { VideoPlanModel } from '@/model/videoPlan'
 import type { VisitRecordModel } from '@/model/visitRecord'
-import { getDeviceList } from '@/api/device'
+import { getDeviceOnlineList } from '@/api/device'
 import { getPatientList } from '@/api/patient'
 import { getVideoPlanList } from '@/api/videoPlan'
 import { addVideoTreat, PutVideoTreat } from '@/api/visitRecord'
@@ -44,7 +44,6 @@ const rules: FormRules = {
   patientId: [{ required: true, trigger: 'blur', message: '请选择患者' }],
   treatProjectId: [{ required: true, trigger: 'blur', message: '请选择诊疗项' }],
   videoPlanId: [{ required: true, trigger: 'blur', message: '请选择视频方案' }],
-  status: [{ required: true, trigger: 'blur', message: '请选择状态' }],
   diagnostic: [{ required: true, trigger: 'blur', message: '请输入诊断内容' }],
   diagnosticDoctor: [{ required: true, trigger: 'blur', message: '请输入诊断医生' }],
   executeDoctor: [{ required: true, trigger: 'blur', message: '请输入执行医生' }],
@@ -86,7 +85,7 @@ function getPicoList() {
   }
 
   picoLoading.value = true
-  getDeviceList({}).then((res) => {
+  getDeviceOnlineList().then((res) => {
     devicePicoList.value = res.data
   }).finally(() => {
     picoLoading.value = false
@@ -274,20 +273,6 @@ watch(() => visible.value, () => {
                 :label="item.name"
                 :value="item.id!"
               />
-            </el-select>
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="12">
-          <el-form-item label="状态" prop="status" style="width: 100%">
-            <el-select
-              v-model="form.status"
-              placeholder="请选择状态"
-              clearable
-              size="large"
-              style="width: 100%"
-            >
-              <el-option v-for="it in treatStatus" :key="it.value" :label="it.label" :value="it.value" />
             </el-select>
           </el-form-item>
         </el-col>
