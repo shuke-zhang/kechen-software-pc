@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { ReportModel } from '@/model/report'
 import { Refresh, Search } from '@element-plus/icons-vue'
-import VueOfficeDocx from '@vue-office/docx'
+
+// import VueOfficePdf from '@vue-office/pdf/lib/v3/vue-office-pdf.mjs'
+import VueOfficePdf from '@vue-office/pdf'
 import { saveAs } from 'file-saver'
 
 import { getReportList } from '@/api/report'
-import '@vue-office/docx/lib/index.css'
 
 export interface ReportRow {
   id?: number
@@ -28,6 +29,8 @@ const list = ref<ReportModel[]>([])
 const visible = ref(false)
 const queryRef = useTemplateRef('query')
 const currentDocUrl = ref('')
+const isVueOfficePdf = ref(false)
+const vueOfficePdfLoading = ref(false)
 
 const queryParams = ref<ListPageParamsWrapper<ReportModel>>({
   page: {
@@ -74,11 +77,14 @@ function openReport(row: ReportModel): void {
   }
 
   currentDocUrl.value = url
+  isVueOfficePdf.value = true
+  vueOfficePdfLoading.value = true
   visible.value = true
 }
 
 function cancel() {
   visible.value = false
+  currentDocUrl.value = ''
 }
 
 // 下载 Word
@@ -102,6 +108,16 @@ function getFilenameFromUrl(url: string) {
   catch {
     return '下载文件.docx'
   }
+}
+
+function errorHandler() {
+  console.log('渲染失败')
+  isVueOfficePdf.value = false
+  vueOfficePdfLoading.value = false
+}
+function renderedHandler() {
+  isVueOfficePdf.value = true
+  vueOfficePdfLoading.value = false
 }
 
 onMounted(() => {
@@ -180,10 +196,14 @@ onMounted(() => {
 
       <div class="card">
         <!-- 预览 Word -->
-        <VueOfficeDocx
+        <VueOfficePdf
+          v-if="isVueOfficePdf"
+          v-loading="vueOfficePdfLoading"
           :src="currentDocUrl"
-          style="height: calc(100vh - 200px);"
+          @rendered="renderedHandler"
+          @error="errorHandler"
         />
+        <el-empty v-else description="链接不正确!" />
       </div>
     </el-dialog>
   </div>
