@@ -3,8 +3,7 @@
 import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { putVideoPlan } from '@/api/videoPlan'
-import { addVideoAddReport, DelVideoTreat, getVideoTreatList, PutVideoTreat, videoIssued } from '@/api/visitRecord'
+import { DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
@@ -31,12 +30,12 @@ const queryParams = ref<ListPageParamsWrapper<VisitRecordQuery>>({
   },
 
 })
-
+// "success" | "primary" | "info" | "warning" | "danger"
 const treatStatusCssType = computed(() => {
   return treat_status.value.map((it, i) => {
     return {
       ...it,
-      cssType: (i === 0 ? 'primary' : i === 1 ? 'waring' : i === 2 ? 'success' : 'info') as CssTypeModel,
+      cssType: (i === 0 ? 'primary' : i === 1 ? 'warning' : i === 2 ? 'success' : 'info') as CssTypeModel,
     }
   })
 })
@@ -118,22 +117,6 @@ function handleSelectionChange(selection: VisitRecordModel[]) {
   multiple.value = !selection.length
 }
 
-function handleReset(row: VisitRecordModel) {
-  PutVideoTreat({
-    ...row,
-    status: 0,
-  }).then(() => {
-    showMessageSuccess('操作成功')
-    getList()
-  })
-}
-
-function handleResetT(_row: VisitRecordModel) {
-  addVideoAddReport('2').then(() => {
-    showMessageSuccess('操作成功')
-  })
-}
-
 onMounted(() => {
   getList()
 })
@@ -170,7 +153,7 @@ onMounted(() => {
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="list" style="width: 100%" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
 
       <el-table-column prop="id" label="编号" align="center" width="90" />
@@ -201,7 +184,7 @@ onMounted(() => {
 
       <el-table-column prop="createdTime" label="创建时间" align="center" width="180" />
 
-      <el-table-column label="操作" align="center" width="260" fixed="right">
+      <el-table-column label="操作" align="center" width="220" fixed="right">
         <template #default="{ row }">
           <el-button v-if="row.status === 0" size="small" type="primary" @click="handleIssued(row)">
             下发
@@ -213,13 +196,6 @@ onMounted(() => {
           <el-button size="small" type="danger" @click="handleDel(row)">
             删除
           </el-button>
-
-          <!-- <el-button size="small" @click="handleReset(row)">
-            状态重制
-          </el-button>
-          <el-button size="small" @click="handleResetT(row)">
-            测试
-          </el-button> -->
         </template>
       </el-table-column>
     </el-table>

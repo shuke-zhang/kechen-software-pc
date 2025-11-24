@@ -100,15 +100,6 @@ const router = createRouter({
           },
         },
         {
-          path: 'logs',
-          name: 'Logs',
-          component: () => import('@/views/settings/logs/index.vue'),
-          meta: {
-            title: '日志',
-            hidden: true,
-          },
-        },
-        {
           path: 'dict',
           name: 'Dict',
           component: () => import('@/views/settings/dict/index.vue'),
