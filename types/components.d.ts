@@ -45,6 +45,7 @@ declare module 'vue' {
     Pagination: typeof import('./../src/components/Pagination/Pagination.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ShukeButton: typeof import('./../src/components/ShukeButton/ShukeButton.vue')['default']
     TableGender: typeof import('./../src/components/TableGender/TableGender.vue')['default']
     UploadFile: typeof import('./../src/components/UploadFile/UploadFile.vue')['default']
   }

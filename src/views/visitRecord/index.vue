@@ -1,9 +1,11 @@
 <!-- VisitRecordPage.vue (V2) -->
 <script setup lang="ts">
+import type { TableColumnCtx } from 'element-plus'
 import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import { addVideoAddReport, DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
+import { mockVisitRecordList } from './data'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
@@ -22,19 +24,19 @@ const multiple = ref(true)
 const loading = ref(false)
 const issuedLoading = ref(false)
 const queryRef = useTemplateRef('queryEl')
-
+const tableRef = useTemplateRef('tableRef')
+const activeRowIds = ref<Set<number | string>>(new Set())
 const queryParams = ref<ListPageParamsWrapper<VisitRecordQuery>>({
   page: {
     current: 1,
-    size: 10,
+    size: 50,
   },
 
 })
-function handleResetT(_row: VisitRecordModel) {
-  addVideoAddReport('1').then(() => {
-    showMessageSuccess('操作成功')
-  })
+function rowClassName({ row }: { row: any }) {
+  return activeRowIds.value.has(row.id) ? 'isActiveRow' : ''
 }
+
 // "success" | "primary" | "info" | "warning" | "danger"
 const treatStatusCssType = computed(() => {
   return treat_status.value.map((it, i) => {
@@ -59,12 +61,13 @@ function getList() {
     return
   loading.value = true
   getVideoTreatList(queryParams.value).then((res) => {
-    list.value = res.data.records
+    list.value = res.data.records || mockVisitRecordList
     total.value = res.data.total
     ids.value = []
     single.value = true
     multiple.value = true
   }).finally(() => {
+    list.value = mockVisitRecordList
     loading.value = false
   })
 }
@@ -97,8 +100,7 @@ function handleIssued(item: VisitRecordModel) {
   issuedLoading.value = true
   videoIssued({
     id: item.id!,
-  }).then((res) => {
-    console.log(res, '下发成功')
+  }).then((_res) => {
     getList()
   }).finally(() => {
     issuedLoading.value = false
@@ -109,7 +111,7 @@ function retQuery() {
   queryParams.value = {
     page: {
       current: 1,
-      size: 10,
+      size: 50,
     },
   }
   resetForm(queryRef.value)
@@ -120,6 +122,18 @@ function handleSelectionChange(selection: VisitRecordModel[]) {
   ids.value = selection.map(item => item.id!)
   single.value = selection.length !== 1
   multiple.value = !selection.length
+}
+function handleRowClick(row: any, _column: TableColumnCtx<VisitRecordModel>, _event: Event) {
+  if (activeRowIds.value.has(row.id)) {
+    // 已选中 → 取消
+    activeRowIds.value.delete(row.id)
+    tableRef.value?.toggleRowSelection(row, false)
+  }
+  else {
+    // 未选中 → 添加
+    activeRowIds.value.add(row.id)
+    tableRef.value?.toggleRowSelection(row, true)
+  }
 }
 
 onMounted(() => {
@@ -158,7 +172,14 @@ onMounted(() => {
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
+    <el-table
+      ref="tableRef"
+      v-loading="loading"
+      :data="list"
+      :row-class-name="rowClassName"
+      @selection-change="handleSelectionChange"
+      @row-click="handleRowClick"
+    >
       <el-table-column type="selection" width="55" />
 
       <el-table-column prop="id" label="编号" align="center" width="90" />
@@ -222,6 +243,12 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
+:deep(.el-table__row) {
+  cursor: pointer;
+}
+:deep(.isActiveRow) {
+  background-color: global.$color-system-primary-tablerow !important;
+}
 .container {
   padding: 16px;
 }

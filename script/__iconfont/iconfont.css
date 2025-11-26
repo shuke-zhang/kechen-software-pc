@@ -1,9 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4837513 */
-  src: url('iconfont.woff2?t=1756266686227') format('woff2'),
-       url('iconfont.woff?t=1756266686227') format('woff'),
-       url('iconfont.ttf?t=1756266686227') format('truetype'),
-       url('iconfont.svg?t=1756266686227#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1764146688082') format('woff2'),
+       url('iconfont.woff?t=1764146688082') format('woff'),
+       url('iconfont.ttf?t=1764146688082') format('truetype');
 }
 
 .iconfont {
@@ -14,16 +13,28 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-round-password:before {
+  content: "\e633";
+}
+
+.icon-round-user:before {
+  content: "\e634";
+}
+
+.icon-shrink:before {
+  content: "\e60a";
+}
+
+.icon-expand:before {
+  content: "\e632";
+}
+
 .icon-share-light-2:before {
   content: "\e638";
 }
 
 .icon-delete:before {
   content: "\e684";
-}
-
-.icon-kaola:before {
-  content: "\e712";
 }
 
 .icon-stop:before {
@@ -48,10 +59,6 @@
 
 .icon-setting:before {
   content: "\e699";
-}
-
-.icon-gongwei-gengxin:before {
-  content: "\e6dc";
 }
 
 .icon-clear:before {
@@ -118,32 +125,8 @@
   content: "\e6cc";
 }
 
-.icon-send:before {
-  content: "\100bd";
-}
-
-.icon-zhipu:before {
-  content: "\e60c";
-}
-
-.icon-qwen:before {
-  content: "\e602";
-}
-
-.icon-deepseek:before {
-  content: "\e641";
-}
-
-.icon-doubao:before {
-  content: "\e7e0";
-}
-
 .icon-user:before {
   content: "\e6c0";
-}
-
-.icon-close:before {
-  content: "\e609";
 }
 
 .icon-loop:before {
@@ -162,7 +145,7 @@
   content: "\e62a";
 }
 
-.icon-close1:before {
+.icon-close:before {
   content: "\e630";
 }
 

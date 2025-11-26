@@ -6,16 +6,12 @@ export type IconFontType = 'account-code' |
 'camera' |
 'clear' |
 'close' |
-'close1' |
 'copy' |
-'deepseek' |
 'delete' |
-'doubao' |
 'edit' |
-'gongwei-gengxin' |
+'expand' |
 'history' |
 'jump' |
-'kaola' |
 'keyboard' |
 'left' |
 'loop' |
@@ -24,18 +20,18 @@ export type IconFontType = 'account-code' |
 'play' |
 'plus' |
 'questions' |
-'qwen' |
 'record' |
 'recorder' |
 'recorder-fill' |
 'right' |
+'round-password' |
+'round-user' |
 'search' |
-'send' |
 'setting' |
 'setup' |
 'share-light-2' |
+'shrink' |
 'sound' |
 'stop' |
 'time' |
-'user' |
-'zhipu';
+'user';

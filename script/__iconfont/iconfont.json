@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "46194448",
+      "name": "密码圆形",
+      "font_class": "round-password",
+      "unicode": "e633",
+      "unicode_decimal": 58931
+    },
+    {
+      "icon_id": "46194447",
+      "name": "用户圆形",
+      "font_class": "round-user",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
+      "icon_id": "8224841",
+      "name": "收缩",
+      "font_class": "shrink",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "7607946",
+      "name": "展开",
+      "font_class": "expand",
+      "unicode": "e632",
+      "unicode_decimal": 58930
+    },
+    {
       "icon_id": "36966725",
       "name": "ic_分享",
       "font_class": "share-light-2",
@@ -18,13 +46,6 @@
       "font_class": "delete",
       "unicode": "e684",
       "unicode_decimal": 59012
-    },
-    {
-      "icon_id": "30309337",
-      "name": "考拉",
-      "font_class": "kaola",
-      "unicode": "e712",
-      "unicode_decimal": 59154
     },
     {
       "icon_id": "6639641",
@@ -67,13 +88,6 @@
       "font_class": "setting",
       "unicode": "e699",
       "unicode_decimal": 59033
-    },
-    {
-      "icon_id": "7842029",
-      "name": "公卫-更新",
-      "font_class": "gongwei-gengxin",
-      "unicode": "e6dc",
-      "unicode_decimal": 59100
     },
     {
       "icon_id": "27734611",
@@ -188,53 +202,11 @@
       "unicode_decimal": 59084
     },
     {
-      "icon_id": "29290564",
-      "name": "发送",
-      "font_class": "send",
-      "unicode": "100bd",
-      "unicode_decimal": 65725
-    },
-    {
-      "icon_id": "41313398",
-      "name": "zhipu",
-      "font_class": "zhipu",
-      "unicode": "e60c",
-      "unicode_decimal": 58892
-    },
-    {
-      "icon_id": "41660116",
-      "name": "qwen",
-      "font_class": "qwen",
-      "unicode": "e602",
-      "unicode_decimal": 58882
-    },
-    {
-      "icon_id": "43260490",
-      "name": "deepseek",
-      "font_class": "deepseek",
-      "unicode": "e641",
-      "unicode_decimal": 58945
-    },
-    {
-      "icon_id": "43415362",
-      "name": "doubao",
-      "font_class": "doubao",
-      "unicode": "e7e0",
-      "unicode_decimal": 59360
-    },
-    {
       "icon_id": "859275",
       "name": "用户名",
       "font_class": "user",
       "unicode": "e6c0",
       "unicode_decimal": 59072
-    },
-    {
-      "icon_id": "4880431",
-      "name": "关闭",
-      "font_class": "close",
-      "unicode": "e609",
-      "unicode_decimal": 58889
     },
     {
       "icon_id": "12661354",
@@ -266,8 +238,8 @@
     },
     {
       "icon_id": "36852911",
-      "name": "ic_close 1",
-      "font_class": "close1",
+      "name": "ic_close",
+      "font_class": "close",
       "unicode": "e630",
       "unicode_decimal": 58928
     },

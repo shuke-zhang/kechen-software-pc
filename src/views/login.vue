@@ -19,7 +19,6 @@ const loginRules = {
 const loading = ref(false)
 
 /** 注册开关 */
-const register = ref(false)
 const redirect = ref<string | undefined>(undefined)
 
 /**
@@ -62,84 +61,111 @@ watch(
   },
   { immediate: true },
 )
-
+function resize() {
+  const scale = window.innerHeight / 1080
+  const el = document.querySelector('.scale-content') as HTMLElement
+  if (el)
+    el.style.transform = `scale(${scale})`
+}
 onMounted(() => {
+  resize()
+  window.addEventListener('resize', resize)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resize)
 })
 </script>
 
 <template>
-  <div class="login-container h-[100vh] flex justify-center items-center  bg-cover">
-    <el-form
-      ref="loginFormRef"
-      :model="loginForm"
-      :rules="loginRules"
-      class="z-[1] w-[400px] rounded-[6px] bg-white px-[25px] pt-[25px] pb-[5px]"
-    >
-      <h3 class="text-[#707070] mx-auto mb-[30px] text-center">
-        {{ title }}
-      </h3>
-      <el-form-item prop="name ">
-        <el-input
-          v-model="loginForm.name "
-          type="text"
-          size="large"
-          auto-complete="off"
-          placeholder="账号"
-        >
-          <template #prefix>
-            <icon-font name="user" class="el-input__icon input-icon" />
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input
-          v-model="loginForm.password"
-          type="password"
-          size="large"
-          auto-complete="off"
-          placeholder="密码"
-          show-password
-          @keyup.enter="handleLogin"
-        >
-          <template #prefix>
-            <icon-font name="account-lock" class="el-input__icon input-icon" />
-          </template>
-        </el-input>
-      </el-form-item>
+  <div class="login-container h-[100vh] flex flex-col justify-center items-center  bg-cover">
+    <div class="  App-logo w-[220px] h-[100px]" />
+    <div class="mt-[20px] h-[126px] text-white text-[70px]">
+      {{ title }}
+    </div>
 
-      <el-form-item style="width: 100%">
-        <el-button
-          :loading="loading"
-          size="large"
-          type="primary"
-          style="width: 100%"
-          @click.prevent="handleLogin"
-        >
-          <span v-if="!loading">登 录</span>
-          <span v-else>登 录 中...</span>
-        </el-button>
-        <div v-if="register" class="w-full flex justify-end ">
-          <router-link class="text-[#337ab7] hover:text-[rgb(32,160,255)] cursor-pointer focus:text-[#337ab7]" to="/register">
-            立即注册
-          </router-link>
-        </div>
-      </el-form-item>
-    </el-form>
+    <div class="mt-[20px] w-[551px] flex-center flex-col">
+      <el-form
+        ref="loginFormRef"
+        :model="loginForm"
+        :rules="loginRules"
+        class="login-form-container flex flex-col items-start justify-center z-[1] w-[551px] h-[260px] rounded-[66px] bg-white px-[50px] pt-[25px] pb-[5px]"
+      >
+        <!-- 用户名 -->
+        <el-form-item prop="name" class="w-full">
+          <div class="flex items-center w-full">
+            <icon-font name="round-user" size="40" color="#7C4ACE" />
+
+            <div class="text-primary ml-[20px] text-[26px] w-[120px]">
+              用户名
+            </div>
+
+            <el-input
+              v-model="loginForm.name"
+              class="ml-[20px] "
+              type="text"
+              size="large"
+              auto-complete="off"
+              placeholder="账号"
+            />
+          </div>
+        </el-form-item>
+
+        <!-- 密码 -->
+        <el-form-item prop="password" class="mt-[20px] w-full">
+          <div class="flex items-center w-full">
+            <icon-font name="round-password" size="40" color="#7C4ACE" />
+
+            <div class="text-primary ml-[20px] text-[26px] w-[120px]">
+              密码
+            </div>
+
+            <!-- 固定 356px -->
+            <el-input
+              v-model="loginForm.password"
+              type="password"
+              class="ml-[20px]"
+              size="large"
+              auto-complete="off"
+              placeholder="密码"
+              show-password
+              @keyup.enter="handleLogin"
+            />
+          </div>
+        </el-form-item>
+      </el-form>
+
+      <ShukeButton
+        :loading="loading"
+        class="mt-[30px] w-[240px]! "
+        size="large"
+        type="primary"
+        style="width: 100%"
+        @click.prevent="handleLogin"
+      >
+        <span v-if="!loading" class="text-[30px]">登 录</span>
+        <span v-else class="text-[30px]">登 录 中...</span>
+      </ShukeButton>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
+.scale-content {
+  transform-origin: top center;
+}
+.App-logo {
+  background-image: url('/src/assets/theme/App-logo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .el-input {
   height: 40px;
   input {
     height: 40px;
   }
 }
-.input-icon {
-  height: 39px;
-  width: 14px;
-  margin-left: 0px;
-}
+
 .card {
   border-radius: 18px;
 }
@@ -150,6 +176,15 @@ onMounted(() => {
 }
 
 .login-container {
-  background: linear-gradient(135deg, #f3eaff 0%, #e6f0ff 100%);
+  background-image: url('/src/assets/theme/page-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.login-form-container {
+  background-image: url('/src/assets/theme/login-form-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 </style>
