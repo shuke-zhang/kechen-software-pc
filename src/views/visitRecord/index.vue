@@ -201,9 +201,9 @@ onMounted(() => {
           <el-button size="small" type="danger" @click="handleDel(row)">
             删除
           </el-button>
-          <el-button size="small" @click="handleResetT(row)">
+          <!-- <el-button size="small" @click="handleResetT(row)">
             测试-新增报告
-          </el-button>
+          </el-button> -->
         </template>
       </el-table-column>
     </el-table>

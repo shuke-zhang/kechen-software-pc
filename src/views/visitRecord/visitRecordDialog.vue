@@ -42,6 +42,7 @@ const videoPlanList = ref<VideoPlanModel[]>([])
 
 const rules: FormRules = {
   patientId: [{ required: true, trigger: 'blur', message: '请选择患者' }],
+  devicePicoId: [{ required: true, trigger: 'blur', message: '请选择设备' }],
   treatProjectId: [{ required: true, trigger: 'blur', message: '请选择诊疗项' }],
   videoPlanId: [{ required: true, trigger: 'blur', message: '请选择视频方案' }],
   diagnostic: [{ required: true, trigger: 'blur', message: '请输入诊断内容' }],
@@ -193,7 +194,7 @@ watch(() => visible.value, () => {
         </el-col>
 
         <el-col :span="12">
-          <el-form-item label="设备" prop="patientId" style="width: 100%">
+          <el-form-item label="设备" prop="devicePicoId" style="width: 100%">
             <el-select
               v-model="form.devicePicoId"
               style="width: 100%"
