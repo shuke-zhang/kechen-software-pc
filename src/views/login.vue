@@ -176,7 +176,7 @@ onBeforeUnmount(() => {
 }
 
 .login-container {
-  background-image: url('/src/assets/theme/page-bg.png');
+  background-image: url('/src/assets/theme/login-page-bg.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
