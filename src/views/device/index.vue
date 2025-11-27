@@ -15,7 +15,7 @@ const isAdd = ref(true)
 const queryParams = ref<DeviceModel>({
 })
 const currentData = ref({})
-const statusOptions = [
+const _statusOptions = [
   {
     value: 0,
     label: '在线',
@@ -81,8 +81,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-1 ">
+  <div class="flex flex-col ">
+    <div>
       <div>
         <el-form ref="queryRef" :inline="true" :model="queryParams" @submit.prevent>
           <el-form-item>
@@ -121,7 +121,7 @@ onMounted(() => {
       </div>
     </div>
     <el-divider />
-    <div v-loading="loading" class="min-h-[180px]" element-loading-text="加载中...">
+    <div v-loading="loading" class="flex-1" element-loading-text="加载中...">
       <template v-if="!loading">
         <div v-if="list && list.length > 0" class="grid gap-[10px] [grid-template-columns:repeat(auto-fill,180px)] min-h-[180px]">
           <div v-for="item in list" :key="item.id" class="card relative w-[180px] h-[100px] flex flex-col justify-center items-center" :style="deviceItemStyle(item.status!)">
@@ -147,7 +147,7 @@ onMounted(() => {
             <div>{{ item.picoNumber }}</div>
           </div>
         </div>
-        <el-empty v-else description="暂无数据" />
+        <el-empty v-else description="暂无数据" class="h-full" />
       </template>
     </div>
 
@@ -156,5 +156,8 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-
+// 只在这儿加，为了好看一下吧
+:deep(.el-loading-mask) {
+  background-color: unset !important;
+}
 </style>

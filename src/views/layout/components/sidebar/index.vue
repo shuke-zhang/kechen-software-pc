@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { MenuItemRegistered } from 'element-plus'
 import type { TopNavValueModel } from '@/model/head'
 import { routes } from '@/router/routes'
 import sidebarItem from './sidebarItem.vue'
-import { sidebarVideo } from './video'
 
 defineProps({
   scrollbarHeight: {
@@ -11,23 +9,10 @@ defineProps({
     required: true,
   },
 })
-const emit = defineEmits<{
-  (e: 'menu-item-click', item: MenuItemRegistered): void
-}>()
+
 const route = useRoute()
 const sidebarRef = useTemplateRef('sidebarRef')
-const isActiveCategory = ref(false)
-const currentIndex = ref('')
-const publicSidebars = [
-  {
-    label: '公共',
-    value: 'public',
-  },
-  {
-    label: '个人',
-    value: 'private',
-  },
-]
+const currentIndex = ref('device')
 
 const topNavList: {
   label: string
@@ -53,38 +38,10 @@ const sidebars = computed(() => {
 
 const activeKey = ref('device')
 
-function handleMenuItemClick(item: MenuItemRegistered) {
-  // TODO 点击侧边栏菜单项的逻辑
-  currentIndex.value = item.index
-  console.log(currentIndex.value)
-
-  emit('menu-item-click', item)
-}
 // 统一用 el-menu 的 select 事件
 
-// 可选：首次挂载时主动触发一次（如果你需要立刻加载“公共”内容）
 onMounted(() => {
-  activeKey.value = 'device'
-  // 获取当前页面路由中是否包含了category
-})
-// 监听路由变化
-watch(
-  () => route.fullPath,
-  (newPath) => {
-    console.log(route, '路由')
-    const item = {
-      index: newPath.includes('category') ? sidebarVideo[0].label : publicSidebars[0].label,
-      indexPath: [newPath.includes('category') ? sidebarVideo[0].value : publicSidebars[0].value],
-      active: true,
-    } as MenuItemRegistered
-    handleMenuItemClick(item)
-    isActiveCategory.value = newPath.includes('category')
-    activeKey.value = newPath.includes('category') ? sidebarVideo[0].value : publicSidebars[0].value
-  },
-  { immediate: true },
-)
-onMounted(() => {
-
+  activeKey.value = route.name as string
 })
 </script>
 

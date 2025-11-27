@@ -14,7 +14,7 @@ const scrollbarHeight = computed(() => {
     <sidebar :scrollbar-height="scrollbarHeight" />
     <router-view v-slot="{ Component, route }">
       <transition name="fade-transform" mode="out-in">
-        <component :is="Component" :key="route.path" />
+        <component :is="Component" :key="route.path" class="height" />
       </transition>
     </router-view>
   </section>
@@ -30,6 +30,9 @@ const scrollbarHeight = computed(() => {
   border-radius: 24px;
   background: rgba(240, 237, 247, 0.7);
   box-shadow: 0px 0px 5.08px #919191;
+}
+.height {
+  height: calc(100vh - vars.$header-height - 32px - 32px);
 }
 
 .app-main:has(.copyright) {
