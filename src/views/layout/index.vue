@@ -22,7 +22,7 @@ onMounted(() => {
     <div
       class="app-wrapper"
     >
-      <AppMain :current-sidebar-item="currentSidebarItem" />
+      <AppMain />
     </div>
   </div>
 </template>
@@ -36,6 +36,7 @@ onMounted(() => {
   bottom: 0;
   overflow-y: auto;
   box-sizing: border-box;
+  padding: 16px;
   &.no-sidebar {
     left: 0;
   }

@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import type { MenuItemRegistered } from 'element-plus'
-import type { RouteRecordRaw } from 'vue-router'
 import type { TopNavValueModel } from '@/model/head'
 import { routes } from '@/router/routes'
+import sidebarItem from './sidebarItem.vue'
 import { sidebarVideo } from './video'
 
+defineProps({
+  scrollbarHeight: {
+    type: String,
+    required: true,
+  },
+})
 const emit = defineEmits<{
   (e: 'menu-item-click', item: MenuItemRegistered): void
 }>()
 const route = useRoute()
+const sidebarRef = useTemplateRef('sidebarRef')
 const isActiveCategory = ref(false)
 const currentIndex = ref('')
 const publicSidebars = [
@@ -33,18 +40,6 @@ const topNavList: {
   { label: '设置', value: 'settings' },
 ]
 
-function getSidebarIcon(icon: string) {
-  return {
-    width: '56px',
-    height: '56px',
-    backgroundImage: `url('/src/assets/theme/sidebar/${icon}.png')`,
-
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-  }
-}
-
 const sidebars = computed(() => {
   const names = topNavList.map(it => it.value)
   const topRoute = routes.find(r => r.name === 'layout')?.children ?? []
@@ -57,14 +52,6 @@ const sidebars = computed(() => {
 })
 
 const activeKey = ref('device')
-function hasTitle(title: string) {
-  if (title.length > 5) {
-    return title
-  }
-  else {
-    return ''
-  }
-}
 
 function handleMenuItemClick(item: MenuItemRegistered) {
   // TODO 点击侧边栏菜单项的逻辑
@@ -96,11 +83,14 @@ watch(
   },
   { immediate: true },
 )
+onMounted(() => {
+
+})
 </script>
 
 <template>
-  <div class="sidebar-container">
-    <el-scrollbar wrap-class="scrollbar-wrapper pt-[30px]">
+  <div ref="sidebarRef" class="sidebar-container">
+    <el-scrollbar wrap-class="scrollbar-wrapper pt-[30px]" :max-height="scrollbarHeight">
       <el-menu
         text-color="#ffffff"
         :unique-opened="true"
@@ -110,39 +100,7 @@ watch(
         class="h-full"
         style="background-color: unset;"
       >
-        <el-menu-item
-          v-for="(item) in sidebars"
-          :key="item.name"
-          :item="item"
-          :index="item.name"
-          class="mt-[10px]"
-          @click="handleMenuItemClick"
-        >
-          <template #title>
-            <div class="flex items-center w-full h-full">
-              <div :style="getSidebarIcon(item.meta.icon!)" />
-              <div
-                class="
-                  ml-[10px]
-                  w-[180px]
-                  h-[50px]
-                  text-[20px]
-                  rounded-[20px]
-                  flex items-center justify-center
-                  tracking-[1.5px]
-                  px-[6px]
-                  bg-[url('/src/assets/theme/sidebar/sidebar-item-bg.png')]
-                  bg-cover bg-center bg-no-repeat
-                  shadow-[0_0_8px_rgba(0,0,0,0.4)]
-                  "
-                :class="[item.name === currentIndex ? 'text-primary' : '']"
-                :title="hasTitle(item.meta.title)"
-              >
-                {{ item.meta.title }}
-              </div>
-            </div>
-          </template>
-        </el-menu-item>
+        <sidebarItem v-for="item in sidebars" :key="item.name" v-model:current-index="currentIndex" :item="item" />
       </el-menu>
     </el-scrollbar>
   </div>
@@ -154,18 +112,22 @@ watch(
   width: vars.$sidebar-menu-width !important;
   height: 100%;
   position: fixed !important;
-  font-size: 0px;
   top: vars.$header-height;
   bottom: 0;
   left: 0;
   z-index: 1001;
   overflow: hidden;
   .scrollbar-wrapper {
-    background-color: #282c34 !important;
+    // background-color: #d7bdfd !important;
+    background-color: #860f2f !important;
   }
 
-  :deep(.el-sub-menu__title:hover) {
-    background-color: #2e3033 !important;
+  :deep(.el-sub-menu__title) {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    &:hover {
+      background-color: #d7bdfd !important;
+    }
   }
   :deep(.el-menu) {
     border: 0;
@@ -183,5 +145,16 @@ watch(
   :deep(.el-menu-item.is-active) {
     background-color: unset !important;
   }
+}
+:deep(.sidebar-container .el-sub-menu__title) {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  &:hover {
+    background-color: #d7bdfd !important;
+  }
+}
+:deep(.el-icon svg) {
+  width: 20px;
+  height: 20px;
 }
 </style>
