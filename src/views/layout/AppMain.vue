@@ -6,6 +6,9 @@ const appRef = useTemplateRef('appRef')
 const scrollbarHeight = computed(() => {
   return `${(appRef.value?.getBoundingClientRect().height || 0) + 32}px`
 })
+const componentHeight = computed(() => {
+  return (appRef.value?.getBoundingClientRect().height || 0)
+})
 </script>
 
 <template>
@@ -14,7 +17,7 @@ const scrollbarHeight = computed(() => {
     <sidebar :scrollbar-height="scrollbarHeight" />
     <router-view v-slot="{ Component, route }">
       <transition name="fade-transform" mode="out-in">
-        <component :is="Component" :key="route.path" class="height" />
+        <component :is="Component" :key="route.path" class="height" :component-height="componentHeight" />
       </transition>
     </router-view>
   </section>

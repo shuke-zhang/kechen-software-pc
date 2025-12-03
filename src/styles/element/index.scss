@@ -9,6 +9,9 @@
     ),
   )
 );
+:root {
+  // --el-table-header-bg-color: red !important;
+}
 
 /**  
 *  主要作用于使用el-form时 当input 的 size 为 large 时添加large-form类名时匹配input的高度，使得他们高度相同，垂直方向上居中,可直接在form上添加large-form类名
@@ -18,4 +21,26 @@
     height: 40px !important;
     line-height: 40px !important;
   }
+}
+
+.el-table {
+  background-color: unset;
+  --el-table-header-bg-color: unset !important;
+  --el-table-border-color: #9c69ff !important;
+}
+.el-table__header-wrapper {
+  background-color: unset;
+  border-top: 1px solid #9c69ff;
+}
+.is-leaf {
+  background-color: unset;
+}
+.el-table__header tr {
+  background-color: unset !important;
+}
+.el-table tr {
+  background-color: unset !important;
+}
+.el-table-fixed-column--right {
+  background-color: #e9e3f6 !important;
 }

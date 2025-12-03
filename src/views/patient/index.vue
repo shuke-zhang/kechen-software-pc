@@ -4,7 +4,14 @@ import type { PatientModel } from '@/model/patient'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
 import { DelPatient, getPatientList } from '@/api/patient'
 import PatientDialog from './patientDialog.vue'
+import { patients } from './patients'
 
+const props = defineProps({
+  componentHeight: {
+    type: String,
+    required: true,
+  },
+})
 const { sys_user_sex, sys_education } = useDict('sys_user_sex', 'sys_education')
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -14,7 +21,14 @@ const ids = ref<number[]>([])
 const names = ref<string[]>([])
 const single = ref(true)
 const multiple = ref(true)
-const queryRef = useTemplateRef('queryEl')
+const queryRef = useTemplateRef('queryRef')
+
+const tableHeight = computed<string>(() => {
+  const el = queryRef.value?.$el as HTMLElement | undefined
+  const elHeight = el?.getBoundingClientRect().height ?? 0
+  const height = Number(props.componentHeight) - elHeight - 96 - 32
+  return `${height}px`
+})
 
 const queryParams = ref<ListPageParamsWrapper<PatientModel>>({
   page: {
@@ -44,6 +58,10 @@ function getList() {
     })
     .finally(() => {
       loading.value = false
+    })
+    .catch(() => {
+      list.value = patients
+      total.value = patients.length
     })
 }
 
@@ -96,7 +114,7 @@ onMounted(() => {
 
 <template>
   <div>
-    <el-form ref="queryEl" :inline="true" :model="queryParams" @submit.prevent>
+    <el-form ref="queryRef" :inline="true" :model="queryParams" @submit.prevent>
       <el-form-item>
         <el-input
           v-model="queryParams.name"
@@ -150,7 +168,8 @@ onMounted(() => {
         </el-button>
       </el-form-item>
     </el-form>
-    <el-table v-loading="loading" :data="list" style="width: 100%" @selection-change="handleSelectionChange">
+
+    <el-table v-loading="loading" :data="list" :max-height="tableHeight" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
       <el-table-column align="center" prop="id" label="患者编号" show-overflow-tooltip width="80" />
 
@@ -193,7 +212,6 @@ onMounted(() => {
         </template>
       </el-table-column>
     </el-table>
-
     <Pagination
       v-show="total > 0"
       v-model:page="queryParams.page.current"
