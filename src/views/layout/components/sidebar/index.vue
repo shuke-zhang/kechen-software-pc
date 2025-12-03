@@ -12,7 +12,7 @@ defineProps({
 
 const route = useRoute()
 const sidebarRef = useTemplateRef('sidebarRef')
-const currentIndex = ref('device')
+const currentIndex = ref('patient')
 
 const topNavList: {
   label: string
@@ -36,12 +36,10 @@ const sidebars = computed(() => {
   return res
 })
 
-const activeKey = ref('device')
-
-// 统一用 el-menu 的 select 事件
+const activeKey = ref('/device')
 
 onMounted(() => {
-  activeKey.value = route.name as string
+  activeKey.value = route.fullPath
 })
 </script>
 
@@ -55,6 +53,7 @@ onMounted(() => {
         mode="vertical"
         :default-active="activeKey"
         class="h-full"
+        active-text-color="#7946c7"
         style="background-color: unset;"
       >
         <sidebarItem v-for="item in sidebars" :key="item.name" v-model:current-index="currentIndex" :item="item" />

@@ -23,10 +23,12 @@ export type IconFontType = 'account-code' |
 'record' |
 'recorder' |
 'recorder-fill' |
+'refresh-line' |
 'right' |
 'round-password' |
 'round-user' |
 'search' |
+'search-line' |
 'setting' |
 'setup' |
 'share-light-2' |

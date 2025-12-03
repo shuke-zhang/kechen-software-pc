@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { DictDataCssModel } from '@/model/dict'
 import type { PatientModel } from '@/model/patient'
-import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { CircleClose, CirclePlus } from '@element-plus/icons-vue'
 import { DelPatient, getPatientList } from '@/api/patient'
 import PatientDialog from './patientDialog.vue'
 import { patients } from './patients'
 
 const props = defineProps({
   componentHeight: {
-    type: String,
+    type: Number,
     required: true,
   },
 })
@@ -154,11 +154,17 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" :icon="Search" @click="getList">
+        <el-button type="primary" @click="getList">
           查询
+          <template #icon>
+            <icon-font name="search-line" />
+          </template>
         </el-button>
-        <el-button type="primary" plain :icon="Refresh" @click="retQuery">
+        <el-button type="primary" plain @click="retQuery">
           查询重置
+          <template #icon>
+            <icon-font name="refresh-line" />
+          </template>
         </el-button>
         <el-button type="success" :icon="CirclePlus" @click="handleAdd">
           新增

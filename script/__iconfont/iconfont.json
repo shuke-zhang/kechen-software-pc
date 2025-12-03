@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "46251433",
+      "name": "重置",
+      "font_class": "refresh-line",
+      "unicode": "e635",
+      "unicode_decimal": 58933
+    },
+    {
+      "icon_id": "46251432",
+      "name": "搜索",
+      "font_class": "search-line",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
       "icon_id": "46194448",
       "name": "密码圆形",
       "font_class": "round-password",

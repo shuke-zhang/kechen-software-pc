@@ -23,6 +23,11 @@ const props = defineProps({
 })
 
 const currentIndex = defineModel('currentIndex')
+watch(() => currentIndex.value, () => {
+  console.log(currentIndex.value, 'currentIndex')
+}, {
+  immediate: true,
+})
 
 const router = useRouter()
 
@@ -54,8 +59,6 @@ function getSidebarIcon(icon: string) {
 
 /** 点击跳转 */
 function handleClick(path: string) {
-  console.log('handleClick触发', path)
-
   router.push(path)
 }
 </script>
@@ -84,7 +87,6 @@ function handleClick(path: string) {
                     bg-cover bg-center bg-no-repeat
                     shadow-[0_0_8px_rgba(0,0,0,0.4)]
                     "
-            :class="[item.name === currentIndex ? 'text-primary' : '']"
           >
             {{ item.meta.title }}
           </div>
@@ -124,7 +126,7 @@ function handleClick(path: string) {
                     bg-cover bg-center bg-no-repeat
                     shadow-[0_0_8px_rgba(0,0,0,0.4)]
                     "
-            :class="[item.name === currentIndex ? 'text-primary' : '', subItem ? 'w-[100px]!  text-[16px]! h-[36px]! ' : '']"
+            :class="[subItem ? 'w-[100px]!  text-[16px]! h-[36px]! ' : '']"
           >
             {{ item.meta.title }}
           </div>

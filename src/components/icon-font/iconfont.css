@@ -10,6 +10,14 @@
   text-align: center;
 }
 
+.icon-refresh-line:before {
+  content: "\e635";
+}
+
+.icon-search-line:before {
+  content: "\e637";
+}
+
 .icon-round-password:before {
   content: "\e633";
 }
