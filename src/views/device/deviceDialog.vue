@@ -50,10 +50,10 @@ function submit() {
     }
   })
 }
-watch(() => props.data, (newVal) => {
-  if (newVal) {
-    form.value = { ...newVal } as any
+watch(() => visible.value, (val) => {
+  if (val) {
     console.log(form.value, 'form.value')
+    form.value = { ...props.data }
   }
 })
 </script>
