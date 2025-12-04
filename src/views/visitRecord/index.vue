@@ -4,12 +4,17 @@ import type { TableColumnCtx } from 'element-plus'
 import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
 import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { addVideoAddReport, DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
-import { mockVisitRecordList } from './data'
+import { DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
+import { visitRecords } from './data'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
 type DateRange = [string, string] | undefined
-
+const props = defineProps({
+  componentHeight: {
+    type: Number,
+    required: true,
+  },
+})
 interface VisitRecordQuery extends VisitRecordModel {
   dateRange?: DateRange
 }
@@ -32,6 +37,12 @@ const queryParams = ref<ListPageParamsWrapper<VisitRecordQuery>>({
     size: 50,
   },
 
+})
+const tableHeight = computed<string>(() => {
+  const el = queryRef.value?.$el as HTMLElement | undefined
+  const elHeight = el?.getBoundingClientRect().height ?? 0
+  const height = Number(props.componentHeight) - elHeight - 96 - 32
+  return `${height}px`
 })
 function rowClassName({ row }: { row: any }) {
   return activeRowIds.value.has(row.id) ? 'isActiveRow' : ''
@@ -61,14 +72,16 @@ function getList() {
     return
   loading.value = true
   getVideoTreatList(queryParams.value).then((res) => {
-    list.value = res.data.records || mockVisitRecordList
+    list.value = res.data.records
     total.value = res.data.total
     ids.value = []
     single.value = true
     multiple.value = true
   }).finally(() => {
-    list.value = mockVisitRecordList
     loading.value = false
+  }).catch(() => {
+    list.value = visitRecords
+    total.value = visitRecords.length
   })
 }
 
@@ -177,6 +190,7 @@ onMounted(() => {
       v-loading="loading"
       :data="list"
       :row-class-name="rowClassName"
+      :max-height="tableHeight"
       @selection-change="handleSelectionChange"
       @row-click="handleRowClick"
     >

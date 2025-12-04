@@ -7,7 +7,14 @@ import VueOfficePdf from '@vue-office/pdf'
 import { saveAs } from 'file-saver'
 
 import { getReportList } from '@/api/report'
+import { mockReportList } from './data'
 
+const props = defineProps({
+  componentHeight: {
+    type: Number,
+    required: true,
+  },
+})
 export interface ReportRow {
   id?: number
   patientName?: string
@@ -39,6 +46,13 @@ const queryParams = ref<ListPageParamsWrapper<ReportModel>>({
   },
 })
 
+const tableHeight = computed<string>(() => {
+  const el = queryRef.value?.$el as HTMLElement | undefined
+  const elHeight = el?.getBoundingClientRect().height ?? 0
+  const height = Number(props.componentHeight) - elHeight - 96 - 32
+  return `${height}px`
+})
+
 function getList(): void {
   if (loading.value)
     return
@@ -48,6 +62,9 @@ function getList(): void {
     total.value = res.data.total
   }).finally(() => {
     loading.value = false
+  }).catch(() => {
+    list.value = mockReportList
+    total.value = mockReportList.length
   })
 }
 
@@ -146,7 +163,7 @@ onMounted(() => {
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="list" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :max-height="tableHeight" :data="list" @selection-change="handleSelectionChange">
       <el-table-column prop="id" label="报告编号" align="center" width="120" show-overflow-tooltip />
 
       <el-table-column prop="patientName" label="患者名称" align="center" width="120" show-overflow-tooltip />

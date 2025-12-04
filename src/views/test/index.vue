@@ -1,42 +1,14 @@
-<script lang="ts" setup>
-import { ref } from 'vue'
+<script setup lang="ts">
 
-const count = ref(300)
-
-function add() {
-  count.value++
-}
-function onDelete() {
-  if (count.value > 0) {
-    count.value--
-  }
-}
 </script>
 
 <template>
-  <el-button @click="add">
-    Add Item
-  </el-button>
-  <el-button @click="onDelete">
-    Delete Item
-  </el-button>
-  <el-scrollbar>
-    <p v-for="item in count" :key="item">
-      {{ item }}
-    </p>
-  </el-scrollbar>
+  <div class="app-container">
+    <CustomButton icon="account-code">新增</CustomButton>
+    <button>ccc</button>
+    <el-button>sss</el-button>
+  </div>
 </template>
 
-<style scoped>
-.scrollbar-demo-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50px;
-  margin: 10px;
-  text-align: center;
-  border-radius: 4px;
-  background: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
-}
+<style scoped lang="scss">
 </style>

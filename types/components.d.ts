@@ -10,6 +10,7 @@ declare module 'vue' {
     AudioRecorder: typeof import('./../src/components/AudioRecorder/AudioRecorder.vue')['default']
     'AudioRecorder copy': typeof import('./../src/components/AudioRecorder/AudioRecorder copy.vue')['default']
     copy: typeof import('./../src/components/AudioRecorder/AudioRecorder copy.vue')['default']
+    CustomButton: typeof import('./../src/components/CustomButton/CustomButton.vue')['default']
     DictTag: typeof import('./../src/components/DictTag/index.vue')['default']
     DragUploadFile: typeof import('./../src/components/DragUploadFile/DragUploadFile.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
