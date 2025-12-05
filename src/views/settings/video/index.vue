@@ -255,9 +255,9 @@ onMounted(() => {
               </div>
 
               <!-- 信息区 -->
-              <div class="flex-1 p-2 flex flex-col justify-between">
+              <div class="flex-1 p-2 flex flex-col justify-between bg-[#c7b3f3]">
                 <div class="flex items-center" :title="it.name">
-                  <div class="text-sm font-semibold line-clamp-1">
+                  <div class="text-sm font-semibold line-clamp-1 text-white">
                     {{ it.name }}
                   </div>
                   <el-tag type="info" size="small" class="ml-[4px]">
@@ -280,7 +280,7 @@ onMounted(() => {
                 <div
                   :ref="setTriggerRef(String(it.id))"
                   v-trunc="{ item: it, key: 'isTextTruncated' }"
-                  class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer"
+                  class="text-xs h-[16px] m-[4px] line-clamp-1 cursor-pointer text-white"
                 >
                   简介：{{ it.comment || '-' }}
                 </div>

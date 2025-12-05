@@ -45,13 +45,15 @@ const videoSelectLoading = ref(false)
 const rules: FormRules = {
   name: [{ required: true, trigger: 'blur', message: '请输入方案名称' }],
   planType: [{ required: true, trigger: 'blur', message: '请输入视频类别' }],
+  videoId: [{ required: true, trigger: 'blur', message: '请选择视频' }],
   departHis: [{ required: true, trigger: 'blur', message: '请输入科室编号' }],
 
 }
 
 const filterVideoSelect = computed(() => {
   if (!form.value.planType)
-    return videoSelect.value
+    return []
+
   return videoSelect.value.filter(item => item.videoType === form.value.planType)
 })
 
@@ -76,10 +78,13 @@ function submit(): void {
       return
     submitLoading.value = true
     const api = props.isAdd ? addVideoPlan : putVideoPlan
-    const data: VideoPlanModel = {
+    const data = {
       ...form.value,
+      videoId: Array.isArray(form.value.videoId) ? form.value.videoId?.join(',') : form.value.videoId,
       videoName: videoSelect.value.find(item => item.id === form.value.videoId)?.name,
     }
+    console.log(data, 'data')
+
     api(data).then(() => {
       showLoadingMessageSuccess('操作成功')
       visible.value = false
@@ -130,7 +135,7 @@ function getVideoSelect() {
   getVideoList({
     page: {
       current: 1,
-      size: 20,
+      size: 10000,
     },
   }).then((res) => {
     videoSelect.value = res.data.records
@@ -141,10 +146,13 @@ function getVideoSelect() {
 }
 
 function onVideoChange(value: number | string): void {
-  const selected = videoSelect.value.find(item => item.id === value)
-  if (selected && selected.videoType) {
-    form.value.planType = selected.videoType
+  if (!form.value.planType) {
+    showMessageInfo('请先选择视频类别')
   }
+  // const selected = videoSelect.value.find(item => item.id === value)
+  // if (selected && selected.videoType) {
+  //   form.value.planType = selected.videoType
+  // }
 }
 watch(
   () => props.data,
@@ -212,8 +220,8 @@ watch(() => visible.value, () => {
         </el-col>
 
         <el-col :span="12">
-          <el-form-item prop="videoId" style="width: 100%" size="large">
-            <template #label>
+          <el-form-item prop="videoId" style="width: 100%" size="large" label="视频">
+            <!-- <template #label>
               <span class="flex items-center">
                 <el-tooltip content="选择视频后会自动根据视频添加视频类别" placement="top">
                   <el-icon class="mr-[2px]">
@@ -221,10 +229,12 @@ watch(() => visible.value, () => {
                   </el-icon>
                 </el-tooltip>视频
               </span>
-            </template>
+            </template> -->
             <el-select
               v-model="form.videoId"
+              :loading="videoSelectLoading"
               style="width: 100%"
+              multiple
               :props="{
                 label: 'name',
                 value: 'id',

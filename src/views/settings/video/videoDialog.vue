@@ -33,7 +33,7 @@ const uploadFile = ref<UploadRow | null>(null)
 const rules = {
   name: [{ required: true, trigger: 'blur', message: '请输入视频名称' }],
   videoType: [{ required: true, trigger: 'blur', message: '请输入视频分类' }],
-  address: [{ required: true, trigger: 'blur', message: '请输入视频链接地址' }],
+  address: [{ required: true, trigger: 'blur', message: '请上传视频' }],
   comment: [{ required: true, trigger: 'blur', message: '请输入视频简介' }],
   coverLink: [{ required: true, trigger: 'blur', message: '请上传视频封面' }],
 }
@@ -42,7 +42,7 @@ function handleUploadSuccess(file: UploadRow) {
 
   if (file.status !== 'success')
     return
-  form.value.address = file.response?.data.accessPath
+  form.value.address = file.response?.data.relativePath
   form.value.videoLength = String(file.response?.data.duration) || '0'
   form.value.fileType = file.response?.data.fileExtension
 }
@@ -162,14 +162,14 @@ watch(() => visible.value, () => {
         </el-col>
       </el-row>
 
-      <el-row :gutter="20">
-        <!-- 视频链接地址 -->
+      <!-- 视频链接地址 -->
+      <!-- <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="视频地址" prop="address" style="width: 100%">
             <el-input v-model="form.address" clearable placeholder="请输入视频链接地址或上传视频自动获取地址" size="large" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <el-row :gutter="20">
         <!-- 视频简介 -->
@@ -201,7 +201,7 @@ watch(() => visible.value, () => {
 
         <!-- 上传视频· -->
         <el-col :span="16">
-          <el-form-item label="视频文件" prop="video" style="width: 100%">
+          <el-form-item label="视频文件" prop="address" style="width: 100%">
             <div class="flex  items-center w-full">
               <div class="size-[140px]">
                 <DragUploadFile ref="DragUploadFileRef" v-model:files="uploadFile" :limit="1" file-types="video" @success="handleUploadSuccess" />
@@ -236,7 +236,7 @@ watch(() => visible.value, () => {
                     <span class="truncate text-xs">上传成功后自动填充视频地址
                     </span>
                   </div>
-                  <el-button type="primary" size="small" class="ml-[5px]" plain @click="copyAddress">
+                  <el-button v-if="false" type="primary" size="small" class="ml-[5px]" plain @click="copyAddress">
                     复制
                   </el-button>
                 </div>

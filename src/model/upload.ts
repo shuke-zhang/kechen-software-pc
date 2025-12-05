@@ -46,9 +46,15 @@ export interface UploadRow {
  */
 export interface UploadFileModel {
   /**
-   * 返回的实际文件地址
+   * 返回的实际文件地址-完整路径
+   * http://192.168.3.22:11020/upload/2025/12/05/WeChat_20250515130652950737.mp4
    */
   accessPath: string
+  /**
+   * 返回的实际文件地址-截取的路径
+   * 2025/12/05/WeChat_20250515130652034241.mp4
+   */
+  relativePath: string
   /**
    * 当前文件名
    */
