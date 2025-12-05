@@ -8,6 +8,12 @@ import { DelVideoCategory, getVideoCategoryTree } from '@/api/videoCategory'
 import { getCurrentNodeTree } from '@/utils'
 import VideoCategoryDialog from './videoCategoryDialog.vue'
 
+const props = defineProps({
+  componentHeight: {
+    type: Number,
+    required: true,
+  },
+})
 const { treat_project_type } = useDict('treat_project_type')
 
 /** 分页/弹窗等状态 */
@@ -25,6 +31,13 @@ const currentPreTree = ref<VideoCategoryModel[] | null>(null)
 const queryRef = useTemplateRef('queryEl')
 const queryParams = ref<VideoCategoryModel>({
 
+})
+
+const tableHeight = computed<string>(() => {
+  const el = queryRef.value?.$el as HTMLElement | undefined
+  const elHeight = el?.getBoundingClientRect().height ?? 0
+  const height = Number(props.componentHeight) - elHeight - 96 - 32
+  return `${height}px`
 })
 /** 静态数据：模拟类别列表 */
 const list = ref<VideoCategoryModel[]>([])
@@ -143,8 +156,8 @@ onMounted(() => {
     <!-- 表格 -->
     <el-table
       v-loading="loading"
+      :max-height="tableHeight"
       :data="list"
-      style="width: 100%; margin-bottom: 20px"
       row-key="id"
       default-expand-all
       @selection-change="handleSelectionChange"

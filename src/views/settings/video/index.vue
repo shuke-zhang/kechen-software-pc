@@ -168,8 +168,8 @@ onMounted(() => {
 
 <template>
   <div>
-    <main class="h-full bg-slate-50 text-slate-900  p-4">
-      <div class="flex flex-1 ">
+    <main class="h-full bg-slate-50 text-slate-900  p-4 flex flex-col ">
+      <div>
         <el-form ref="queryRef" :inline="true" :model="queryParams" @submit.prevent>
           <el-form-item style="margin-bottom: 0;">
             <el-input
@@ -220,7 +220,7 @@ onMounted(() => {
       </div>
       <el-divider />
       <!-- 卡片区域 -->
-      <div v-loading="loading" class="min-h-[200px]" element-loading-text="加载中...">
+      <el-scrollbar v-loading="loading" class="flex-1" element-loading-text="加载中...">
         <template v-if="!loading">
           <div v-if="list.length > 0" class="grid [grid-template-columns:repeat(auto-fit,320px)] justify-start gap-[10px] min-h-[200px]">
             <article
@@ -303,8 +303,7 @@ onMounted(() => {
           </div>
           <el-empty v-else description="暂无数据" />
         </template>
-      </div>
-
+      </el-scrollbar>
       <!-- 分页 -->
       <Pagination
         v-show="total > 0"

@@ -105,36 +105,7 @@ export const routes = [
               hidden: true,
             },
           },
-          {
-            path: 'dict/data/:dictType',
-            name: 'DictData',
-            component: () => import('@/views/settings/dict/data.vue'),
-            // props: true, // 自动注册为props
-            meta: {
-              title: '字典数据',
-              hidden: true,
-            },
-          },
-          {
-            path: 's',
-            name: 'DictData',
-            component: () => import('@/views/settings/dict/data.vue'),
-            // props: true, // 自动注册为props
-            meta: {
-              title: '字典数据2',
-              hidden: true,
-            },
-          },
-          {
-            path: 's3',
-            name: 'DictData',
-            component: () => import('@/views/settings/dict/data.vue'),
-            // props: true, // 自动注册为props
-            meta: {
-              title: '字典数据3',
-              hidden: true,
-            },
-          },
+
         ],
         meta: {
           title: '设置',
