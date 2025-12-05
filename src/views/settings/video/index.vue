@@ -149,7 +149,12 @@ function openEdit(row: VideoModel) {
 const previewVisible = ref(false)
 const current = ref<VideoModel | null>(null)
 function preview(v: VideoModel) {
-  current.value = v
+  current.value = {
+    ...v,
+    address: `${__API_URL__}/upload/${v.address}`,
+  }
+  console.log(current.value, 'current.value')
+
   previewVisible.value = true
 }
 
@@ -286,7 +291,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex items-center justify-between">
-                  <div class="text-xs  mt-1">
+                  <div class="text-xs  mt-1 text-white">
                     {{ $formatDefaultDate(it.createdTime!) }}
                   </div>
                   <div class="gap-[4px]">
