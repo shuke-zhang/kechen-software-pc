@@ -16,7 +16,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@shuke~/logger": "1.2.7",
-    "@shuke~/request": "^0.0.3",
+    "@shuke~/request": "^0.0.4",
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@types/ejs": "^3.1.5",
     "@types/file-saver": "^2.0.7",

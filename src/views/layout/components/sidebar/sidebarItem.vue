@@ -64,7 +64,7 @@ function handleClick(path: string) {
 </script>
 
 <template>
-  <div>
+  <div class="sidebar-item w-full">
     <!-- 有 children → 渲染 el-sub-menu -->
     <el-sub-menu
       v-if="hasChildren"
@@ -142,5 +142,8 @@ function handleClick(path: string) {
 }
 :deep(.sidebar-container .el-sub-menu__title):hover {
   background-color: #d7bdfd !important;
+}
+.sidebar-item + .sidebar-item {
+  margin-top: 20px;
 }
 </style>

@@ -1,5 +1,4 @@
 import type { VisitRecordModel } from '@/model/visitRecord'
-
 /**
  * @description 分页查询治疗记录列表
  */
@@ -11,12 +10,24 @@ export function getVideoTreatList(data?: ListPageQuery<VisitRecordModel>) {
 }
 
 /**
- * @description 分页查询治疗记录列表
+ * @description 批量下发
  */
-export function videoIssued(params?: { id: number }) {
-  return request.get({
+export function videoIssued(idList: number[]) {
+  return request.post({
     url: '/api/videoTreat/publish',
-    params,
+    data: idList,
+
+  })
+}
+
+/**
+ * @description 批量生成报告
+ */
+export function videoReport(idList: number[]) {
+  return request.post({
+    url: '/api/videoTreat/addReport',
+    data: idList,
+
   })
 }
 

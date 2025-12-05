@@ -4,9 +4,17 @@ import type { ResponseResultData, UserCustomConfig } from './types'
 import { logger } from '@shuke~/logger'
 import { getSystemErrorMessage, HttpRequest, RequestMethodsEnum } from '@shuke~/request'
 import axios from 'axios'
+import qs from 'qs'
 
 const cancelMap = new Map<string, Canceler>()
 
+/**
+ *   paramsSerializer: {
+      serialize: (params) => {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      },
+    }, get传参
+ */
 const request = new HttpRequest<UserCustomConfig>(
   {
     baseURL: import.meta.env.VITE_API_URL,
@@ -16,6 +24,11 @@ const request = new HttpRequest<UserCustomConfig>(
     joinTime: true,
     ignoreRepeatRequest: false,
     enable401AuthGuard: true,
+    paramsSerializer: {
+      serialize: (params) => {
+        return qs.stringify(params, { arrayFormat: 'repeat' })
+      },
+    },
   },
   {
     // 请求拦截器
@@ -40,7 +53,13 @@ const request = new HttpRequest<UserCustomConfig>(
        * 添加时间戳到 get 请求
        */
       if (config.method?.toUpperCase() === RequestMethodsEnum.GET && config.joinTime) {
-        config.params = { _t: `${Date.now()}`, ...config.params }
+        const params = { _t: `${Date.now()}`, ...config.params }
+        console.log(config, 'params')
+
+        console.log(qs.stringify(config.params), 'params')
+        console.log(params, 'params2')
+
+        config.params = params
       }
 
       return config

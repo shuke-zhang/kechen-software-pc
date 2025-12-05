@@ -3,8 +3,8 @@
 import type { TableColumnCtx } from 'element-plus'
 import type { CssTypeModel } from '@/components/DictTag/index.vue'
 import type { VisitRecordModel } from '@/model/visitRecord'
-import { CircleClose, CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { DelVideoTreat, getVideoTreatList, videoIssued } from '@/api/visitRecord'
+import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
+import { DelVideoTreat, getVideoTreatList, videoIssued, videoReport } from '@/api/visitRecord'
 import { visitRecords } from './data'
 import VisitRecordDialog from './visitRecordDialog.vue'
 
@@ -27,7 +27,6 @@ const ids = ref<number[]>([])
 const single = ref(true)
 const multiple = ref(true)
 const loading = ref(false)
-const issuedLoading = ref(false)
 const queryRef = useTemplateRef('queryEl')
 const tableRef = useTemplateRef('tableRef')
 const activeRowIds = ref<Set<number | string>>(new Set())
@@ -59,10 +58,9 @@ const treatStatusCssType = computed(() => {
 })
 
 const statusOptions = [
-  { label: '草稿', value: 'draft' },
-  { label: '启用', value: 'active' },
-  { label: '暂停', value: 'paused' },
-  { label: '已归档', value: 'archived' },
+  { label: '未开始', value: 0 },
+  { label: '进行中', value: 1 },
+  { label: '已完成', value: 2 },
 ]
 
 const list = ref<VisitRecordModel[]>([])
@@ -107,16 +105,19 @@ function handleDel(_ids: number[] | VisitRecordModel) {
   })
 }
 
-function handleIssued(item: VisitRecordModel) {
-  if (issuedLoading.value)
-    return
-  issuedLoading.value = true
-  videoIssued({
-    id: item.id!,
-  }).then((_res) => {
-    getList()
-  }).finally(() => {
-    issuedLoading.value = false
+function handleBatchIssued(_ids: number[] | VisitRecordModel) {
+  const ids = Array.isArray(_ids) ? _ids : [_ids.id!]
+
+  videoIssued(ids).then((res) => {
+    console.log('操作成功', res)
+  })
+}
+
+function handleBatchReport(_ids: number[] | VisitRecordModel) {
+  const ids = Array.isArray(_ids) ? _ids : [_ids.id!]
+
+  videoReport(ids).then((res) => {
+    console.log('操作成功', res)
   })
 }
 
@@ -162,10 +163,11 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item>
-        <el-select v-model="queryParams.status" placeholder="状态" clearable filterable style="width: 140px">
+        <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 140px" @change="getList">
           <el-option v-for="opt in statusOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
       </el-form-item>
+
       <el-form-item>
         <el-date-picker v-model="queryParams.dateRange" type="datetimerange" range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" value-format="YYYY-MM-DD HH:mm:ss" />
       </el-form-item>
@@ -179,8 +181,13 @@ onMounted(() => {
         <el-button type="success" :icon="CirclePlus" @click="handleAdd">
           新增
         </el-button>
-        <el-button type="danger" :disabled="ids.length <= 0" :icon="CircleClose" @click="handleDel(ids)">
-          删除
+
+        <el-button type="primary" @click="handleBatchIssued(ids)">
+          批量下发
+        </el-button>
+        <!-- :disabled="ids.length <= 0" -->
+        <el-button type="primary" :disabled="ids.length <= 0" @click="handleBatchReport(ids)">
+          批量生成
         </el-button>
       </el-form-item>
     </el-form>
@@ -196,11 +203,15 @@ onMounted(() => {
     >
       <el-table-column type="selection" width="55" />
 
-      <el-table-column prop="id" label="编号" align="center" width="90" />
+      <el-table-column prop="id" label="编号" align="center" width="60" />
+
+      <el-table-column prop="orderTreatNumber" label="开单号" align="center" width="120" show-overflow-tooltip />
 
       <el-table-column prop="patientName" label="患者" align="center" width="120" show-overflow-tooltip />
 
-      <el-table-column prop="devicePicoId" label="设备" align="center" width="160" show-overflow-tooltip />
+      <el-table-column prop="treatDepart" label="诊疗项" align="center" width="140" :formatter="$formatterTableEmpty" />
+
+      <el-table-column prop="picoNumber" label="设备" align="center" width="160" show-overflow-tooltip />
 
       <el-table-column prop="planName" label="视频方案" align="center" show-overflow-tooltip />
 
@@ -214,8 +225,6 @@ onMounted(() => {
 
       <el-table-column prop="executeDoctor" label="执行医生姓名" align="center" width="140" />
 
-      <el-table-column prop="treatDepart" label="诊疗项" align="center" width="140" :formatter="$formatterTableEmpty" />
-
       <el-table-column prop="diagnostic" label="诊断内容" align="center" width="120" />
 
       <el-table-column prop="comment" label="备注" align="center" width="180" :formatter="$formatterTableEmpty" show-overflow-tooltip />
@@ -226,11 +235,11 @@ onMounted(() => {
 
       <el-table-column label="操作" align="center" width="220" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status === 0" size="small" type="primary" @click="handleIssued(row)">
+          <el-button v-if="row.status === 0" size="small" type="primary" @click="handleBatchIssued(row)">
             下发
           </el-button>
 
-          <el-button size="small" type="primary" @click="handlePut(row)">
+          <el-button v-if="row.status === 0" size="small" type="primary" @click="handlePut(row)">
             修改
           </el-button>
           <el-button size="small" type="danger" @click="handleDel(row)">
